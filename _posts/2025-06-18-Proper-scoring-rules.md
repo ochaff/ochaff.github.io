@@ -12,5 +12,26 @@ This is a sample blog post. You can talk about all sorts of fun things here.
 
 [3D-plot](https://ochaff.github.io/ochaff.github.io/figure.html)
 
-<iframe src="/figure.html"
-        width="100%" height="600" frameborder="0"></iframe>
+---
+
+## 3D random walk
+
+<iframe src="/3d_random_walk.html"
+        width="100%" height="800" frameborder="0"></iframe>
+
+---
+## Structured trajectory
+
+<iframe src="/structured_walk.html"
+        width="100%" height="800" frameborder="0"></iframe>
+
+---
+## Hierarchical time series
+
+<iframe src="/hierarchical_ts.html"
+        width="100%" height="800" frameborder="0"></iframe>
+
+---
+## Hierarchical time series reconciliation
+<iframe src="/forecast_reconciliation.html"
+        width="100%" height="800" frameborder="0"></iframe>
