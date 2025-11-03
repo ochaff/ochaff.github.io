@@ -10,3 +10,4 @@ This is a sample blog post. You can talk about all sorts of fun things here.
 
 ### This is a header
 
+[3D-plot](https://ochaff.github.io/ochaff.github.io/figure.html)
