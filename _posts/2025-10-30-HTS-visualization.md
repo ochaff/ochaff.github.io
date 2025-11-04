@@ -6,6 +6,15 @@
 
 Multivariate time series define unique trajectories in phase space. Looking at phase space can help unveil structure in the dynamics of the studied signal. 
 
+
+### Lorenz Attractor
+
+### Time series
+![](https://ochaff.github.io/figures/anim_full.gif)
+
+### Trajectory
+![](https://ochaff.github.io/figures/anim_lorenz.gif)
+
 ---
 
 ## 3D random walk
