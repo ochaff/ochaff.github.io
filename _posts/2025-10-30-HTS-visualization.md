@@ -11,21 +11,21 @@ Multivariate time series define unique trajectories in phase space. Looking at p
 ## 3D random walk
 
 <iframe src="https://ochaff.github.io/figures/3d_random_walk.html"
-        width="100%" height="800" frameborder="0"></iframe>
+        width="100%" height="700" frameborder="0"></iframe>
 
 ---
 ## Structured trajectory
 
 <iframe src="https://ochaff.github.io/figures/structured_walk.html"
-        width="100%" height="800" frameborder="0"></iframe>
+        width="100%" height="700" frameborder="0"></iframe>
 
 ---
 ## Hierarchical time series
 
 <iframe src="https://ochaff.github.io/figures/hierarchical_ts.html"
-        width="100%" height="800" frameborder="0"></iframe>
+        width="100%" height="700" frameborder="0"></iframe>
 
 ---
 ## Hierarchical time series reconciliation
 <iframe src="https://ochaff.github.io/figures/forecast_reconciliation.html"
-        width="100%" height="800" frameborder="0"></iframe>
+        width="100%" height="700" frameborder="0"></iframe>
