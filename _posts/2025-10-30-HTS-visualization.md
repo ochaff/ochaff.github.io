@@ -5,7 +5,7 @@
 
 Real forecasting tasks typically involve a large number of time series. Think of the relevant time series to electricity generation in the US: total generated per state/region, per fuel source, per ultimate customer (industrial or residential). All of these series are related: the state-level generation adds up to the regional generation, which should add up to the national total. This structured collection of time series, connected by aggregation rules, is what we call **Hierarchical Time Series**.
 
-Hierarchical time series appear everywhere: finance (portfolio → sector → asset), retail (company → region → store → product), energy (country → region → substation), and operations (organization → department → team). The hierarchy encodes how finer-grained series roll up into higher-level summaries, and that structure is both a constraint and an opportunity for better forecasting.
+Hierarchical time series appear everywhere: finance (portfolio → sector → asset), retail (company → region → store → product), energy (country → region → substation), and operations (organization → department → team). The hierarchy encodes how finer-grained series roll up into higher-level summaries, and that structure is both a **constraint** and an **opportunity** for better forecasting.
 
 ![](https://ochaff.github.io/figures/combined_ITC.png)
 <div style="text-align: center;font-style:italic">
@@ -74,11 +74,22 @@ $$
 $$
 
 
-<div style="text-align: center;font-style:italic">
+<div style="text-align: center;font-style:italic;margin-bottom:20px">
 Example summing matrix for the Italian region hierarchy. In red are highlighted the time series related to north west macro-region. Note that the bottom part is the identity matrix, while the top parts dictates which bottom time series are each aggregate's children.
 </div>
 
 
+One of the core issues in hierarchical time series forecasting is that forecasts are **not coherent by default**. This mathematical formulation of what coherence means also gives a natural way to reconcile incoherent forecasts. Indeed since a coherent hierarchy is fully defined by its bottom level components we simply need to map our incoherent forecasts $\hat{\mathbf{y}}_t$ to the bottom level $\hat{\mathbf{b}}_t = G\hat{\mathbf{y}}_t$. Thus we recover coherent forecasts : 
+
+$$
+\begin{align}
+\tilde{\mathbf{y}}_t = S\hat{\mathbf{b}}_t = SG \hat{\mathbf{y}}_t
+\end{align}
+$$
+
+**Note** : $G$ is an $m\times n$ matrix which essentially dictates which forecasts will be used in the reconstruction of the bottom series and describes the reconciliation method. The simplest method one can conceive is the **Bottom-Up** method where only the bottom level forecasts are used ($G$ corresponds to the identity matrix on the bottom levels).
+
+While this formalism is useful in practice when forecasting hierarchical time series. I will propose a geometric definition of incoherence, which visually explains forecast reconciliation using **phase space**.  
 
 
 ## Introduction to Phase Space 
