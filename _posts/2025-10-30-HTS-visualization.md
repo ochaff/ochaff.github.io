@@ -94,8 +94,15 @@ While this formalism is useful in practice when forecasting hierarchical time se
 
 ## Introduction to Phase Space 
 
-Multivariate time series define unique trajectories in phase space. Looking at phase space can help unveil structure in the dynamics of the studied signal. 
+In physics, phase space is the abstract space whose **coordinates** are all the possible values of a system’s observables, so that each point in phase space represents one **unique possible state** of the system.
 
+In other words, we can think of a physical dynamic system as a group of observable signals (multivariate time series). Instead of representing the system as a collection of 1-dimensional signals, physicists view the system as its trajectory through phase space. 
+
+![](https://ochaff.github.io/figures/mass_spring_phase_space.gif)
+
+<div style="text-align: center;font-style:italic;margin-bottom:20px">
+Phase space diagram
+</div>
 
 ### Lorenz Attractor
 
