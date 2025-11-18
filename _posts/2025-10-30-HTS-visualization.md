@@ -28,29 +28,54 @@ $$
 
 
 $$
-\begin{align}
-\mathbf{S}=
-\left[
-\begin{array}{cccccccccc}
-{\color{red}1} & {\color{red}1} & {\color{red}1} & {\color{red}1} & 1 & \cdots & 1 & \cdots & 1 & \cdots \\[4pt]
-{\color{red}1} & {\color{red}1} & {\color{red}1} & {\color{red}1} & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[4pt]
-0 & 0 & 0 & 0 & 1 & \cdots & 1 & \cdots & 0 & \cdots \\[4pt]
-0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots & 1 & \cdots \\[4pt]
-\vdots & \vdots & \vdots & \vdots & \vdots & & \vdots & & \vdots & \\[4pt]
+\underbrace{
+\begin{bmatrix}
+\mathrm{IT}_t \\[2pt]
+\color{red}{\mathrm{ITC}_t} \\[2pt]
+\mathrm{ITF}_t \\[2pt]
+\mathrm{ITG}_t \\[2pt]
+\mathrm{ITH}_t \\[2pt]
+\mathrm{ITI}_t \\[4pt]
+\color{salmon}{\mathrm{ITC1}_t} \\[2pt]
+\color{coral}{\mathrm{ITC2}_t} \\[2pt]
+\color{crimson}{\mathrm{ITC3}_t} \\[2pt]
+\color{maroon}{\mathrm{ITC4}_t} \\[2pt]
+\vdots
+\end{bmatrix}
+}_{\mathbf{y}_t}
+=
+\underbrace{
+\begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & \cdots & 1 & \cdots \\[4pt]
+\color{red}{1} & \color{red}{1} & \color{red}{1} & \color{red}{1} & 0 & \cdots & 0 & \cdots \\[4pt]
+0 & 0 & 0 & 0 & 1 & \cdots & 1 & \cdots \\[4pt]
+0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots \\[4pt]
+0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots \\[4pt]
+0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots \\[4pt]
 \hline
-{\color{red}1} & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
-0 & {\color{red}1} & 0 & 0 & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
-0 & 0 & {\color{red}1} & 0 & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
-0 & 0 & 0 & {\color{red}1} & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
-0 & 0 & 0 & 0 & 1 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
-\vdots & \vdots & \vdots & \vdots & \vdots & \ddots & \vdots & & \vdots & \\[2pt]
-0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots & 1 & \cdots
-\end{array}
-\right]
-\end{align}
+\color{salmon}{1} & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & \color{coral}{1} & 0 & 0 & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & 0 & \color{crimson}{1} & 0 & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & 0 & 0 & \color{maroon}{1} & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & 0 & 0 & 0 & 1 & \cdots & 0 & \cdots \\[2pt]
+\vdots & \vdots & \vdots & \vdots & \vdots & \ddots & \vdots & \\[2pt]
+0 & 0 & 0 & 0 & 0 & \cdots & 1 & \cdots
+\end{bmatrix}
+}_{\mathbf{S}}
+\underbrace{
+\begin{bmatrix}
+\color{salmon}{\mathrm{ITC1}_t} \\[2pt]
+\color{coral}{\mathrm{ITC2}_t} \\[2pt]
+\color{crimson}{\mathrm{ITC3}_t} \\[2pt]
+\color{maroon}{\mathrm{ITC4}_t} \\[2pt]
+\vdots
+\end{bmatrix}
+}_{\mathbf{b}_t}
 $$
+
+
 <div style="text-align: center;font-style:italic">
-Example summing matrix for the Italian region hierarchy. In red are highlighted the time series related to north west macro-region. Note that the bottom part is the identity matrix, while the top parts dictates which bottom time series are each aggregates children.
+Example summing matrix for the Italian region hierarchy. In red are highlighted the time series related to north west macro-region. Note that the bottom part is the identity matrix, while the top parts dictates which bottom time series are each aggregate's children.
 </div>
 
 
