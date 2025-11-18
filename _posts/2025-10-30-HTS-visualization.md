@@ -7,9 +7,48 @@ Real forecasting tasks typically involve a large number of time series. Think of
 
 Hierarchical time series appear everywhere: finance (portfolio → sector → asset), retail (company → region → store → product), energy (country → region → substation), and operations (organization → department → team). The hierarchy encodes how finer-grained series roll up into higher-level summaries, and that structure is both a constraint and an opportunity for better forecasting.
 
-
 ![](https://ochaff.github.io/figures/combined_ITC.png)
-## Visualization of 3d trajectories 
+<div style="text-align: center;font-style:italic">
+Truncated hierarchy of Italian regions highlighting the North West macro-region and its children regions (Vallee d'Aoste,Piemonte,Liguria,Lombardia) 
+</div>
+
+In order to define mathematically a hierarchical system we need to notice that all time series in the hierarchy are defined as sums of some the bottom level series (most disaggregated).
+
+Thus given $\mathbf{y}_t \in \mathbb{R}^n$ the vector of all time series and $\mathbf{b}_t \in \mathbb{R}^m$ the vector of bottom time series (note $m<n$). The hierarchy is fully defined by the summing matrix $S$ s.t. 
+
+
+$\mathbf{y}_t = S \mathbf{b}_t $
+
+$$
+\begin{align}
+sin⁡(α)={opposite \over hypotenuse}={h0 \over c}={h2 \over b}
+\end{align}
+$$
+
+$
+\mathbf{S}=
+\left[
+\begin{array}{cccccccccc}
+{\color{red}1} & {\color{red}1} & {\color{red}1} & {\color{red}1} & 1 & \cdots & 1 & \cdots & 1 & \cdots \\[4pt]
+{\color{red}1} & {\color{red}1} & {\color{red}1} & {\color{red}1} & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[4pt]
+0 & 0 & 0 & 0 & 1 & \cdots & 1 & \cdots & 0 & \cdots \\[4pt]
+0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots & 1 & \cdots \\[4pt]
+\vdots & \vdots & \vdots & \vdots & \vdots & & \vdots & & \vdots & \\[4pt]
+\hline
+{\color{red}1} & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & {\color{red}1} & 0 & 0 & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & 0 & {\color{red}1} & 0 & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & 0 & 0 & {\color{red}1} & 0 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
+0 & 0 & 0 & 0 & 1 & \cdots & 0 & \cdots & 0 & \cdots \\[2pt]
+\vdots & \vdots & \vdots & \vdots & \vdots & \ddots & \vdots & & \vdots & \\[2pt]
+0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots & 1 & \cdots
+\end{array}
+\right]
+$
+
+
+
+## Introduction to Phase Space 
 
 Multivariate time series define unique trajectories in phase space. Looking at phase space can help unveil structure in the dynamics of the studied signal. 
 
