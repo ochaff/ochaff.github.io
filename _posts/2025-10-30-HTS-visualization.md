@@ -17,15 +17,18 @@ In order to define mathematically a hierarchical system we need to notice that a
 Thus given $\mathbf{y}_t \in \mathbb{R}^n$ the vector of all time series and $\mathbf{b}_t \in \mathbb{R}^m$ the vector of bottom time series (note $m<n$). The hierarchy is fully defined by the summing matrix $S$ s.t. 
 
 
-$\mathbf{y}_t = S \mathbf{b}_t $
 
 $$
 \begin{align}
-sin⁡(α)={opposite \over hypotenuse}={h0 \over c}={h2 \over b}
+\mathbf{y}_t = S \mathbf{b}_t \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\; \|\mathbf{y}_t - S\mathbf{b}_t\| = \mathrm{C}_t = 0
 \end{align}
 $$
 
-$
+**Note** : Forecasts are not always coherent ($\mathrm{C}_t \neq 0$). $\mathrm{C}_t$ measures the incoherence or the distance from the hierarchical structure for each possible set of values
+
+
+$$
+\begin{align}
 \mathbf{S}=
 \left[
 \begin{array}{cccccccccc}
@@ -44,7 +47,12 @@ $
 0 & 0 & 0 & 0 & 0 & \cdots & 0 & \cdots & 1 & \cdots
 \end{array}
 \right]
-$
+\end{align}
+$$
+<div style="text-align: center;font-style:italic">
+Example summing matrix for the Italian region hierarchy. In red are highlighted the time series related to north west macro-region. Note that the bottom part is the identity matrix, while the top parts dictates which bottom time series are each aggregates children.
+</div>
+
 
 
 
