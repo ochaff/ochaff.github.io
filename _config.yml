@@ -21,8 +21,10 @@ theme: "minima"
 rss: rss
 
 kramdown:
-  syntax_highlighter_opts:
-    disable: true
+  math_engine: mathjax
+  syntax_highlighter: rouge
+  # syntax_highlighter_opts:
+  #   disable: true
     
 plugins:
   - jekyll-feed
