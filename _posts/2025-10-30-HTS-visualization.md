@@ -1,7 +1,14 @@
-## HTS Visualization
-
+## Unveiling The Structure of Hierarchcical Time Series
 ---
 
+## Hierarchical Time Series 
+
+Real forecasting tasks typically involve a large number of time series. Think of the relevant time series to electricity generation in the US: total generated per state/region, per fuel source, per ultimate customer (industrial or residential). All of these series are related: the state-level generation adds up to the regional generation, which should add up to the national total. This structured collection of time series, connected by aggregation rules, is what we call **Hierarchical Time Series**.
+
+Hierarchical time series appear everywhere: finance (portfolio → sector → asset), retail (company → region → store → product), energy (country → region → substation), and operations (organization → department → team). The hierarchy encodes how finer-grained series roll up into higher-level summaries, and that structure is both a constraint and an opportunity for better forecasting.
+
+
+![](https://ochaff.github.io/figures/combined_ITC.png)
 ## Visualization of 3d trajectories 
 
 Multivariate time series define unique trajectories in phase space. Looking at phase space can help unveil structure in the dynamics of the studied signal. 
