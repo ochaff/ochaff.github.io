@@ -101,28 +101,46 @@ In other words, we can think of a physical dynamic system as a group of observab
 ![](https://ochaff.github.io/figures/mass_spring_phase_space.gif)
 
 <div style="text-align: center;font-style:italic;margin-bottom:20px">
-Phase space diagram
+Phase space diagram of a simple mass-spring oscillator. The diagram directly reveals the symmetry and stability of the system.
 </div>
+
+Let's now look at a more complex system:
 
 ### Lorenz Attractor
 
-### Time series
+The Lorenz system was uncovered by Edward Lorenz while studying a simple model of athmospheric convection. 
+It is a system of 3 coupled non-linear differential equations with observables : $\mathbf{X} = (x,y,z)$  
+
+$$
+\frac{d\mathbf{X}}{dt} = \mathbf{AX} \;\;\;\;\;\;\;\;\;\; \mathbf{A} =  \begin{pmatrix}
+-\sigma & \sigma & 0 \\
+ \rho-z & -1 & -x \\
+ y & x & -\beta \\
+\end{pmatrix}
+$$
+
+This dynamic system is the most famous example of a **chaotic system** : despite being fully deterministic, the trajectories never repeat and are extremely sensitive to initial conditions. 
+
 ![](https://ochaff.github.io/figures/anim_full.gif)
 
-### Trajectory
+When observing the time series of each coordinate, the dynamics may appear random. However, the phase space trajectory reveals the structure inherent to the system, the **Lorenz attractor**. The system orbits this attractor shaped like a butterfly. Phase space reveals an **underlying structure** which does not appear when observing the time series themselves.
+
 ![](https://ochaff.github.io/figures/anim_lorenz.gif)
 
+Let's use this to visualize some multivariate time series. We will focus on 3 time series systems which can be visualized as a 3D trajectory. 
+
 ---
+
 
 ## 3D random walk
 
+The simplest system one can use is 3 AR(0) time series. 
+
+![](https://ochaff.github.io/figures/AR0.png)
+
+The trajectory does not reveal any structure as expected, showing the trajectory of a 3D-random walk.
+
 <iframe src="https://ochaff.github.io/figures/3d_random_walk.html"
-        width="100%" height="700" frameborder="0"></iframe>
-
----
-## Structured trajectory
-
-<iframe src="https://ochaff.github.io/figures/structured_walk.html"
         width="100%" height="700" frameborder="0"></iframe>
 
 ---
