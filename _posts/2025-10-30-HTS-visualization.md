@@ -178,10 +178,17 @@ The hierarchy constrains the trajectory to the plane $z=x+y$ thus the system as 
 ---
 ## Hierarchical time series reconciliation
 
-In order to visualize the necessity for hierarchical reconciliation, let us first forecast the 3 time series independently. We fit an ARIMA model on $x(t),y(t),z(t)$. At first glance the 
+In order to visualize the necessity for hierarchical reconciliation, let us first forecast the 3 time series independently. We fit an ARIMA model on $x(t),y(t),z(t)$. 
 
 ![](https://ochaff.github.io/figures/ARIMA_forecast.png)
 
+At first glance the forecast looks good, which is to be expected given the simple data we generated. However looking again at the trajectory, one can immediately view the incoherence. The ARIMA forecast is made of values the system **cannot be in**. Thus appears the reason why forecast reconciliation is useful, and often results in **improvement in performance**. 
 
 <iframe src="https://ochaff.github.io/figures/forecast_reconciliation.html"
         width="100%" height="700" frameborder="0"></iframe>
+
+This interactive plot visually shows two of the most common hierarchical reconciliation methods namely **Bottom-Up** and **GTOP** or projection based reconciliation.
+
+**Bottom-Up** consists in keeping the values of $x(t)$ and $y(t)$ fixed and setting $z(t) = x(t) + y(t)$. This is the simplest reconciliation method (one can observe that the reconciled forecast is lined up vertically with the original)
+
+**GTOP** consists in projecting the forecast on the coherent plane. One can see the reconciled forecast is lined up  with the original perpendicularly to the plane $z(t)=x(t)+y(t)$. 
