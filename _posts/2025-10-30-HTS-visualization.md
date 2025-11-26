@@ -138,13 +138,36 @@ The simplest system one can use is 3 AR(0) time series.
 
 ![](https://ochaff.github.io/figures/AR0.png)
 
-The trajectory does not reveal any structure as expected, showing the trajectory of a 3D-random walk.
+The trajectory does not reveal any structure as expected, showing the trajectory of a 3D-random walk. Given enough time, the trajectory would explore every possible positions.
 
 <iframe src="https://ochaff.github.io/figures/3d_random_walk.html"
         width="100%" height="700" frameborder="0"></iframe>
 
 ---
 ## Hierarchical time series
+
+Let us now look at 3 (semi)-realistic time series related by hierarchical constraints. With 3 nodes only one hierarchy can be constructed : 
+two bottom level time series and one aggregate total. 
+
+$$
+\begin{bmatrix} z_t \\ x_t \\ y_t \end{bmatrix} = \begin{bmatrix} 
+1 & 1 \\
+1 & 0 \\
+0 & 1
+\end{bmatrix} \begin{bmatrix}x_t\\y_t\end{bmatrix}
+$$
+
+We define our base signals as periodic with gaussian noise ($\eta(t), \chi(t) \in \mathcal{N}(0,1)$) :
+
+$$
+\left\{\begin{matrix}
+x(t) = \mathrm{sin}(\frac{t}{2}) +  \mathrm{cos}(\frac{t}{5}) + \eta(t) \\
+y(t) = \mathrm{sin}(\frac{t}{3}) +  \mathrm{cos}(\frac{t}{2}) + \chi(t) \\
+z(t) = x(t) + y(t)
+\end{matrix}\right.
+$$
+
+![](https://ochaff.github.io/figures/Hierarchical_TS.png)
 
 <iframe src="https://ochaff.github.io/figures/hierarchical_ts.html"
         width="100%" height="700" frameborder="0"></iframe>
