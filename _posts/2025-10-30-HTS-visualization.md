@@ -1,4 +1,4 @@
-## Unveiling The Structure of Hierarchcical Time Series
+## Unveiling The Structure of Hierarchical Time Series
 ---
 
 ## Hierarchical Time Series 
@@ -146,8 +146,7 @@ The trajectory does not reveal any structure as expected, showing the trajectory
 ---
 ## Hierarchical time series
 
-Let us now look at 3 (semi)-realistic time series related by hierarchical constraints. With 3 nodes only one hierarchy can be constructed : 
-two bottom level time series and one aggregate total. 
+Let us now look at 3 (semi)-realistic time series related by hierarchical constraints. With 3 nodes only one hierarchy can be constructed : two bottom level time series and one aggregate total. 
 
 $$
 \begin{bmatrix} z_t \\ x_t \\ y_t \end{bmatrix} = \begin{bmatrix} 
@@ -169,10 +168,20 @@ $$
 
 ![](https://ochaff.github.io/figures/Hierarchical_TS.png)
 
+While nothing special appears when looking at the time series, the 3D trajectory quickly reveals the structure. 
+
 <iframe src="https://ochaff.github.io/figures/hierarchical_ts.html"
         width="100%" height="700" frameborder="0"></iframe>
 
+The hierarchy constrains the trajectory to the plane $z=x+y$ thus the system as whole only lives in **2 dimensions**. 
+
 ---
 ## Hierarchical time series reconciliation
+
+In order to visualize the necessity for hierarchical reconciliation, let us first forecast the 3 time series independently. We fit an ARIMA model on $x(t),y(t),z(t)$. At first glance the 
+
+![](https://ochaff.github.io/figures/ARIMA_forecast.png)
+
+
 <iframe src="https://ochaff.github.io/figures/forecast_reconciliation.html"
         width="100%" height="700" frameborder="0"></iframe>
