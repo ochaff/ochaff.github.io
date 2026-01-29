@@ -4,5 +4,6 @@
 ## Curve tripool historical data
 
 <iframe src="https://ochaff.github.io/figures/crv_balance.html"
-        width="100%" frameborder="0"></iframe>
+        width="1200" height="600" frameborder="0"></iframe>
 
+        
