@@ -12,4 +12,4 @@
 
 
 <iframe src="https://ochaff.github.io/figures/uni_liquidity.html"
-        width="1200" height="800" frameborder="0"></iframe>
+        width="1300" height="1000" frameborder="0"></iframe>
