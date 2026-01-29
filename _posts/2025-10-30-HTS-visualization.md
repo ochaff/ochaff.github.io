@@ -192,3 +192,5 @@ This interactive plot visually shows two of the most common hierarchical reconci
 **Bottom-Up** consists in keeping the values of $x(t)$ and $y(t)$ fixed and setting $z(t) = x(t) + y(t)$. This is the simplest reconciliation method (one can observe that the reconciled forecast is lined up vertically with the original)
 
 **GTOP** consists in projecting the forecast on the coherent plane. One can see the reconciled forecast is lined up  with the original perpendicularly to the plane $z(t)=x(t)+y(t)$. 
+
+
