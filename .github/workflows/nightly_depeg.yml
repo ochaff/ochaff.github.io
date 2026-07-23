@@ -64,12 +64,11 @@ jobs:
         run: |
           mkdir -p preprocessed_datasets
           python build_dataset.py \
-            --alpha 0.4 \
+            --alpha 0.1 \
             --target \
             --target_window 24 \
-            --target_threshold 5 \
+            --target_threshold 15 \
             --depeg_side both \
-            --dynamic_threshold \
             --dataset_path ./preprocessed_datasets
 
       # ── 5. Train RF + generate dashboard JSON ────────────────────────────────
