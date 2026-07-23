@@ -1,0 +1,92 @@
+name: Nightly Depeg Monitor Update
+
+on:
+  schedule:
+    # 02:00 UTC every day — after midnight data releases
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      skip_data_update:
+        description: 'Skip the data download step (use existing data)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python setup ──────────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install \
+            pandas \
+            numpy \
+            scipy \
+            scikit-learn \
+            shap \
+            pyarrow \
+            requests
+
+      # ── 3. Download latest on-chain data ────────────────────────────────────
+      - name: Download latest data
+        if: ${{ github.event.inputs.skip_data_update != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.DATA_DOWNLOAD_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          sudo apt-get install -y unzip
+          bash update_data.sh
+        # NOTE: If the stablecoin-onchain-data repo is private, add a
+        # repository secret called DATA_DOWNLOAD_TOKEN containing a PAT
+        # with "repo" read scope for that organisation.
+
+      # ── 4. Build dataset ─────────────────────────────────────────────────────
+      - name: Build preprocessed dataset
+        run: |
+          mkdir -p preprocessed_datasets
+          python build_dataset.py \
+            --alpha 0.4 \
+            --target \
+            --target_window 24 \
+            --target_threshold 5 \
+            --depeg_side both \
+            --dynamic_threshold \
+            --dataset_path ./preprocessed_datasets
+
+      # ── 5. Train RF + generate dashboard JSON ────────────────────────────────
+      - name: Train Random Forest and generate dashboard data
+        run: |
+          mkdir -p dashboard_data
+          python train_rf.py
+
+      # ── 6. Commit dashboard data ─────────────────────────────────────────────
+      - name: Commit and push dashboard data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboard_data/rf_results.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update depeg dashboard [skip ci]"
+            git push
+          fi
