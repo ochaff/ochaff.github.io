@@ -1,9 +1,9 @@
-name: Nightly Depeg Monitor Update
+name: Depeg Monitor Update
 
 on:
-  schedule:
-    # 02:00 UTC every day — after midnight data releases
-    - cron: '0 2 * * *'
+  # The data repository should send this event after publishing a release.
+  repository_dispatch:
+    types: [data-release]
   workflow_dispatch:
     inputs:
       skip_data_update:
@@ -19,16 +19,13 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Dataset construction is memory-intensive and can exceed one hour.
+    timeout-minutes: 180
 
     steps:
-      # ── 1. Checkout ─────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── 2. Python setup ──────────────────────────────────────────────────────
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -46,37 +43,23 @@ jobs:
             pyarrow \
             requests
 
-      # ── 3. Download latest on-chain data ────────────────────────────────────
-      - name: Download latest data
+      - name: Download latest on-chain data
         if: ${{ github.event.inputs.skip_data_update != 'true' }}
-        env:
-          GH_TOKEN: ${{ secrets.DATA_DOWNLOAD_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          sudo apt-get install -y unzip
-          bash update_data.sh
-        # NOTE: If the stablecoin-onchain-data repo is private, add a
-        # repository secret called DATA_DOWNLOAD_TOKEN containing a PAT
-        # with "repo" read scope for that organisation.
+        run: bash update_data.sh
 
-      # ── 4. Build dataset ─────────────────────────────────────────────────────
-      - name: Build preprocessed dataset
-        run: |
-          mkdir -p preprocessed_datasets
-          python build_dataset.py \
-            --alpha 0.1 \
-            --target \
-            --target_window 24 \
-            --target_threshold 15 \
-            --depeg_side both \
-            --dataset_path ./preprocessed_datasets
-
-      # ── 5. Train RF + generate dashboard JSON ────────────────────────────────
+      # train_rf.py builds the exact dataset it trains on, so avoid duplicate
+      # alpha=0.1 dataset construction.
       - name: Train Random Forest and generate dashboard data
+        env:
+          OMP_NUM_THREADS: 2
+          OPENBLAS_NUM_THREADS: 2
+          MKL_NUM_THREADS: 2
+          NUMEXPR_NUM_THREADS: 2
+          PYTHONUNBUFFERED: '1'
         run: |
           mkdir -p dashboard_data
-          python train_rf.py
+          python -u train_rf.py
 
-      # ── 6. Commit dashboard data ─────────────────────────────────────────────
       - name: Commit and push dashboard data
         run: |
           git config user.name  "github-actions[bot]"
