@@ -3,6 +3,68 @@ hr {
   margin-bottom: 20px;
 }
 
+/* ── Depeg monitor card on homepage ──────────────────────────────────────── */
+.depeg-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 32px;
+  background: #fafafa;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .15s, box-shadow .15s;
+}
+.depeg-card:hover {
+  border-color: #aaa;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  text-decoration: none;
+  color: inherit;
+}
+.depeg-card-left { flex: 1; min-width: 0; }
+.depeg-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.depeg-card-desc {
+  font-size: .85rem;
+  color: #555;
+  line-height: 1.4;
+}
+.depeg-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.depeg-prob {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.depeg-band {
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.depeg-cta {
+  font-size: .8rem;
+  color: #2a78d6;
+  white-space: nowrap;
+}
+.depeg-card-loading { color: #999; font-size: .85rem; }
+@media (max-width: 540px) {
+  .depeg-card { flex-direction: column; align-items: flex-start; }
+  .depeg-card-right { align-items: flex-start; }
+}
+
 /* Post navigation links */
 .post_navi {
   display: flex;

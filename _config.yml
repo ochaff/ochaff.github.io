@@ -18,6 +18,9 @@ linkedin_username: "owen-chaffard"
 #########################################################################################
 theme: "minima"
 
+header_pages:
+  - depeg-monitor.html
+
 rss: rss
 
 kramdown:
