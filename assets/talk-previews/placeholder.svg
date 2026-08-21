@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Talk preview placeholder</title>
+  <desc id="desc">A geometric blue and red abstract preview placeholder.</desc>
+  <rect width="960" height="540" fill="#edf3ff"/>
+  <path d="M0 411C126 371 200 445 333 334S520 215 620 270 773 199 960 64" fill="none" stroke="#2568d8" stroke-width="16"/>
+  <path d="M0 484C173 431 243 506 391 407S596 305 701 346 849 316 960 224" fill="none" stroke="#e64d62" stroke-width="8" stroke-dasharray="20 18"/>
+  <circle cx="620" cy="270" r="20" fill="#e64d62"/><circle cx="333" cy="334" r="20" fill="#2568d8"/>
+</svg>

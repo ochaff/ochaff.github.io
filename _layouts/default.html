@@ -2,25 +2,10 @@
 <html lang="en">
   {% include head.html %}
   <body>
-    <header class="site-header"><div class="site-shell nav-shell"><a class="wordmark" href="{{ '/' | relative_url }}" aria-label="Owen Chaffard home">OC<span>.</span></a><div class="nav-actions"><nav aria-label="Primary navigation"><a href="{{ '/#explorations' | relative_url }}">Explorations</a><a href="{{ '/depeg-monitor.html' | relative_url }}">Monitor</a><a href="https://github.com/{{ site.github_username }}">GitHub</a><a href="https://www.linkedin.com/in/{{ site.linkedin_username }}/">LinkedIn</a></nav><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false"><svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2.2M12 19.8V22M4.93 4.93l1.56 1.56M17.51 17.51l1.56 1.56M2 12h2.2M19.8 12H22M4.93 19.07l1.56-1.56M17.51 6.49l1.56-1.56"/></svg><svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.7 8.7 0 0 1 8.8 3.6 8.8 8.8 0 1 0 20.4 15.2Z"/></svg><span class="sr-only">Toggle color theme</span></button></div></div></header>
+    <header class="site-header"><div class="site-shell nav-shell"><a class="wordmark" href="{{ '/' | relative_url }}" aria-label="Owen Chaffard home">OC<span>.</span></a><nav aria-label="Primary navigation"><a href="{{ '/#explorations' | relative_url }}">Explorations</a><a href="{{ '/depeg-monitor.html' | relative_url }}">Monitor</a><a href="https://github.com/{{ site.github_username }}">GitHub</a><a href="https://www.linkedin.com/in/{{ site.linkedin_username }}/">LinkedIn</a></nav></div></header>
     <main class="site-shell{% if page.layout == 'post' %} reading-shell{% endif %}">{{ content }}</main>
     <footer class="site-footer"><div class="site-shell"><span>© {{ 'now' | date: '%Y' }} Owen Chaffard</span><span>Digital finance &amp; time series</span></div></footer>
-    <script>
-      (function () {
-        var button = document.getElementById('theme-toggle');
-        function syncButton() {
-          var dark = document.documentElement.dataset.theme === 'dark';
-          button.setAttribute('aria-pressed', String(dark));
-          button.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-        }
-        syncButton();
-        button.addEventListener('click', function () {
-          var nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-          document.documentElement.dataset.theme = nextTheme;
-          localStorage.setItem('theme', nextTheme);
-          syncButton();
-        });
-      }());
-    </script>
   </body>
 </html>
+
+<!-- Site build date: {{ "now" | date: "%FT%T%z" }} -->
