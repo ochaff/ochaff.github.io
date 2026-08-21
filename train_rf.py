@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.frozen import FrozenEstimator
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
 warnings.filterwarnings("ignore")
@@ -128,7 +129,12 @@ def train_and_explain(df, alpha):
     model = rf
     calibrated = False
     if y_cal.nunique() == 2:
-        model = CalibratedClassifierCV(rf, method="sigmoid", cv="prefit")
+        # scikit-learn 1.7+ removed ``cv="prefit"``. Wrapping the already
+        # fitted forest in FrozenEstimator preserves the two-stage, temporal
+        # calibration design: fitting the calibrator cannot refit the forest.
+        model = CalibratedClassifierCV(
+            estimator=FrozenEstimator(rf), method="sigmoid"
+        )
         model.fit(X_cal, y_cal)
         calibrated = True
     else:
