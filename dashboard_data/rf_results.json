@@ -228,6 +228,9 @@
     }
   ],
   "notable_values": {
+    "tvlUSD_100": 44272580.0,
+    "net_amountUSD_100": 1546444.375,
+    "swap_count_100": 110.0,
     "w_USDC": 0.2205049842596054,
     "w_USDT": 0.5483227968215942,
     "curve_entropy": 1.0014225244522095,
@@ -241,6 +244,9 @@
     "fear_greed_index": 72.0,
     "depeg_bps": 3.091519355773926,
     "display_names": {
+      "tvlUSD_100": "Uniswap TVL (1bp pool)",
+      "net_amountUSD_100": "Uniswap net flow USD (1bp)",
+      "swap_count_100": "Uniswap swap count (1bp pool)",
       "w_USDC": "Curve USDC weight",
       "w_USDT": "Curve USDT weight",
       "curve_entropy": "Curve pool entropy",
