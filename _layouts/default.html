@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include head.html %}
+  <body>
+    <header class="site-header"><div class="site-shell nav-shell"><a class="wordmark" href="{{ '/' | relative_url }}" aria-label="Owen Chaffard home">OC<span>.</span></a><nav aria-label="Primary navigation"><a href="{{ '/#writing' | relative_url }}">Writing</a><a href="{{ '/depeg-monitor.html' | relative_url }}">Monitor</a><a href="https://github.com/{{ site.github_username }}">GitHub</a><a href="https://www.linkedin.com/in/{{ site.linkedin_username }}/">LinkedIn</a></nav></div></header>
+    <main class="site-shell{% if page.layout == 'post' %} reading-shell{% endif %}">{{ content }}</main>
+    <footer class="site-footer"><div class="site-shell"><span>© {{ 'now' | date: '%Y' }} Owen Chaffard</span><span>Digital finance &amp; time series</span></div></footer>
+  </body>
+</html>

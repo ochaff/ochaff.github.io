@@ -1,4 +1,9 @@
-## Stablecoin depeg risks: Onchain insights
+---
+layout: post
+title: "Stablecoin Depeg Risks: Onchain Insights"
+date: 2026-01-29
+categories: [Digital finance]
+description: "Exploring historical liquidity and balance dynamics across major stablecoin venues."
 ---
 
 ## Curve tripool historical data

@@ -104,7 +104,9 @@ def train_and_explain(df, alpha):
         max_features="sqrt",
         class_weight="balanced",
         random_state=42,
-        n_jobs=-1,
+        # Keep the hosted runner stable. ``-1`` starts a worker per CPU and can
+        # multiply the memory used by a forest on top of dataset construction.
+        n_jobs=int(os.environ.get("RF_N_JOBS", "1")),
     )
     rf.fit(X_train, y_train)
 

@@ -1,6 +1,6 @@
-title: "Digital finance and time series"
+title: "Owen Chaffard"
 author: "Owen Chaffard"
-description: "A blog about my PhD research" 
+description: "Researcher in digital finance and time series analysis."
 
 email: "owenchaff@gmail.com"
 # twitter_username: "-"
@@ -17,9 +17,6 @@ linkedin_username: "owen-chaffard"
 ######### Nothing below needs to be changed (unless you know what you're doing) #########
 #########################################################################################
 theme: "minima"
-
-header_pages:
-  - depeg-monitor.html
 
 rss: rss
 

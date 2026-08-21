@@ -14,9 +14,16 @@ def add_swap_size_metrics():
 def add_liq_ownership_features():
     """Compute liquidity ownership features from Uniswap positions and Curve gauge data."""
     # --- 1) 3CRV gauge share ---
-    crv_lp = pd.read_parquet('./data/Curve/3CRV_lpevents.parquet')
-    threep = pd.read_parquet('./data/Curve/curve_3pool_hourly.parquet')
-    hourly_blocks = pd.read_parquet('./data/ETH_blocks/hourly_blocks.parquet')
+    crv_lp = pd.read_parquet(
+        './data/Curve/3CRV_lpevents.parquet',
+        columns=["block_number", "from_address", "to_address", "lp_amount"],
+    )
+    threep = pd.read_parquet(
+        './data/Curve/curve_3pool_hourly.parquet', columns=["totalValueLockedUSD"]
+    )
+    hourly_blocks = pd.read_parquet(
+        './data/ETH_blocks/hourly_blocks.parquet', columns=["hour_utc", "block_number"]
+    )
 
     GAUGE = "0xbfcf63294ad7105dea65aa58f8ae5be2d9d0952a"
     gauge_mask = (crv_lp["from_address"] == GAUGE) | (crv_lp["to_address"] == GAUGE)
@@ -52,8 +59,13 @@ def add_liq_ownership_features():
     gauge_feature = hourly_gauge[["gauge_share_3crv"]]
 
     # --- 2) Uniswap position concentration metrics ---
-    pos = pd.read_parquet('./data/Uniswap/hourly_positions_full.parquet')
-    pool = pd.read_parquet('./data/Uniswap/hourly_pool_state_full.parquet')
+    pos = pd.read_parquet(
+        './data/Uniswap/hourly_positions_full.parquet',
+        columns=["id", "hour_utc", "liquidity", "tickLower", "tickUpper", "owner"],
+    )
+    pool = pd.read_parquet(
+        './data/Uniswap/hourly_pool_state_full.parquet', columns=["hour", "poolTick"]
+    )
 
     pos["hour_utc"] = pd.to_datetime(pos["hour_utc"], utc=True)
     pool["hour"] = pd.to_datetime(pool["hour"], utc=True)
@@ -160,7 +172,7 @@ def load_uniswap_metrics():
         print('--- could not join uniswap metrics for 100 and 500 fee tier ---')
         print('100 and 500 feeTier data last dates :', metrics1.index[-1], metrics5.index[-1])
 
-    
+
     return metrics
 
 def full_aave(coin = 'usdt'):
@@ -368,6 +380,7 @@ def orthopoly_decompose(
     ridge=1e-10,          # small ridge for numerical stability
     index=None, 
     alpha = 0.5,          # optional time index if Ylog is ndarray
+    return_reconstruction=True,
 ):
     if isinstance(Ylog, pd.DataFrame):
         Y = Ylog.to_numpy(dtype=float)
@@ -405,8 +418,14 @@ def orthopoly_decompose(
     Ginv = np.linalg.inv(G)
 
     B = (X @ Phi) @ Ginv               # (n_t, deg+1)
-    Yhat = (B @ Phi.T) + m             # (n_t, n_ticks)
-    R = Y - Yhat
+    # The dashboard only needs the coefficients. Avoiding these two matrices
+    # saves substantial memory when the liquidity grid is large.
+    if return_reconstruction:
+        Yhat = (B @ Phi.T) + m         # (n_t, n_ticks)
+        R = Y - Yhat
+    else:
+        Yhat = None
+        R = None
 
     # package coefficients as DataFrame for convenient "score through time"
     cols = [f"{basis_name}_deg{j}" for j in range(deg + 1)]
@@ -415,20 +434,33 @@ def orthopoly_decompose(
     return m, B_df, Phi, Yhat, R
 
 
-def gegenbauer_scores(Ylog, x_norm, deg=5, alpha=0.5, center_time=True, ridge=1e-10):
+def gegenbauer_scores(
+    Ylog, x_norm, deg=5, alpha=0.5, center_time=True, ridge=1e-10,
+    return_reconstruction=True,
+):
     mG, B_gegen, Phi_gegen, Yhat_gegen, R_gegen = orthopoly_decompose(
-        Ylog, x_norm, deg=deg, center_time=center_time, ridge=ridge, alpha=alpha
+        Ylog, x_norm, deg=deg, center_time=center_time, ridge=ridge,
+        alpha=alpha, return_reconstruction=return_reconstruction,
     )
     return B_gegen, Yhat_gegen, R_gegen, mG, Phi_gegen
 
 def decomp_logL_curve(alpha):
-    df = pd.read_parquet('./data/Uniswap/hourly_liquidity_full.parquet')
-    Ylog_pegcentered = preprocess_liq_curve(df)
+    start = datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc)
+    print("Loading liquidity curve inputs…", flush=True)
+    df = pd.read_parquet(
+        './data/Uniswap/hourly_liquidity_full.parquet',
+        columns=["hour", "timestamp", "tickLower", "active_liquidity_L"],
+        filters=[("hour", ">=", start)],
+    )
+    print(f"Liquidity curve inputs: {len(df):,} rows", flush=True)
+    Ylog_pegcentered = preprocess_liq_curve(df, TT=start).astype("float32")
+    print(f"Liquidity curve grid: {Ylog_pegcentered.shape}", flush=True)
     gegen_scores, yhat,_,m,phi = gegenbauer_scores(Ylog_pegcentered,
                                             np.linspace(-1, 1, Ylog_pegcentered.shape[1]), 
                                             deg = 7, 
                                             alpha=alpha, 
-                                            center_time= False
+                                            center_time=False,
+                                            return_reconstruction=False,
                                             )
     return gegen_scores
 
@@ -713,7 +745,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     dict_args = vars(args)
     dataset_path = build_dataset(**dict_args)
-
-
-
-    
