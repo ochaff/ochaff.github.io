@@ -18,7 +18,8 @@ permissions:
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    # Pin the image so a runner-image rollout cannot change this workload.
+    runs-on: ubuntu-24.04
     # Dataset construction is memory-intensive and can exceed one hour.
     timeout-minutes: 180
 
@@ -49,12 +50,18 @@ jobs:
 
       # train_rf.py builds the exact dataset it trains on, so avoid duplicate
       # alpha=0.1 dataset construction.
+      - name: Report runner resources
+        run: |
+          free -h
+          df -h
+
       - name: Train Random Forest and generate dashboard data
         env:
           OMP_NUM_THREADS: 2
           OPENBLAS_NUM_THREADS: 2
           MKL_NUM_THREADS: 2
           NUMEXPR_NUM_THREADS: 2
+          RF_N_JOBS: 1
           PYTHONUNBUFFERED: '1'
         run: |
           mkdir -p dashboard_data
