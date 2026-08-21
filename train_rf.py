@@ -57,6 +57,10 @@ def _display(col):
 
 # ─── Notable metric definitions ────────────────────────────────────────────────
 NOTABLE_COLS = [
+    # The monitored pool is the Uniswap USDC/USDT v3 0.01% pool (fee tier 100).
+    # Keep these raw measures in the dashboard payload, independently of whether
+    # they rank among the model's top explanatory features for a given run.
+    "tvlUSD_100", "net_amountUSD_100", "swap_count_100",
     "w_USDC", "w_USDT", "w_DAI",
     "curve_entropy",
     "Gegenbauer_0.4_deg0", "Gegenbauer_0.4_deg1", "Gegenbauer_0.4_deg2",

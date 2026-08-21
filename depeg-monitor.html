@@ -8,23 +8,29 @@ layout: null
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>USDC/USDT Depeg Monitor — Owen Chaffard</title>
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      document.documentElement.dataset.theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }());
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <style>
     /* ── Design tokens ──────────────────────────────────────────────────────── */
     :root {
       color-scheme: light;
-      --surface-0:    #f5f5f4;
-      --surface-1:    #fcfcfb;
-      --surface-2:    #ebebea;
-      --border:       #d6d5d2;
-      --text-primary: #0b0b0b;
-      --text-secondary:#52514e;
-      --text-muted:   #8a8880;
+      --surface-0:    #f7f5ff;
+      --surface-1:    #ffffff;
+      --surface-2:    #eeeafd;
+      --border:       #ddd6f3;
+      --text-primary: #17112b;
+      --text-secondary:#5f5872;
+      --text-muted:   #8d849f;
 
-      --blue:    #2a78d6;
+      --blue:    #7755d9;
       --green:   #1baf7a;
       --amber:   #eda100;
-      --red:     #e34948;
+      --red:     #ef4f82;
 
       --status-low:  #1baf7a;
       --status-mid:  #eda100;
@@ -36,28 +42,26 @@ layout: null
       --radius: 10px;
       --shadow: 0 1px 3px rgba(0,0,0,.08), 0 0 0 1px var(--border);
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
+    html[data-theme="dark"] {
         color-scheme: dark;
-        --surface-0:    #111110;
-        --surface-1:    #1a1a19;
-        --surface-2:    #252524;
-        --border:       #383836;
-        --text-primary: #ffffff;
-        --text-secondary:#c3c2b7;
-        --text-muted:   #7a7975;
-        --blue:    #3987e5;
+        --surface-0:    #110d21;
+        --surface-1:    #19132e;
+        --surface-2:    #251c42;
+        --border:       #3c315d;
+        --text-primary: #f4f0ff;
+        --text-secondary:#c7bddf;
+        --text-muted:   #9287ae;
+        --blue:    #a88aff;
         --green:   #199e70;
         --amber:   #c98500;
-        --red:     #e66767;
+        --red:     #ff6d9c;
         --status-low:  #199e70;
         --status-mid:  #c98500;
         --status-high: #e66767;
-        --shap-pos: #e66767;
-        --shap-neg: #3987e5;
+        --shap-pos: #ff6d9c;
+        --shap-neg: #a88aff;
         --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px var(--border);
       }
-    }
 
     /* ── Reset / base ──────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -91,6 +95,7 @@ layout: null
       margin-left: 20px;
     }
     .site-nav a:hover { color: var(--text-primary); }
+    .theme-toggle { width:32px; height:32px; margin-left:14px; border:1px solid var(--border); border-radius:50%; color:var(--text-primary); background:var(--surface-1); cursor:pointer; font-size:1rem; line-height:1; }
 
     /* ── Page layout ──────────────────────────────────────────────────────── */
     .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
@@ -118,7 +123,7 @@ layout: null
     /* ── Top row ──────────────────────────────────────────────────────────── */
     .top-row {
       display: grid;
-      grid-template-columns: 260px 1fr;
+      grid-template-columns: 1fr;
       gap: 16px;
       margin-bottom: 16px;
     }
@@ -244,6 +249,17 @@ layout: null
       color: #b91c1c;
       font-size: .9rem;
     }
+    .pool-link { display:inline-flex; align-items:center; gap:6px; margin-top:10px; color:var(--blue); font-size:.82rem; font-weight:600; text-decoration:none; }
+    .pool-link:hover { text-decoration:underline; }
+    .risk-card { display:flex; align-items:center; justify-content:center; text-align:center; min-height:238px; }
+    .risk-ring { --risk:0deg; width:166px; aspect-ratio:1; padding:12px; border-radius:50%; background:conic-gradient(var(--red) var(--risk),var(--surface-2) 0); transform:rotate(-135deg); }
+    .risk-ring-inner { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:50%; background:var(--surface-1); transform:rotate(135deg); }
+    .risk-value { color:var(--text-primary); font-size:2.3rem; font-weight:800; letter-spacing:-.06em; line-height:1; }
+    .risk-detail { color:var(--text-secondary); font-size:.72rem; margin-top:5px; }
+    .metric-sections { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .curve-card { margin-top:16px; overflow:hidden; }
+    .curve-frame { display:block; width:100%; height:620px; border:0; background:var(--surface-1); }
+    @media (max-width:700px) { .metric-sections { grid-template-columns:1fr; }.curve-frame { height:470px; } }
   </style>
 </head>
 <body>
@@ -254,6 +270,7 @@ layout: null
     <nav class="site-nav">
       <a href="/">Blog</a>
       <a href="/depeg-monitor.html">Depeg Monitor</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch color theme" aria-pressed="false">◐</button>
     </nav>
   </div>
 </header>
@@ -263,6 +280,21 @@ layout: null
 </main>
 
 <script>
+/* ── Theme ───────────────────────────────────────────────────────────────── */
+const themeToggle = document.getElementById('theme-toggle');
+function syncThemeToggle() {
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  themeToggle.setAttribute('aria-pressed', String(isDark));
+  themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+}
+syncThemeToggle();
+themeToggle.addEventListener('click', () => {
+  const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = nextTheme;
+  localStorage.setItem('theme', nextTheme);
+  syncThemeToggle();
+});
+
 /* ── Palette helpers ─────────────────────────────────────────────────────── */
 function css(prop) {
   return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
@@ -293,6 +325,7 @@ function gaugeSVG(prob, color) {
 
 /* ── Tile formatting ─────────────────────────────────────────────────────── */
 const TILE_LABELS = {
+  tvlUSD_100: 'Pool TVL (USD)', net_amountUSD_100: 'Net swap flow (USD)', swap_count_100: 'Swap count (hour)',
   w_USDC: 'Curve USDC wt.',  w_USDT: 'Curve USDT wt.',  w_DAI: 'Curve DAI wt.',
   curve_entropy: 'Pool entropy',
   'Gegenbauer_0.4_deg1': 'Liq. asymmetry (deg 1)',
@@ -310,11 +343,15 @@ const TILE_ORDER = [
   'tick_width_24h_rolling_median','utilisation_rate_usdt',
   'utilisation_rate_usdc','fear_greed_index',
 ];
+const MARKET_ORDER = ['depeg_bps','fear_greed_index','utilisation_rate_usdc','utilisation_rate_usdt'];
+const POOL_ORDER = ['tvlUSD_100','net_amountUSD_100','swap_count_100','hhi_24h_rolling_mean','tick_width_24h_rolling_median','Gegenbauer_0.4_deg1','Gegenbauer_0.4_deg2'];
 function fmtVal(k, v) {
   if (v === null || v === undefined) return '—';
   if (k.startsWith('w_') || k.includes('utilisation')) return (v*100).toFixed(1)+'%';
   if (k === 'depeg_bps') return v.toFixed(2)+' bps';
   if (k === 'curve_entropy') return v.toFixed(3);
+  if (k === 'tvlUSD_100' || k === 'net_amountUSD_100') return '$' + Math.abs(v).toLocaleString('en-US', {maximumFractionDigits:0});
+  if (k === 'swap_count_100') return Math.round(v).toLocaleString('en-US');
   if (k.includes('hhi')) return v.toFixed(3);
   if (k.includes('tick_width')) return v.toFixed(0)+' ticks';
   if (k.includes('fear_greed')) return Math.round(v)+'/100';
@@ -422,43 +459,36 @@ async function render() {
     ? `<span class="auc-badge">AUC ${data.auc.toFixed(3)}</span>` : '';
 
   const nv = data.notable_values || {};
-  const tilesHtml = TILE_ORDER
+  const tilesFor = keys => keys
     .filter(k => nv[k] !== undefined)
     .map(k => `<div class="tile">
       <div class="tile-label">${TILE_LABELS[k] || k}</div>
       <div class="tile-value">${fmtVal(k, nv[k])}</div>
     </div>`).join('');
+  const marketTiles = tilesFor(MARKET_ORDER);
+  const poolTiles = tilesFor(POOL_ORDER);
 
   const nLocal  = Math.min(20, (data.local_shap  || []).length);
   const nGlobal = Math.min(20, (data.global_shap || []).length);
 
   app.innerHTML = `
     <div class="page-header">
-      <div class="page-title">USDC/USDT Depeg Monitor ${aucBadge}</div>
-      <div class="page-subtitle">Random forest model · 24-hour depeg probability · SHAP explanations</div>
+      <div class="page-title">USDC / USDT v3 pool monitor ${aucBadge}</div>
+      <div class="page-subtitle">Random forest model · 24-hour depeg probability · Uniswap Ethereum 0.01% pool</div>
+      <a class="pool-link" href="https://app.uniswap.org/explore/pools/ethereum/0x3416cF6C708Da44DB2624D63ea0AAef7113527C6" target="_blank" rel="noreferrer">Open this pool in Uniswap ↗</a>
       <div id="last-updated">Data as of ${ts}</div>
     </div>
 
     <div class="top-row">
-      <div class="card gauge-card">
+      <div class="card risk-card">
         <div class="card-title">24h Depeg Probability</div>
-        <div class="gauge-wrap">
-          ${gaugeSVG(prob, color)}
-          <div class="gauge-label">
-            <div class="gauge-pct" style="color:${color}">${(prob*100).toFixed(1)}%</div>
-            <div class="gauge-caption">next 24 h</div>
-          </div>
-        </div>
-        <div class="gauge-band" style="background:${band.bg}; color:${color}">
-          <span class="band-dot" style="background:${color}"></span>
-          ${band.text}
-        </div>
+        <div class="risk-ring" style="--risk:${prob * 360}deg; --red:${color}"><div class="risk-ring-inner"><div class="risk-value" style="color:${color}">${(prob*100).toFixed(1)}%</div><div class="risk-detail">${band.text} · next 24 h</div></div></div>
       </div>
+    </div>
 
-      <div class="card tiles-card">
-        <div class="card-title">Current Market Metrics</div>
-        <div class="tiles-grid">${tilesHtml}</div>
-      </div>
+    <div class="metric-sections">
+      <div class="card tiles-card"><div class="card-title">Market metrics</div><div class="tiles-grid">${marketTiles || '<span class="page-subtitle">No current market metrics available.</span>'}</div></div>
+      <div class="card tiles-card"><div class="card-title">USDC / USDT v3 pool metrics</div><div class="tiles-grid">${poolTiles || '<span class="page-subtitle">Pool metrics will appear after the next model refresh.</span>'}</div></div>
     </div>
 
     <div class="card history-card">
@@ -484,6 +514,12 @@ async function render() {
           <canvas id="global-shap-chart"></canvas>
         </div>
       </div>
+    </div>
+
+    <div class="card curve-card">
+      <div class="card-title">Liquidity curve composition</div>
+      <div class="page-subtitle">Interactive hourly composition of the USDC / USDT liquidity curve.</div>
+      <iframe class="curve-frame" src="figures/uni_liquidity.html" title="Interactive Uniswap USDC USDT liquidity curve composition" loading="lazy"></iframe>
     </div>
   `;
 
