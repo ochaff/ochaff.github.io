@@ -9,7 +9,8 @@ import warnings
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import brier_score_loss, roc_auc_score
 
 warnings.filterwarnings("ignore")
 
@@ -79,6 +80,10 @@ def build_or_load(dataset_path, alpha, **kwargs):
     return df
 
 
+TARGET_THRESHOLD_BPS = 15
+TARGET_WINDOW_HOURS = 24
+
+
 def train_and_explain(df, alpha):
     # ── Feature / target split ────────────────────────────────────────────────
     drop_cols = {"target", "depeg_bps"} | {c for c in df.columns if "target" in c.lower()}
@@ -92,13 +97,16 @@ def train_and_explain(df, alpha):
     X = X.ffill().bfill()
     X = X.fillna(X.median())
 
-    # ── Time-based split (last 20% as test) ───────────────────────────────────
-    split = int(len(X) * 0.8)
-    X_train, X_test = X.iloc[:split], X.iloc[split:]
-    y_train, y_test = y.iloc[:split], y.iloc[split:]
+    # ── Time-based train / calibration / test split ──────────────────────────
+    # Calibration must use observations later than the training period; random
+    # folds would leak temporal structure into the reported probability.
+    train_end = int(len(X) * 0.70)
+    calibration_end = int(len(X) * 0.85)
+    X_train, X_cal, X_test = X.iloc[:train_end], X.iloc[train_end:calibration_end], X.iloc[calibration_end:]
+    y_train, y_cal, y_test = y.iloc[:train_end], y.iloc[train_end:calibration_end], y.iloc[calibration_end:]
 
-    print(f"Train: {len(X_train):,} rows  Test: {len(X_test):,} rows")
-    print(f"Positive rate train: {y_train.mean():.2%}  test: {y_test.mean():.2%}")
+    print(f"Train: {len(X_train):,} rows  Calibration: {len(X_cal):,} rows  Test: {len(X_test):,} rows")
+    print(f"Positive rate train: {y_train.mean():.2%}  calibration: {y_cal.mean():.2%}  test: {y_test.mean():.2%}")
 
     # ── Train RF ──────────────────────────────────────────────────────────────
     rf = RandomForestClassifier(
@@ -114,12 +122,29 @@ def train_and_explain(df, alpha):
     )
     rf.fit(X_train, y_train)
 
-    test_proba = rf.predict_proba(X_test)[:, 1]
+    # `class_weight="balanced"` is useful for learning rare events but changes
+    # the class prior, so its raw `predict_proba` output is not a calibrated risk.
+    # Fit a sigmoid calibrator only on the temporally subsequent calibration set.
+    model = rf
+    calibrated = False
+    if y_cal.nunique() == 2:
+        model = CalibratedClassifierCV(rf, method="sigmoid", cv="prefit")
+        model.fit(X_cal, y_cal)
+        calibrated = True
+    else:
+        print("Calibration skipped: calibration period contains one class only.")
+
+    test_proba = model.predict_proba(X_test)[:, 1]
     try:
         auc = roc_auc_score(y_test, test_proba)
         print(f"Test AUC: {auc:.4f}")
     except Exception:
         auc = None
+    try:
+        brier = brier_score_loss(y_test, test_proba)
+        print(f"Test Brier score: {brier:.4f}")
+    except Exception:
+        brier = None
 
     # ── SHAP ──────────────────────────────────────────────────────────────────
     try:
@@ -183,8 +208,8 @@ def train_and_explain(df, alpha):
 
     # ── Latest-row prediction ─────────────────────────────────────────────────
     X_latest = X.iloc[[-1]]
-    prob = float(rf.predict_proba(X_latest)[0, 1])
-    print(f"24h depeg probability (latest obs): {prob:.1%}")
+    prob = float(model.predict_proba(X_latest)[0, 1])
+    print(f"Calibrated 24h probability of a ±{TARGET_THRESHOLD_BPS} bps depeg: {prob:.1%}")
 
     # ── Notable metric values ─────────────────────────────────────────────────
     latest_full = df_clean.iloc[-1]
@@ -206,6 +231,10 @@ def train_and_explain(df, alpha):
     return {
         "probability": prob,
         "auc": auc,
+        "brier_score": brier,
+        "calibrated": calibrated,
+        "target_threshold_bps": TARGET_THRESHOLD_BPS,
+        "target_window_hours": TARGET_WINDOW_HOURS,
         "timestamp": str(df_clean.index[-1]),
         "alpha": alpha,
         "local_shap": local_shap,
@@ -238,10 +267,13 @@ def main():
         swap_size=True,
         liq_ownership=True,
         target=True,
-        target_window=24,
-        target_threshold=5,
+        target_window=TARGET_WINDOW_HOURS,
+        target_threshold=TARGET_THRESHOLD_BPS,
         depeg_side="both",
-        dynamic_threshold=True,
+        # The dashboard is explicitly a ±15 bps event monitor. Dynamic
+        # quantile excursions describe a different target and must not be
+        # mixed into this probability.
+        dynamic_threshold=False,
         use_log_price=False,
     )
 

@@ -95,6 +95,8 @@ layout: null
       margin-left: 20px;
     }
     .site-nav a:hover { color: var(--text-primary); }
+    .live-card:hover .live-card-copy > p:not(.eyebrow), .live-card:hover .card-link { color:var(--ink) !important; }
+    html[data-theme="dark"] .live-card:hover .live-card-copy > p:not(.eyebrow), html[data-theme="dark"] .live-card:hover .card-link { color:#fff !important; }
     .theme-toggle { width:32px; height:32px; margin-left:14px; border:1px solid var(--border); border-radius:50%; color:var(--text-primary); background:var(--surface-1); cursor:pointer; font-size:1rem; line-height:1; }
 
     /* ── Page layout ──────────────────────────────────────────────────────── */
@@ -331,7 +333,7 @@ const TILE_LABELS = {
   'Gegenbauer_0.4_deg1': 'Liq. asymmetry (deg 1)',
   'Gegenbauer_0.4_deg2': 'Liq. shape (deg 2)',
   hhi_24h_rolling_mean: 'LP ownership HHI',
-  tick_width_24h_rolling_median: 'Tick width',
+  tick_width_24h_rolling_median: 'Avg position width',
   utilisation_rate_usdt: 'AAVE USDT util.',
   utilisation_rate_usdc: 'AAVE USDC util.',
   fear_greed_index: 'Fear & greed',
@@ -360,7 +362,7 @@ function fmtVal(k, v) {
 }
 
 /* ── Chart builders ──────────────────────────────────────────────────────── */
-function historyChart(id, history) {
+function historyChart(id, history, threshold) {
   const ctx = document.getElementById(id).getContext('2d');
   return new Chart(ctx, {
     type: 'line',
@@ -375,6 +377,11 @@ function historyChart(id, history) {
         backgroundColor: css('--blue') + '22',
         borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
         fill: true, tension: 0.3,
+      }, {
+        label: `±${threshold} bps threshold`,
+        data: history.map(() => threshold),
+        borderColor: css('--red'), borderWidth: 1.5, borderDash: [6, 5],
+        pointRadius: 0, fill: false,
       }]
     },
     options: {
@@ -447,6 +454,7 @@ async function render() {
   }
 
   const prob  = data.probability;
+  const threshold = Number(data.target_threshold_bps || 15);
   const color = probColor(prob);
   const band  = probBand(prob);
   const ts    = data.timestamp
@@ -457,6 +465,12 @@ async function render() {
     : '—';
   const aucBadge = data.auc != null
     ? `<span class="auc-badge">AUC ${data.auc.toFixed(3)}</span>` : '';
+  const calibrationMeta = data.calibrated
+    ? `Calibrated probability · Brier ${data.brier_score != null ? data.brier_score.toFixed(3) : '—'}`
+    : 'Legacy uncalibrated estimate — run the updated training workflow';
+  const probabilityText = data.calibrated ? `${(prob*100).toFixed(1)}%` : '—';
+  const riskText = data.calibrated ? `${band.text} · next 24 h` : 'Awaiting calibrated model';
+  const riskAngle = data.calibrated ? prob * 360 : 0;
 
   const nv = data.notable_values || {};
   const tilesFor = keys => keys
@@ -474,15 +488,16 @@ async function render() {
   app.innerHTML = `
     <div class="page-header">
       <div class="page-title">USDC / USDT v3 pool monitor ${aucBadge}</div>
-      <div class="page-subtitle">Random forest model · 24-hour depeg probability · Uniswap Ethereum 0.01% pool</div>
+      <div class="page-subtitle">Calibrated 24-hour probability of crossing ±${threshold} bps · Uniswap Ethereum 0.01% pool</div>
       <a class="pool-link" href="https://app.uniswap.org/explore/pools/ethereum/0x3416cF6C708Da44DB2624D63ea0AAef7113527C6" target="_blank" rel="noreferrer">Open this pool in Uniswap ↗</a>
       <div id="last-updated">Data as of ${ts}</div>
     </div>
 
     <div class="top-row">
       <div class="card risk-card">
-        <div class="card-title">24h Depeg Probability</div>
-        <div class="risk-ring" style="--risk:${prob * 360}deg; --red:${color}"><div class="risk-ring-inner"><div class="risk-value" style="color:${color}">${(prob*100).toFixed(1)}%</div><div class="risk-detail">${band.text} · next 24 h</div></div></div>
+        <div class="card-title">24h Depeg Probability · ±${threshold} bps</div>
+        <div class="risk-ring" style="--risk:${riskAngle}deg; --red:${color}"><div class="risk-ring-inner"><div class="risk-value" style="color:${color}">${probabilityText}</div><div class="risk-detail">${riskText}</div></div></div>
+        <div class="page-subtitle">${calibrationMeta}</div>
       </div>
     </div>
 
@@ -492,7 +507,7 @@ async function render() {
     </div>
 
     <div class="card history-card">
-      <div class="card-title">Depeg history — last 7 days (bps)</div>
+      <div class="card-title">Absolute depeg history — last 7 days (bps) · dashed line marks ${threshold} bps</div>
       <canvas id="history-chart"></canvas>
     </div>
 
@@ -524,7 +539,7 @@ async function render() {
   `;
 
   if (data.depeg_history?.length) {
-    historyChart('history-chart', data.depeg_history);
+    historyChart('history-chart', data.depeg_history, threshold);
   }
   if (data.local_shap?.length) {
     shapChart('local-shap-chart', data.local_shap, v => v >= 0 ? css('--shap-pos') : css('--shap-neg'));

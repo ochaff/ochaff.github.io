@@ -92,10 +92,14 @@ title: Owen Chaffard
     fetch("{{ '/dashboard_data/rf_results.json' | relative_url }}?v=" + Date.now())
       .then(function (response) { if (!response.ok) throw new Error('Live data unavailable'); return response.json(); })
       .then(function (data) {
+        if (data.calibrated !== true) {
+          document.getElementById('home-risk-meta').textContent = 'Model recalibration pending';
+          return;
+        }
         var probability = Math.max(0, Math.min(1, Number(data.probability)));
         document.getElementById('home-risk-orb').style.setProperty('--risk', (probability * 360) + 'deg');
         document.getElementById('home-risk-value').textContent = (probability * 100).toFixed(1) + '%';
-        document.getElementById('home-risk-meta').textContent = probability >= .55 ? 'Elevated risk signal' : probability >= .25 ? 'Moderate risk signal' : 'Low risk signal';
+        document.getElementById('home-risk-meta').textContent = 'Calibrated ±' + (data.target_threshold_bps || 15) + ' bps risk · ' + (probability >= .55 ? 'elevated' : probability >= .25 ? 'moderate' : 'low');
       })
       .catch(function () { document.getElementById('home-risk-meta').textContent = 'Live data temporarily unavailable'; });
   }());
