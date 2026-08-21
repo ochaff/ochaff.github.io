@@ -1,230 +1,234 @@
 {
-  "probability": 0.6345347797307529,
-  "auc": 0.8876583561511975,
+  "probability": 0.00480306267933278,
+  "auc": 0.685799735131864,
+  "brier_score": 0.01544139429201878,
+  "calibrated": true,
+  "target_threshold_bps": 15,
+  "target_window_hours": 24,
   "timestamp": "2026-08-21 02:00:00+00:00",
   "alpha": 0.4,
   "local_shap": [
     {
-      "feature": "curve_entropy",
-      "shap_value": 0.09492928428958688,
-      "feature_value": 1.0014225244522095,
-      "display_name": "Curve pool entropy"
-    },
-    {
-      "feature": "w_USDC",
-      "shap_value": 0.05302407368058871,
-      "feature_value": 0.2205049842596054,
-      "display_name": "Curve USDC weight"
-    },
-    {
-      "feature": "swap_size_imbalance",
-      "shap_value": -0.0452839274884953,
-      "feature_value": -0.38211819529533386,
-      "display_name": "swap_size_imbalance"
-    },
-    {
-      "feature": "w_USDT",
-      "shap_value": 0.04421462782737535,
-      "feature_value": 0.5483227968215942,
-      "display_name": "Curve USDT weight"
-    },
-    {
-      "feature": "tvlUSD_500",
-      "shap_value": -0.03837728286485711,
-      "feature_value": 8793481.0,
-      "display_name": "Uniswap TVL (5bp pool)"
-    },
-    {
-      "feature": "utilisation_rate_usdc",
-      "shap_value": 0.02463433630884267,
-      "feature_value": 0.9240298271179199,
-      "display_name": "AAVE USDC utilisation"
-    },
-    {
-      "feature": "hhi_24h_rolling_mean",
-      "shap_value": -0.013204535614064816,
-      "feature_value": 0.0506674200296402,
-      "display_name": "Liq. ownership HHI (24h MA)"
-    },
-    {
-      "feature": "tangent_up",
-      "shap_value": -0.01318199495882605,
-      "feature_value": 2805442.0,
-      "display_name": "tangent_up"
-    },
-    {
-      "feature": "supplied_USD_usdt",
-      "shap_value": -0.01313683758968549,
-      "feature_value": 2926401792.0,
-      "display_name": "AAVE USDT supplied (USD)"
-    },
-    {
-      "feature": "btc_price_usd",
-      "shap_value": 0.01267954983284842,
-      "feature_value": 74425.0,
-      "display_name": "BTC price (USD)"
-    },
-    {
-      "feature": "supplied_USD_usdc",
-      "shap_value": 0.012352988044096763,
-      "feature_value": 2181009408.0,
-      "display_name": "AAVE USDC supplied (USD)"
-    },
-    {
-      "feature": "high_ratio",
-      "shap_value": 0.0114524673615539,
-      "feature_value": 0.2445952147245407,
-      "display_name": "high_ratio"
-    },
-    {
-      "feature": "fear_greed_index",
-      "shap_value": 0.011087227263449902,
-      "feature_value": 72.0,
-      "display_name": "Fear & greed index"
-    },
-    {
-      "feature": "E_odd",
-      "shap_value": -0.009583559247060362,
-      "feature_value": 1.2723475694656372,
-      "display_name": "E_odd"
-    },
-    {
-      "feature": "usd_index",
-      "shap_value": -0.009507739772299009,
-      "feature_value": 113.15850830078125,
-      "display_name": "USD index (DXY proxy)"
-    },
-    {
       "feature": "tick_width_24h_rolling_median",
-      "shap_value": 0.008295040928405596,
+      "shap_value": 0.06679102375064638,
       "feature_value": 152.73495483398438,
       "display_name": "Tick width (24h median)"
     },
     {
-      "feature": "odd_ratio",
-      "shap_value": -0.006670380095326219,
-      "feature_value": 0.023418143391609192,
-      "display_name": "odd_ratio"
+      "feature": "curve_entropy",
+      "shap_value": 0.04851241950407107,
+      "feature_value": 1.0014225244522095,
+      "display_name": "Curve pool entropy"
     },
     {
-      "feature": "utilisation_rate_usdt",
-      "shap_value": 0.006643573563771333,
-      "feature_value": 0.8841940760612488,
-      "display_name": "AAVE USDT utilisation"
+      "feature": "swap_count_100",
+      "shap_value": 0.04084454838328837,
+      "feature_value": 110.0,
+      "display_name": "Uniswap swap count (1bp pool)"
     },
     {
-      "feature": "Gegenbauer_0.4_deg0",
-      "shap_value": -0.006472308066689835,
-      "feature_value": 33.22352981567383,
-      "display_name": "Liq. curve shape (deg 0)"
+      "feature": "tangent_up",
+      "shap_value": -0.04026463540561962,
+      "feature_value": 2805442.0,
+      "display_name": "tangent_up"
     },
     {
-      "feature": "Gegenbauer_0.4_deg2",
-      "shap_value": 0.006318028906227297,
-      "feature_value": -4.739067554473877,
-      "display_name": "Liq. curve shape (deg 2)"
+      "feature": "usd_index",
+      "shap_value": -0.03924760637498843,
+      "feature_value": 113.15850830078125,
+      "display_name": "USD index (DXY proxy)"
+    },
+    {
+      "feature": "w_USDT",
+      "shap_value": -0.03701657383785997,
+      "feature_value": 0.5483227968215942,
+      "display_name": "Curve USDT weight"
+    },
+    {
+      "feature": "swap_size_imbalance",
+      "shap_value": -0.022459380817566165,
+      "feature_value": -0.38211819529533386,
+      "display_name": "swap_size_imbalance"
+    },
+    {
+      "feature": "utilisation_rate_usdc",
+      "shap_value": 0.022364990302775948,
+      "feature_value": 0.9240298271179199,
+      "display_name": "AAVE USDC utilisation"
+    },
+    {
+      "feature": "w_USDC",
+      "shap_value": -0.02000620276182152,
+      "feature_value": 0.2205049842596054,
+      "display_name": "Curve USDC weight"
+    },
+    {
+      "feature": "eth_price_usd",
+      "shap_value": -0.01578415089991117,
+      "feature_value": 2347.148193359375,
+      "display_name": "ETH price (USD)"
+    },
+    {
+      "feature": "weighted_mean_age_hours",
+      "shap_value": -0.015430831339100018,
+      "feature_value": 6468.23583984375,
+      "display_name": "LP position age (hours)"
+    },
+    {
+      "feature": "E_low",
+      "shap_value": 0.01370357201818021,
+      "feature_value": 22.49112892150879,
+      "display_name": "E_low"
+    },
+    {
+      "feature": "tangent_down",
+      "shap_value": -0.013095810559878834,
+      "feature_value": 1125674.0,
+      "display_name": "tangent_down"
+    },
+    {
+      "feature": "low_ratio",
+      "shap_value": -0.012610571601508963,
+      "feature_value": 0.4139595925807953,
+      "display_name": "low_ratio"
+    },
+    {
+      "feature": "Gegenbauer_0.4_deg1",
+      "shap_value": -0.012188700687719461,
+      "feature_value": 0.17990998923778534,
+      "display_name": "Liq. curve shape (deg 1)"
+    },
+    {
+      "feature": "tvlUSD_500",
+      "shap_value": -0.012074521593474979,
+      "feature_value": 8793481.0,
+      "display_name": "Uniswap TVL (5bp pool)"
+    },
+    {
+      "feature": "E_total",
+      "shap_value": -0.01105371037335942,
+      "feature_value": 1158.1346435546875,
+      "display_name": "E_total"
+    },
+    {
+      "feature": "net_amountUSD_100",
+      "shap_value": -0.00793517162098484,
+      "feature_value": 1546444.375,
+      "display_name": "Uniswap net flow USD (1bp)"
+    },
+    {
+      "feature": "mid_ratio",
+      "shap_value": -0.007471858310616802,
+      "feature_value": 0.3414451777935028,
+      "display_name": "mid_ratio"
+    },
+    {
+      "feature": "totalValueLockedUSD",
+      "shap_value": -0.006436393901990332,
+      "feature_value": 154441280.0,
+      "display_name": "Curve TVL (USD)"
     }
   ],
   "global_shap": [
     {
       "feature": "curve_entropy",
-      "importance": 0.08204339525117708,
+      "importance": 0.07997913811482729,
       "display_name": "Curve pool entropy"
     },
     {
-      "feature": "w_USDT",
-      "importance": 0.04343487358974574,
-      "display_name": "Curve USDT weight"
-    },
-    {
-      "feature": "w_USDC",
-      "importance": 0.042274901643540266,
-      "display_name": "Curve USDC weight"
-    },
-    {
-      "feature": "tvlUSD_500",
-      "importance": 0.03108543448418776,
-      "display_name": "Uniswap TVL (5bp pool)"
-    },
-    {
       "feature": "tangent_up",
-      "importance": 0.03045235372055197,
+      "importance": 0.047525075083251385,
       "display_name": "tangent_up"
     },
     {
-      "feature": "swap_size_imbalance",
-      "importance": 0.030023004457728108,
-      "display_name": "swap_size_imbalance"
+      "feature": "w_USDC",
+      "importance": 0.035753179174688225,
+      "display_name": "Curve USDC weight"
     },
     {
-      "feature": "supplied_USD_usdc",
-      "importance": 0.01826935516020073,
-      "display_name": "AAVE USDC supplied (USD)"
-    },
-    {
-      "feature": "tangent_down",
-      "importance": 0.015449783822789614,
-      "display_name": "tangent_down"
-    },
-    {
-      "feature": "utilisation_rate_usdc",
-      "importance": 0.01240684015992139,
-      "display_name": "AAVE USDC utilisation"
-    },
-    {
-      "feature": "fear_greed_index",
-      "importance": 0.010444549400431314,
-      "display_name": "Fear & greed index"
-    },
-    {
-      "feature": "supplied_USD_usdt",
-      "importance": 0.010134676112428053,
-      "display_name": "AAVE USDT supplied (USD)"
-    },
-    {
-      "feature": "utilisation_rate_usdt",
-      "importance": 0.0094766157257854,
-      "display_name": "AAVE USDT utilisation"
-    },
-    {
-      "feature": "hhi_24h_rolling_mean",
-      "importance": 0.008910972364153884,
-      "display_name": "Liq. ownership HHI (24h MA)"
-    },
-    {
-      "feature": "E_even",
-      "importance": 0.008382103550573982,
-      "display_name": "E_even"
-    },
-    {
-      "feature": "usd_index",
-      "importance": 0.008294074887212143,
-      "display_name": "USD index (DXY proxy)"
-    },
-    {
-      "feature": "Gegenbauer_0.4_deg2",
-      "importance": 0.007089347655077538,
-      "display_name": "Liq. curve shape (deg 2)"
-    },
-    {
-      "feature": "Gegenbauer_0.4_deg0",
-      "importance": 0.00611796875718938,
-      "display_name": "Liq. curve shape (deg 0)"
-    },
-    {
-      "feature": "odd_ratio",
-      "importance": 0.005585658935420856,
-      "display_name": "odd_ratio"
+      "feature": "w_USDT",
+      "importance": 0.03449438500845237,
+      "display_name": "Curve USDT weight"
     },
     {
       "feature": "tick_width_24h_rolling_median",
-      "importance": 0.005522154106107001,
+      "importance": 0.032632216644208734,
       "display_name": "Tick width (24h median)"
     },
     {
-      "feature": "btc_price_usd",
-      "importance": 0.00544708977589606,
-      "display_name": "BTC price (USD)"
+      "feature": "supplied_USD_usdc",
+      "importance": 0.027309270912829153,
+      "display_name": "AAVE USDC supplied (USD)"
+    },
+    {
+      "feature": "swap_size_imbalance",
+      "importance": 0.02628612698681289,
+      "display_name": "swap_size_imbalance"
+    },
+    {
+      "feature": "tvlUSD_500",
+      "importance": 0.023153356991191153,
+      "display_name": "Uniswap TVL (5bp pool)"
+    },
+    {
+      "feature": "usd_index",
+      "importance": 0.020666729413073563,
+      "display_name": "USD index (DXY proxy)"
+    },
+    {
+      "feature": "tangent_down",
+      "importance": 0.018017361983959982,
+      "display_name": "tangent_down"
+    },
+    {
+      "feature": "totalValueLockedUSD",
+      "importance": 0.014985981277157973,
+      "display_name": "Curve TVL (USD)"
+    },
+    {
+      "feature": "E_total",
+      "importance": 0.014660803114320562,
+      "display_name": "E_total"
+    },
+    {
+      "feature": "weighted_mean_age_hours",
+      "importance": 0.013742144261061816,
+      "display_name": "LP position age (hours)"
+    },
+    {
+      "feature": "low_ratio",
+      "importance": 0.011917406349543993,
+      "display_name": "low_ratio"
+    },
+    {
+      "feature": "utilisation_rate_usdt",
+      "importance": 0.01153708673834855,
+      "display_name": "AAVE USDT utilisation"
+    },
+    {
+      "feature": "fear_greed_index",
+      "importance": 0.011208585236741413,
+      "display_name": "Fear & greed index"
+    },
+    {
+      "feature": "hourlyVolumeUSD",
+      "importance": 0.010862105421954591,
+      "display_name": "Curve hourly volume (USD)"
+    },
+    {
+      "feature": "eth_price_usd",
+      "importance": 0.009919493735194742,
+      "display_name": "ETH price (USD)"
+    },
+    {
+      "feature": "E_odd",
+      "importance": 0.00935936650975681,
+      "display_name": "E_odd"
+    },
+    {
+      "feature": "E_low",
+      "importance": 0.008765134221628602,
+      "display_name": "E_low"
     }
   ],
   "notable_values": {
