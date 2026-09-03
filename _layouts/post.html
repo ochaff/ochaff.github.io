@@ -17,6 +17,7 @@ layout: default
             src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
   </script>
     <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+    {% if page.series %}<p class="post-series">Series: {{ page.series }}{% if page.series_part %} · Part {{ page.series_part }}{% endif %}</p>{% endif %}
     <p class="post-meta post-meta-modern">
       <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}

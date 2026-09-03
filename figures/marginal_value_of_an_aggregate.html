@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Marginal value of an aggregate</title>
+<style>
+:root{
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#898781;
+  --surface-1:#fcfcfb; --surface-2:#ffffff; --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.25);
+  --radius:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --surface-1:#1a1a19; --surface-2:#141413; --border:rgba(255,255,255,0.10); --border-strong:rgba(255,255,255,0.28);
+  }
+}
+html,body{background:var(--surface-2); color:var(--text-primary); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; margin:0;}
+.wrap{max-width:760px; margin:0 auto; padding:2rem 1.5rem 3rem;}
+h1{font-size:20px; font-weight:500; margin:0 0 4px;}
+.cap{font-size:13px; color:var(--text-secondary); margin:0 0 1.5rem;}
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;}
+button{border:0.5px solid var(--border-strong); background:transparent; border-radius:var(--radius); padding:8px 14px; font-size:13px; cursor:pointer; color:var(--text-primary);}
+button:hover{background:var(--surface-1);}
+input[type=range]{accent-color:#1D9E75; width:100%;}
+input[type=checkbox]{accent-color:#1D9E75; width:15px; height:15px;}
+.metric{background:var(--surface-1); border-radius:var(--radius); padding:1rem;}
+.mlabel{font-size:13px; color:var(--text-secondary); margin:0 0 4px;}
+.mval{font-size:22px; font-weight:500; margin:0;}
+.seriesbox{flex:1; min-width:180px; background:var(--surface-1); border-radius:var(--radius); padding:12px;}
+.swatch{width:10px; height:10px; border-radius:2px; display:inline-block; margin-right:6px;}
+.rowlbl{display:flex; align-items:center; font-size:13px; color:var(--text-secondary); margin-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Marginal value of an aggregate</h1>
+<p class="cap">Three uncorrelated bottom-level residuals (95% confidence ellipsoid), and how much adding one aggregate shrinks it — per the rank-one Sherman&ndash;Morrison update <span style="font-family:monospace;">V&#8314; = V &minus; VaaᵗV / (&omega; + aᵗVa)</span>.</p>
+
+<h2 class="sr-only">Interactive 3D visualization showing how adding an aggregate with its own forecast noise shrinks the joint residual ellipsoid of three uncorrelated bottom-level forecast errors, with sliders for each series' noise and the aggregate's own noise, and checkboxes to choose which series the aggregate sums.</h2>
+
+<div style="display:flex; gap:16px; margin-bottom:1.25rem; flex-wrap:wrap;">
+
+<div class="seriesbox">
+<div class="rowlbl"><label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="chk1" checked style="margin-right:6px;"><span class="swatch" style="background:#2a78d6;"></span>Series 1 in aggregate</label></div>
+<svg id="spark1" viewBox="0 0 100 30" style="width:100%; height:30px; display:block; margin-bottom:6px;" aria-hidden="true"><polyline points="" fill="none" stroke="#2a78d6" stroke-width="1.5"/></svg>
+<div style="display:flex; align-items:center; gap:8px;">
+<span style="font-size:12px; color:var(--text-secondary); white-space:nowrap;">&sigma;&#8321;</span>
+<input type="range" id="sigma1" min="0.2" max="3" step="0.05" value="1">
+<span id="sigma1Out" style="font-size:12px; font-weight:500; min-width:30px;">1.00</span>
+</div>
+</div>
+
+<div class="seriesbox">
+<div class="rowlbl"><label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="chk2" checked style="margin-right:6px;"><span class="swatch" style="background:#008300;"></span>Series 2 in aggregate</label></div>
+<svg id="spark2" viewBox="0 0 100 30" style="width:100%; height:30px; display:block; margin-bottom:6px;" aria-hidden="true"><polyline points="" fill="none" stroke="#008300" stroke-width="1.5"/></svg>
+<div style="display:flex; align-items:center; gap:8px;">
+<span style="font-size:12px; color:var(--text-secondary); white-space:nowrap;">&sigma;&#8322;</span>
+<input type="range" id="sigma2" min="0.2" max="3" step="0.05" value="1.3">
+<span id="sigma2Out" style="font-size:12px; font-weight:500; min-width:30px;">1.30</span>
+</div>
+</div>
+
+<div class="seriesbox">
+<div class="rowlbl"><label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="chk3" style="margin-right:6px;"><span class="swatch" style="background:#e87ba4;"></span>Series 3 in aggregate</label></div>
+<svg id="spark3" viewBox="0 0 100 30" style="width:100%; height:30px; display:block; margin-bottom:6px;" aria-hidden="true"><polyline points="" fill="none" stroke="#e87ba4" stroke-width="1.5"/></svg>
+<div style="display:flex; align-items:center; gap:8px;">
+<span style="font-size:12px; color:var(--text-secondary); white-space:nowrap;">&sigma;&#8323;</span>
+<input type="range" id="sigma3" min="0.2" max="3" step="0.05" value="0.8">
+<span id="sigma3Out" style="font-size:12px; font-weight:500; min-width:30px;">0.80</span>
+</div>
+</div>
+
+</div>
+
+<div style="display:flex; align-items:center; gap:16px; margin-bottom:1rem; flex-wrap:wrap;">
+<div style="flex:1; min-width:220px;">
+<label style="font-size:13px; color:var(--text-secondary); display:block; margin-bottom:4px;">Aggregate's own forecast noise (&omega;)</label>
+<div style="display:flex; align-items:center; gap:8px;">
+<input type="range" id="omega" min="0.05" max="5" step="0.05" value="0.5" style="flex:1;">
+<span id="omegaOut" style="font-size:13px; font-weight:500; min-width:36px;">0.50</span>
+</div>
+</div>
+<button id="regenBtn" type="button">New residual draw</button>
+</div>
+
+<div id="plot3d" style="width:100%; height:420px;"></div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-top:1rem;">
+<div class="metric"><p class="mlabel">Risk before, tr(V)</p><p class="mval" id="traceBefore">&ndash;</p></div>
+<div class="metric"><p class="mlabel">Risk after, tr(V&#8314;)</p><p class="mval" id="traceAfter">&ndash;</p></div>
+<div class="metric"><p class="mlabel">Reduction &Delta;R</p><p class="mval" id="deltaR">&ndash;</p></div>
+<div class="metric"><p class="mlabel">% reduction</p><p class="mval" id="pctRed">&ndash;</p></div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+<script>
+(function(){
+  const N_T = 40;
+  let noise = [];
+  function randn(){
+    let u=0,v=0;
+    while(u===0) u=Math.random();
+    while(v===0) v=Math.random();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+  }
+  function generateNoise(){
+    noise = [];
+    for(let t=0;t<N_T;t++) noise.push([randn(),randn(),randn()]);
+  }
+  generateNoise();
+
+  const c2 = 7.815;
+  const c = Math.sqrt(c2);
+
+  function jacobiEigen(Ain){
+    let a=[Ain[0].slice(),Ain[1].slice(),Ain[2].slice()];
+    let v=[[1,0,0],[0,1,0],[0,0,1]];
+    for(let sweep=0; sweep<60; sweep++){
+      const off = Math.abs(a[0][1])+Math.abs(a[0][2])+Math.abs(a[1][2]);
+      if (off < 1e-12) break;
+      const pairs=[[0,1],[0,2],[1,2]];
+      for (const pr of pairs){
+        const p=pr[0], q=pr[1];
+        if (Math.abs(a[p][q]) < 1e-14) continue;
+        const theta = (a[q][q]-a[p][p])/(2*a[p][q]);
+        const sign = theta>=0?1:-1;
+        const t = sign/(Math.abs(theta)+Math.sqrt(theta*theta+1));
+        const cc = 1/Math.sqrt(t*t+1), ss = t*cc;
+        const app=a[p][p], aqq=a[q][q], apq=a[p][q];
+        a[p][p]=cc*cc*app - 2*ss*cc*apq + ss*ss*aqq;
+        a[q][q]=ss*ss*app + 2*ss*cc*apq + cc*cc*aqq;
+        a[p][q]=0; a[q][p]=0;
+        for(let k=0;k<3;k++){
+          if(k!==p && k!==q){
+            const akp=a[k][p], akq=a[k][q];
+            a[k][p]=cc*akp-ss*akq; a[p][k]=a[k][p];
+            a[k][q]=ss*akp+cc*akq; a[q][k]=a[k][q];
+          }
+        }
+        for(let k=0;k<3;k++){
+          const vkp=v[k][p], vkq=v[k][q];
+          v[k][p]=cc*vkp-ss*vkq;
+          v[k][q]=ss*vkp+cc*vkq;
+        }
+      }
+    }
+    return {values:[a[0][0],a[1][1],a[2][2]], vectors:v};
+  }
+
+  function buildEllipsoid(covMatrix, diagSigmas, nu, nv){
+    let lambda, Q;
+    if (covMatrix){
+      const eig = jacobiEigen(covMatrix);
+      lambda = eig.values; Q = eig.vectors;
+    } else {
+      lambda = [diagSigmas[0]*diagSigmas[0], diagSigmas[1]*diagSigmas[1], diagSigmas[2]*diagSigmas[2]];
+      Q = [[1,0,0],[0,1,0],[0,0,1]];
+    }
+    const axisLen = lambda.map(function(l){ return c*Math.sqrt(Math.max(l,0)); });
+    const X=[],Y=[],Z=[];
+    for(let i=0;i<=nu;i++){
+      const u=Math.PI*i/nu;
+      const rX=[],rY=[],rZ=[];
+      for(let j=0;j<=nv;j++){
+        const vv=2*Math.PI*j/nv;
+        const sx=Math.sin(u)*Math.cos(vv), sy=Math.sin(u)*Math.sin(vv), sz=Math.cos(u);
+        const ex=axisLen[0]*sx, ey=axisLen[1]*sy, ez=axisLen[2]*sz;
+        rX.push(Q[0][0]*ex+Q[0][1]*ey+Q[0][2]*ez);
+        rY.push(Q[1][0]*ex+Q[1][1]*ey+Q[1][2]*ez);
+        rZ.push(Q[2][0]*ex+Q[2][1]*ey+Q[2][2]*ez);
+      }
+      X.push(rX); Y.push(rY); Z.push(rZ);
+    }
+    return {X:X,Y:Y,Z:Z};
+  }
+
+  const els = {
+    sigma:[document.getElementById('sigma1'),document.getElementById('sigma2'),document.getElementById('sigma3')],
+    sigmaOut:[document.getElementById('sigma1Out'),document.getElementById('sigma2Out'),document.getElementById('sigma3Out')],
+    chk:[document.getElementById('chk1'),document.getElementById('chk2'),document.getElementById('chk3')],
+    spark:[document.getElementById('spark1'),document.getElementById('spark2'),document.getElementById('spark3')],
+    omega: document.getElementById('omega'),
+    omegaOut: document.getElementById('omegaOut'),
+    regenBtn: document.getElementById('regenBtn'),
+    plotDiv: document.getElementById('plot3d'),
+    traceBefore: document.getElementById('traceBefore'),
+    traceAfter: document.getElementById('traceAfter'),
+    deltaR: document.getElementById('deltaR'),
+    pctRed: document.getElementById('pctRed')
+  };
+
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const textColor = isDark ? '#c3c2b7' : '#52514e';
+
+  function renderSparklines(sigmas){
+    for(let s=0;s<3;s++){
+      const vals = noise.map(function(n){ return n[s]*sigmas[s]; });
+      let maxAbs = 0.4;
+      vals.forEach(function(val){ if (Math.abs(val) > maxAbs) maxAbs = Math.abs(val); });
+      const pts = vals.map(function(val,i){
+        const x = (i/(N_T-1))*100;
+        const y = 15 - (val/maxAbs)*13;
+        return x.toFixed(1)+','+y.toFixed(1);
+      }).join(' ');
+      els.spark[s].querySelector('polyline').setAttribute('points', pts);
+    }
+  }
+
+  let plotted = false;
+  function computeAndRender(){
+    const sigmas = els.sigma.map(function(el){ return parseFloat(el.value); });
+    els.sigmaOut.forEach(function(o,i){ o.textContent = sigmas[i].toFixed(2); });
+    const omega = parseFloat(els.omega.value);
+    els.omegaOut.textContent = omega.toFixed(2);
+    const a = els.chk.map(function(chk){ return chk.checked ? 1 : 0; });
+
+    const V = [[sigmas[0]*sigmas[0],0,0],[0,sigmas[1]*sigmas[1],0],[0,0,sigmas[2]*sigmas[2]]];
+    const Va = [V[0][0]*a[0], V[1][1]*a[1], V[2][2]*a[2]];
+    const aVa = a[0]*Va[0] + a[1]*Va[1] + a[2]*Va[2];
+    const denom = omega + aVa;
+    const deltaR = (Va[0]*Va[0]+Va[1]*Va[1]+Va[2]*Va[2]) / denom;
+    const traceV = V[0][0]+V[1][1]+V[2][2];
+    const traceVp = traceV - deltaR;
+
+    const Vp = [[0,0,0],[0,0,0],[0,0,0]];
+    for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ Vp[i][j] = V[i][j] - (Va[i]*Va[j])/denom; } }
+
+    renderSparklines(sigmas);
+
+    els.traceBefore.textContent = traceV.toFixed(2);
+    els.traceAfter.textContent = traceVp.toFixed(2);
+    els.deltaR.textContent = deltaR.toFixed(2);
+    els.pctRed.textContent = (traceV>0 ? (deltaR/traceV*100):0).toFixed(1) + '%';
+
+    const before = buildEllipsoid(null, sigmas, 16, 32);
+    const after = buildEllipsoid(Vp, sigmas, 16, 32);
+
+    const norm = Math.sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]) || 1;
+    const dirScale = Math.max(sigmas[0],sigmas[1],sigmas[2])*c*1.05/norm;
+    const dirLine = { x:[0, a[0]*dirScale], y:[0, a[1]*dirScale], z:[0, a[2]*dirScale] };
+
+    const data = [
+      { type:'surface', x:before.X, y:before.Y, z:before.Z, opacity:0.22, showscale:false, colorscale:[[0,'#888780'],[1,'#888780']], hoverinfo:'skip', lighting:{ambient:0.9,diffuse:0.4} },
+      { type:'surface', x:after.X, y:after.Y, z:after.Z, opacity:0.5, showscale:false, colorscale:[[0,'#1D9E75'],[1,'#1D9E75']], hoverinfo:'skip', lighting:{ambient:0.9,diffuse:0.4} },
+      { type:'scatter3d', mode:'markers', x:noise.map(function(n){return n[0]*sigmas[0];}), y:noise.map(function(n){return n[1]*sigmas[1];}), z:noise.map(function(n){return n[2]*sigmas[2];}), marker:{size:2.5, color: isDark?'#d3d1c7':'#5f5e5a', opacity:0.65}, hoverinfo:'skip' },
+      { type:'scatter3d', mode:'lines', x:dirLine.x, y:dirLine.y, z:dirLine.z, line:{color:'#D85A30', width:6}, hoverinfo:'skip' }
+    ];
+
+    const axisStyle = { title:'', showbackground:false, gridcolor: isDark?'#2c2c2a':'#e1e0d9', zerolinecolor: isDark?'#383835':'#c3c2b7', color:textColor };
+    const layout = {
+      paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+      margin:{l:0,r:0,t:10,b:0},
+      showlegend:false,
+      scene:{
+        aspectmode:'data',
+        xaxis:Object.assign({},axisStyle,{title:'e1'}),
+        yaxis:Object.assign({},axisStyle,{title:'e2'}),
+        zaxis:Object.assign({},axisStyle,{title:'e3'}),
+        camera:{eye:{x:1.5,y:1.5,z:1.1}}
+      },
+      font:{color:textColor, size:11}
+    };
+
+    if (!plotted){
+      Plotly.newPlot(els.plotDiv, data, layout, {displayModeBar:false, responsive:true});
+      plotted = true;
+    } else {
+      Plotly.react(els.plotDiv, data, layout);
+    }
+  }
+
+  els.sigma.forEach(function(el){ el.addEventListener('input', computeAndRender); });
+  els.chk.forEach(function(el){ el.addEventListener('change', computeAndRender); });
+  els.omega.addEventListener('input', computeAndRender);
+  els.regenBtn.addEventListener('click', function(){ generateNoise(); computeAndRender(); });
+
+  computeAndRender();
+})();
+</script>
+</body>
+</html>

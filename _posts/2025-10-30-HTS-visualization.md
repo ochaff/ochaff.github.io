@@ -1,9 +1,11 @@
 ---
 layout: post
-title: "Unveiling the Structure of Hierarchical Time Series"
+title: "A visual introduction to hierarchical time series"
 date: 2025-10-30
 categories: [Time series]
-description: "A visual introduction to hierarchy, coherence, and forecast reconciliation."
+series: "The hidden structure in hierarchical time series"
+series_part: 1
+description: "An introduction to hierarchy, coherence, and forecast reconciliation with a focus and geometric visualization."
 ---
 
 ## Hierarchical Time Series 
@@ -192,8 +194,12 @@ At first glance the forecast looks good, which is to be expected given the simpl
 <iframe src="https://ochaff.github.io/figures/forecast_reconciliation.html"
         width="100%" height="700" frameborder="0"></iframe>
 
-This interactive plot visually shows two of the most common hierarchical reconciliation methods namely **Bottom-Up** and **GTOP** or projection based reconciliation.
+This interactive plot visually shows two common hierarchical reconciliation methods namely **Bottom-Up** and **GTOP** or projection based reconciliation.
 
 **Bottom-Up** consists in keeping the values of $x(t)$ and $y(t)$ fixed and setting $z(t) = x(t) + y(t)$. This is the simplest reconciliation method (one can observe that the reconciled forecast is lined up vertically with the original)
 
 **GTOP** consists in projecting the forecast on the coherent plane. One can see the reconciled forecast is lined up  with the original perpendicularly to the plane $z(t)=x(t)+y(t)$. 
+
+### Up Next
+
+In the next part we will tackle the main result of hierarchical forecast reconciliation, **MinTrace**. MinTrace uses unbiased base forecasts on all time series in the hierarchy and provides an optimal reconciled vector. Geometrically it is a weighted projection assigning larger weight to better observed (less noisy) time series.The next post will focus on the proof of the MinTrace estimator and use this reconciliation as the basis for building an innovative view on hierarchical time series in general and the **role of aggregates**.
