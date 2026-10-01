@@ -1,252 +1,252 @@
 {
-  "probability": 0.005317241128287132,
-  "auc": 0.6469389858458156,
-  "brier_score": 0.015137466756519,
+  "probability": 0.009403980163552131,
+  "auc": 0.6498549186431684,
+  "brier_score": 0.015364312550387033,
   "calibrated": true,
   "target_threshold_bps": 15,
   "target_window_hours": 24,
-  "timestamp": "2026-09-25 09:00:00+00:00",
+  "timestamp": "2026-10-01 09:00:00+00:00",
   "alpha": 0.4,
   "local_shap": [
     {
-      "feature": "utilisation_rate_usdt",
-      "shap_value": 0.06094270264810773,
-      "feature_value": 0.9311187863349915,
-      "display_name": "AAVE USDT utilisation"
-    },
-    {
       "feature": "curve_entropy",
-      "shap_value": -0.055960724728120186,
-      "feature_value": 1.0433895587921143,
+      "shap_value": 0.06885162885696684,
+      "feature_value": 0.9165412187576294,
       "display_name": "Curve pool entropy"
     },
     {
-      "feature": "tick_width_24h_rolling_median",
-      "shap_value": 0.04771026554501635,
-      "feature_value": 194.4354248046875,
-      "display_name": "Tick width (24h median)"
-    },
-    {
-      "feature": "w_USDT",
-      "shap_value": -0.04151669273473744,
-      "feature_value": 0.4928967356681824,
-      "display_name": "Curve USDT weight"
-    },
-    {
-      "feature": "utilisation_rate_usdc",
-      "shap_value": 0.036246686496336285,
-      "feature_value": 0.9318721890449524,
-      "display_name": "AAVE USDC utilisation"
-    },
-    {
-      "feature": "tangent_up",
-      "shap_value": -0.031090083110891932,
-      "feature_value": 3211552.25,
-      "display_name": "tangent_up"
-    },
-    {
-      "feature": "supplied_USD_usdc",
-      "shap_value": -0.021905310889844362,
-      "feature_value": 2402560768.0,
-      "display_name": "AAVE USDC supplied (USD)"
-    },
-    {
-      "feature": "w_USDC",
-      "shap_value": -0.021080392191365933,
-      "feature_value": 0.23645326495170593,
-      "display_name": "Curve USDC weight"
-    },
-    {
       "feature": "tvlUSD_500",
-      "shap_value": -0.01917685263182117,
-      "feature_value": 8674201.0,
+      "shap_value": -0.05474180628756348,
+      "feature_value": 8674518.0,
       "display_name": "Uniswap TVL (5bp pool)"
     },
     {
       "feature": "swap_size_imbalance",
-      "shap_value": -0.018365816506026603,
-      "feature_value": -0.2904004156589508,
+      "shap_value": -0.04857386417883353,
+      "feature_value": 0.2667866349220276,
       "display_name": "swap_size_imbalance"
     },
     {
-      "feature": "hourlyVolumeUSD",
-      "shap_value": -0.014968376798428901,
-      "feature_value": 35001.14453125,
-      "display_name": "Curve hourly volume (USD)"
+      "feature": "tick_width_24h_rolling_median",
+      "shap_value": 0.03898421180656723,
+      "feature_value": 160.61207580566406,
+      "display_name": "Tick width (24h median)"
     },
     {
-      "feature": "fear_greed_index",
-      "shap_value": -0.011760317045146402,
-      "feature_value": 71.0,
-      "display_name": "Fear & greed index"
+      "feature": "utilisation_rate_usdt",
+      "shap_value": 0.03451822974152938,
+      "feature_value": 0.9344446063041687,
+      "display_name": "AAVE USDT utilisation"
     },
     {
-      "feature": "weighted_mean_age_hours",
-      "shap_value": -0.011637692164046183,
-      "feature_value": 6535.15283203125,
-      "display_name": "LP position age (hours)"
+      "feature": "utilisation_rate_usdc",
+      "shap_value": 0.02665710660093594,
+      "feature_value": 0.9372463822364807,
+      "display_name": "AAVE USDC utilisation"
     },
     {
-      "feature": "mid_ratio",
-      "shap_value": -0.0103178779705586,
-      "feature_value": 0.35114696621894836,
-      "display_name": "mid_ratio"
+      "feature": "supplied_USD_usdc",
+      "shap_value": -0.02643211252880394,
+      "feature_value": 2425990912.0,
+      "display_name": "AAVE USDC supplied (USD)"
+    },
+    {
+      "feature": "tangent_up",
+      "shap_value": -0.026062274523543837,
+      "feature_value": 2674253.75,
+      "display_name": "tangent_up"
     },
     {
       "feature": "tangent_down",
-      "shap_value": -0.010286536238575446,
-      "feature_value": 1421173.875,
+      "shap_value": -0.02199483156849643,
+      "feature_value": 3047100.25,
       "display_name": "tangent_down"
     },
     {
+      "feature": "w_USDC",
+      "shap_value": 0.018992266877031268,
+      "feature_value": 0.1855870634317398,
+      "display_name": "Curve USDC weight"
+    },
+    {
+      "feature": "weighted_mean_age_hours",
+      "shap_value": -0.015201641186383345,
+      "feature_value": 5148.0087890625,
+      "display_name": "LP position age (hours)"
+    },
+    {
       "feature": "low_ratio",
-      "shap_value": -0.009850427423164833,
-      "feature_value": 0.38913434743881226,
+      "shap_value": -0.014584575945930489,
+      "feature_value": 0.4262925386428833,
       "display_name": "low_ratio"
     },
     {
-      "feature": "Gegenbauer_0.4_deg2",
-      "shap_value": 0.009731760918844,
-      "feature_value": -4.948253631591797,
-      "display_name": "Liq. curve shape (deg 2)"
+      "feature": "totalValueLockedUSD",
+      "shap_value": -0.014218927117310518,
+      "feature_value": 155004704.0,
+      "display_name": "Curve TVL (USD)"
     },
     {
-      "feature": "net_amountUSD_100",
-      "shap_value": -0.00957190830289019,
-      "feature_value": 215731.953125,
-      "display_name": "Uniswap net flow USD (1bp)"
+      "feature": "hhi_24h_rolling_mean",
+      "shap_value": -0.014067376580876331,
+      "feature_value": 0.03799373283982277,
+      "display_name": "Liq. ownership HHI (24h MA)"
     },
     {
-      "feature": "E_low",
-      "shap_value": 0.00938996120832768,
-      "feature_value": 24.4941349029541,
-      "display_name": "E_low"
+      "feature": "hourlyVolumeUSD",
+      "shap_value": -0.012037184506711865,
+      "feature_value": 142392.453125,
+      "display_name": "Curve hourly volume (USD)"
     },
     {
-      "feature": "eth_price_usd",
-      "shap_value": -0.009383752822278563,
-      "feature_value": 2711.64013671875,
-      "display_name": "ETH price (USD)"
+      "feature": "E_total",
+      "shap_value": -0.012003001702035469,
+      "feature_value": 1146.568115234375,
+      "display_name": "E_total"
+    },
+    {
+      "feature": "supplied_USD_usdt",
+      "shap_value": -0.010669517426880229,
+      "feature_value": 2847292672.0,
+      "display_name": "AAVE USDT supplied (USD)"
+    },
+    {
+      "feature": "w_USDT",
+      "shap_value": 0.010629525541464391,
+      "feature_value": 0.6290835738182068,
+      "display_name": "Curve USDT weight"
+    },
+    {
+      "feature": "Gegenbauer_0.4_deg3",
+      "shap_value": 0.00839145698015457,
+      "feature_value": 1.2141289710998535,
+      "display_name": "Liq. curve shape (deg 3)"
+    },
+    {
+      "feature": "E_odd",
+      "shap_value": -0.00836635737576765,
+      "feature_value": 1.6876733303070068,
+      "display_name": "E_odd"
     }
   ],
   "global_shap": [
     {
       "feature": "curve_entropy",
-      "importance": 0.07891044338209562,
+      "importance": 0.07621547575910873,
       "display_name": "Curve pool entropy"
     },
     {
       "feature": "tangent_up",
-      "importance": 0.04802761638393238,
+      "importance": 0.04666939172554632,
       "display_name": "tangent_up"
     },
     {
       "feature": "tvlUSD_500",
-      "importance": 0.04206642126853685,
+      "importance": 0.041355692118762395,
       "display_name": "Uniswap TVL (5bp pool)"
     },
     {
       "feature": "w_USDC",
-      "importance": 0.03308046400341861,
+      "importance": 0.03624149651692465,
       "display_name": "Curve USDC weight"
     },
     {
       "feature": "tick_width_24h_rolling_median",
-      "importance": 0.03280782729305878,
+      "importance": 0.034458031728044486,
       "display_name": "Tick width (24h median)"
     },
     {
       "feature": "w_USDT",
-      "importance": 0.03258271781106883,
+      "importance": 0.03381047556435973,
       "display_name": "Curve USDT weight"
     },
     {
-      "feature": "supplied_USD_usdc",
-      "importance": 0.026324946865343098,
-      "display_name": "AAVE USDC supplied (USD)"
-    },
-    {
-      "feature": "swap_size_imbalance",
-      "importance": 0.02477558186278802,
-      "display_name": "swap_size_imbalance"
-    },
-    {
       "feature": "usd_index",
-      "importance": 0.022136708691613938,
+      "importance": 0.026283475760179517,
       "display_name": "USD index (DXY proxy)"
     },
     {
+      "feature": "swap_size_imbalance",
+      "importance": 0.02592428394409392,
+      "display_name": "swap_size_imbalance"
+    },
+    {
+      "feature": "supplied_USD_usdc",
+      "importance": 0.0213905230118606,
+      "display_name": "AAVE USDC supplied (USD)"
+    },
+    {
       "feature": "tangent_down",
-      "importance": 0.017354549756589593,
+      "importance": 0.016609695649288318,
       "display_name": "tangent_down"
     },
     {
       "feature": "totalValueLockedUSD",
-      "importance": 0.014281888856044981,
+      "importance": 0.014090358893040117,
       "display_name": "Curve TVL (USD)"
     },
     {
       "feature": "utilisation_rate_usdt",
-      "importance": 0.012700997495116951,
+      "importance": 0.013526551315968185,
       "display_name": "AAVE USDT utilisation"
     },
     {
-      "feature": "hourlyVolumeUSD",
-      "importance": 0.012007314815429954,
-      "display_name": "Curve hourly volume (USD)"
-    },
-    {
-      "feature": "E_total",
-      "importance": 0.01164170171442689,
-      "display_name": "E_total"
-    },
-    {
-      "feature": "fear_greed_index",
-      "importance": 0.011376637277772458,
-      "display_name": "Fear & greed index"
-    },
-    {
       "feature": "weighted_mean_age_hours",
-      "importance": 0.011376436949737563,
+      "importance": 0.012176870022989636,
       "display_name": "LP position age (hours)"
     },
     {
+      "feature": "E_total",
+      "importance": 0.011551562763417783,
+      "display_name": "E_total"
+    },
+    {
       "feature": "low_ratio",
-      "importance": 0.010969754615192291,
+      "importance": 0.011033323303393806,
       "display_name": "low_ratio"
     },
     {
-      "feature": "E_odd",
-      "importance": 0.010279414447614457,
-      "display_name": "E_odd"
-    },
-    {
       "feature": "utilisation_rate_usdc",
-      "importance": 0.008670573035713228,
+      "importance": 0.010893328740151741,
       "display_name": "AAVE USDC utilisation"
     },
     {
-      "feature": "eth_price_usd",
-      "importance": 0.008128103924605343,
-      "display_name": "ETH price (USD)"
+      "feature": "hourlyVolumeUSD",
+      "importance": 0.010169263054364918,
+      "display_name": "Curve hourly volume (USD)"
+    },
+    {
+      "feature": "fear_greed_index",
+      "importance": 0.009656424734067004,
+      "display_name": "Fear & greed index"
+    },
+    {
+      "feature": "E_odd",
+      "importance": 0.008141654864452534,
+      "display_name": "E_odd"
+    },
+    {
+      "feature": "Gegenbauer_0.4_deg1",
+      "importance": 0.007650436395237098,
+      "display_name": "Liq. curve shape (deg 1)"
     }
   ],
   "notable_values": {
-    "tvlUSD_100": 53871600.0,
-    "net_amountUSD_100": 215731.953125,
-    "swap_count_100": 63.0,
-    "w_USDC": 0.23645326495170593,
-    "w_USDT": 0.4928967356681824,
-    "curve_entropy": 1.0433895587921143,
-    "Gegenbauer_0.4_deg0": 33.2737922668457,
-    "Gegenbauer_0.4_deg1": 0.09444305300712585,
-    "Gegenbauer_0.4_deg2": -4.948253631591797,
-    "hhi_24h_rolling_mean": 0.0718437060713768,
-    "tick_width_24h_rolling_median": 194.4354248046875,
-    "utilisation_rate_usdt": 0.9311187863349915,
-    "utilisation_rate_usdc": 0.9318721890449524,
-    "fear_greed_index": 71.0,
-    "depeg_bps": 1.5740923881530762,
+    "tvlUSD_100": 44833780.0,
+    "net_amountUSD_100": 156501.625,
+    "swap_count_100": 52.0,
+    "w_USDC": 0.1855870634317398,
+    "w_USDT": 0.6290835738182068,
+    "curve_entropy": 0.9165412187576294,
+    "Gegenbauer_0.4_deg0": 33.05073928833008,
+    "Gegenbauer_0.4_deg1": 0.17343617975711823,
+    "Gegenbauer_0.4_deg2": -4.804388523101807,
+    "hhi_24h_rolling_mean": 0.03799373283982277,
+    "tick_width_24h_rolling_median": 160.61207580566406,
+    "utilisation_rate_usdt": 0.9344446063041687,
+    "utilisation_rate_usdc": 0.9372463822364807,
+    "fear_greed_index": 74.0,
+    "depeg_bps": 4.924170970916748,
     "display_names": {
       "tvlUSD_100": "Uniswap TVL (1bp pool)",
       "net_amountUSD_100": "Uniswap net flow USD (1bp)",
@@ -266,582 +266,6 @@
     }
   },
   "depeg_history": [
-    {
-      "timestamp": "2026-09-18 10:00:00+00:00",
-      "depeg_bps": 6.790711879730225
-    },
-    {
-      "timestamp": "2026-09-18 11:00:00+00:00",
-      "depeg_bps": 6.958166122436523
-    },
-    {
-      "timestamp": "2026-09-18 12:00:00+00:00",
-      "depeg_bps": 7.775542259216309
-    },
-    {
-      "timestamp": "2026-09-18 13:00:00+00:00",
-      "depeg_bps": 7.115869998931885
-    },
-    {
-      "timestamp": "2026-09-18 14:00:00+00:00",
-      "depeg_bps": 5.31297492980957
-    },
-    {
-      "timestamp": "2026-09-18 15:00:00+00:00",
-      "depeg_bps": 4.671762943267822
-    },
-    {
-      "timestamp": "2026-09-18 16:00:00+00:00",
-      "depeg_bps": 3.3686819076538086
-    },
-    {
-      "timestamp": "2026-09-18 17:00:00+00:00",
-      "depeg_bps": 3.1393792629241943
-    },
-    {
-      "timestamp": "2026-09-18 18:00:00+00:00",
-      "depeg_bps": 3.0670244693756104
-    },
-    {
-      "timestamp": "2026-09-18 19:00:00+00:00",
-      "depeg_bps": 2.7136571407318115
-    },
-    {
-      "timestamp": "2026-09-18 20:00:00+00:00",
-      "depeg_bps": 2.221463680267334
-    },
-    {
-      "timestamp": "2026-09-18 21:00:00+00:00",
-      "depeg_bps": 2.099544048309326
-    },
-    {
-      "timestamp": "2026-09-18 22:00:00+00:00",
-      "depeg_bps": 1.8497942686080933
-    },
-    {
-      "timestamp": "2026-09-18 23:00:00+00:00",
-      "depeg_bps": 1.8074921369552612
-    },
-    {
-      "timestamp": "2026-09-19 00:00:00+00:00",
-      "depeg_bps": 1.7954872846603394
-    },
-    {
-      "timestamp": "2026-09-19 01:00:00+00:00",
-      "depeg_bps": 1.6218241453170776
-    },
-    {
-      "timestamp": "2026-09-19 02:00:00+00:00",
-      "depeg_bps": 1.6135131120681763
-    },
-    {
-      "timestamp": "2026-09-19 03:00:00+00:00",
-      "depeg_bps": 1.5928665399551392
-    },
-    {
-      "timestamp": "2026-09-19 04:00:00+00:00",
-      "depeg_bps": 1.5996127128601074
-    },
-    {
-      "timestamp": "2026-09-19 05:00:00+00:00",
-      "depeg_bps": 1.5778415203094482
-    },
-    {
-      "timestamp": "2026-09-19 06:00:00+00:00",
-      "depeg_bps": 1.568534016609192
-    },
-    {
-      "timestamp": "2026-09-19 07:00:00+00:00",
-      "depeg_bps": 1.5143626928329468
-    },
-    {
-      "timestamp": "2026-09-19 08:00:00+00:00",
-      "depeg_bps": 1.4731138944625854
-    },
-    {
-      "timestamp": "2026-09-19 09:00:00+00:00",
-      "depeg_bps": 1.4351778030395508
-    },
-    {
-      "timestamp": "2026-09-19 10:00:00+00:00",
-      "depeg_bps": 1.5651681423187256
-    },
-    {
-      "timestamp": "2026-09-19 11:00:00+00:00",
-      "depeg_bps": 1.6122972965240479
-    },
-    {
-      "timestamp": "2026-09-19 12:00:00+00:00",
-      "depeg_bps": 1.6982537508010864
-    },
-    {
-      "timestamp": "2026-09-19 13:00:00+00:00",
-      "depeg_bps": 1.7217915058135986
-    },
-    {
-      "timestamp": "2026-09-19 14:00:00+00:00",
-      "depeg_bps": 1.7471176385879517
-    },
-    {
-      "timestamp": "2026-09-19 15:00:00+00:00",
-      "depeg_bps": 1.8272343873977661
-    },
-    {
-      "timestamp": "2026-09-19 16:00:00+00:00",
-      "depeg_bps": 1.7963483333587646
-    },
-    {
-      "timestamp": "2026-09-19 17:00:00+00:00",
-      "depeg_bps": 1.7547417879104614
-    },
-    {
-      "timestamp": "2026-09-19 18:00:00+00:00",
-      "depeg_bps": 1.6942375898361206
-    },
-    {
-      "timestamp": "2026-09-19 19:00:00+00:00",
-      "depeg_bps": 1.6371113061904907
-    },
-    {
-      "timestamp": "2026-09-19 20:00:00+00:00",
-      "depeg_bps": 1.5571156740188599
-    },
-    {
-      "timestamp": "2026-09-19 21:00:00+00:00",
-      "depeg_bps": 1.5399187803268433
-    },
-    {
-      "timestamp": "2026-09-19 22:00:00+00:00",
-      "depeg_bps": 1.545716404914856
-    },
-    {
-      "timestamp": "2026-09-19 23:00:00+00:00",
-      "depeg_bps": 1.5491386651992798
-    },
-    {
-      "timestamp": "2026-09-20 00:00:00+00:00",
-      "depeg_bps": 1.5346037149429321
-    },
-    {
-      "timestamp": "2026-09-20 01:00:00+00:00",
-      "depeg_bps": 1.5362457036972046
-    },
-    {
-      "timestamp": "2026-09-20 02:00:00+00:00",
-      "depeg_bps": 1.5395643711090088
-    },
-    {
-      "timestamp": "2026-09-20 03:00:00+00:00",
-      "depeg_bps": 1.5526702404022217
-    },
-    {
-      "timestamp": "2026-09-20 04:00:00+00:00",
-      "depeg_bps": 1.6471658945083618
-    },
-    {
-      "timestamp": "2026-09-20 05:00:00+00:00",
-      "depeg_bps": 1.572605013847351
-    },
-    {
-      "timestamp": "2026-09-20 06:00:00+00:00",
-      "depeg_bps": 1.610216736793518
-    },
-    {
-      "timestamp": "2026-09-20 07:00:00+00:00",
-      "depeg_bps": 1.5682605504989624
-    },
-    {
-      "timestamp": "2026-09-20 08:00:00+00:00",
-      "depeg_bps": 1.6166912317276
-    },
-    {
-      "timestamp": "2026-09-20 09:00:00+00:00",
-      "depeg_bps": 1.7164607048034668
-    },
-    {
-      "timestamp": "2026-09-20 10:00:00+00:00",
-      "depeg_bps": 1.7285672426223755
-    },
-    {
-      "timestamp": "2026-09-20 11:00:00+00:00",
-      "depeg_bps": 1.7161997556686401
-    },
-    {
-      "timestamp": "2026-09-20 12:00:00+00:00",
-      "depeg_bps": 1.753029227256775
-    },
-    {
-      "timestamp": "2026-09-20 13:00:00+00:00",
-      "depeg_bps": 1.7551521062850952
-    },
-    {
-      "timestamp": "2026-09-20 14:00:00+00:00",
-      "depeg_bps": 1.7481545209884644
-    },
-    {
-      "timestamp": "2026-09-20 15:00:00+00:00",
-      "depeg_bps": 1.8129554986953735
-    },
-    {
-      "timestamp": "2026-09-20 16:00:00+00:00",
-      "depeg_bps": 1.8064098358154297
-    },
-    {
-      "timestamp": "2026-09-20 17:00:00+00:00",
-      "depeg_bps": 1.8175208568572998
-    },
-    {
-      "timestamp": "2026-09-20 18:00:00+00:00",
-      "depeg_bps": 1.8096095323562622
-    },
-    {
-      "timestamp": "2026-09-20 19:00:00+00:00",
-      "depeg_bps": 1.797121524810791
-    },
-    {
-      "timestamp": "2026-09-20 20:00:00+00:00",
-      "depeg_bps": 1.7987515926361084
-    },
-    {
-      "timestamp": "2026-09-20 21:00:00+00:00",
-      "depeg_bps": 1.7883312702178955
-    },
-    {
-      "timestamp": "2026-09-20 22:00:00+00:00",
-      "depeg_bps": 1.7456486225128174
-    },
-    {
-      "timestamp": "2026-09-20 23:00:00+00:00",
-      "depeg_bps": 1.722044825553894
-    },
-    {
-      "timestamp": "2026-09-21 00:00:00+00:00",
-      "depeg_bps": 1.8082505464553833
-    },
-    {
-      "timestamp": "2026-09-21 01:00:00+00:00",
-      "depeg_bps": 1.8158820867538452
-    },
-    {
-      "timestamp": "2026-09-21 02:00:00+00:00",
-      "depeg_bps": 1.7873876094818115
-    },
-    {
-      "timestamp": "2026-09-21 03:00:00+00:00",
-      "depeg_bps": 1.8120256662368774
-    },
-    {
-      "timestamp": "2026-09-21 04:00:00+00:00",
-      "depeg_bps": 1.781335473060608
-    },
-    {
-      "timestamp": "2026-09-21 05:00:00+00:00",
-      "depeg_bps": 2.54118013381958
-    },
-    {
-      "timestamp": "2026-09-21 06:00:00+00:00",
-      "depeg_bps": 2.357952356338501
-    },
-    {
-      "timestamp": "2026-09-21 07:00:00+00:00",
-      "depeg_bps": 2.008354663848877
-    },
-    {
-      "timestamp": "2026-09-21 08:00:00+00:00",
-      "depeg_bps": 1.9081611633300781
-    },
-    {
-      "timestamp": "2026-09-21 09:00:00+00:00",
-      "depeg_bps": 1.6884019374847412
-    },
-    {
-      "timestamp": "2026-09-21 10:00:00+00:00",
-      "depeg_bps": 1.6726924180984497
-    },
-    {
-      "timestamp": "2026-09-21 11:00:00+00:00",
-      "depeg_bps": 1.3080546855926514
-    },
-    {
-      "timestamp": "2026-09-21 12:00:00+00:00",
-      "depeg_bps": 1.3607040643692017
-    },
-    {
-      "timestamp": "2026-09-21 13:00:00+00:00",
-      "depeg_bps": 1.5656522512435913
-    },
-    {
-      "timestamp": "2026-09-21 14:00:00+00:00",
-      "depeg_bps": 1.8205560445785522
-    },
-    {
-      "timestamp": "2026-09-21 15:00:00+00:00",
-      "depeg_bps": 1.5418968200683594
-    },
-    {
-      "timestamp": "2026-09-21 16:00:00+00:00",
-      "depeg_bps": 0.35031312704086304
-    },
-    {
-      "timestamp": "2026-09-21 17:00:00+00:00",
-      "depeg_bps": 0.07895655184984207
-    },
-    {
-      "timestamp": "2026-09-21 18:00:00+00:00",
-      "depeg_bps": 0.05004119500517845
-    },
-    {
-      "timestamp": "2026-09-21 19:00:00+00:00",
-      "depeg_bps": 0.144562229514122
-    },
-    {
-      "timestamp": "2026-09-21 20:00:00+00:00",
-      "depeg_bps": 0.06672753393650055
-    },
-    {
-      "timestamp": "2026-09-21 21:00:00+00:00",
-      "depeg_bps": 0.07456545531749725
-    },
-    {
-      "timestamp": "2026-09-21 22:00:00+00:00",
-      "depeg_bps": 0.19645623862743378
-    },
-    {
-      "timestamp": "2026-09-21 23:00:00+00:00",
-      "depeg_bps": 0.2743660509586334
-    },
-    {
-      "timestamp": "2026-09-22 00:00:00+00:00",
-      "depeg_bps": 0.5912036299705505
-    },
-    {
-      "timestamp": "2026-09-22 01:00:00+00:00",
-      "depeg_bps": 0.8294359445571899
-    },
-    {
-      "timestamp": "2026-09-22 02:00:00+00:00",
-      "depeg_bps": 1.0385981798171997
-    },
-    {
-      "timestamp": "2026-09-22 03:00:00+00:00",
-      "depeg_bps": 1.1269878149032593
-    },
-    {
-      "timestamp": "2026-09-22 04:00:00+00:00",
-      "depeg_bps": 1.129485011100769
-    },
-    {
-      "timestamp": "2026-09-22 05:00:00+00:00",
-      "depeg_bps": 1.095251441001892
-    },
-    {
-      "timestamp": "2026-09-22 06:00:00+00:00",
-      "depeg_bps": 1.093099594116211
-    },
-    {
-      "timestamp": "2026-09-22 07:00:00+00:00",
-      "depeg_bps": 1.1057120561599731
-    },
-    {
-      "timestamp": "2026-09-22 08:00:00+00:00",
-      "depeg_bps": 1.0566529035568237
-    },
-    {
-      "timestamp": "2026-09-22 09:00:00+00:00",
-      "depeg_bps": 1.215335488319397
-    },
-    {
-      "timestamp": "2026-09-22 10:00:00+00:00",
-      "depeg_bps": 1.6043751239776611
-    },
-    {
-      "timestamp": "2026-09-22 11:00:00+00:00",
-      "depeg_bps": 1.7919905185699463
-    },
-    {
-      "timestamp": "2026-09-22 12:00:00+00:00",
-      "depeg_bps": 1.7927474975585938
-    },
-    {
-      "timestamp": "2026-09-22 13:00:00+00:00",
-      "depeg_bps": 2.0158045291900635
-    },
-    {
-      "timestamp": "2026-09-22 14:00:00+00:00",
-      "depeg_bps": 1.447402834892273
-    },
-    {
-      "timestamp": "2026-09-22 15:00:00+00:00",
-      "depeg_bps": 1.418287992477417
-    },
-    {
-      "timestamp": "2026-09-22 16:00:00+00:00",
-      "depeg_bps": 1.1956703662872314
-    },
-    {
-      "timestamp": "2026-09-22 17:00:00+00:00",
-      "depeg_bps": 0.6954872012138367
-    },
-    {
-      "timestamp": "2026-09-22 18:00:00+00:00",
-      "depeg_bps": 0.5639955997467041
-    },
-    {
-      "timestamp": "2026-09-22 19:00:00+00:00",
-      "depeg_bps": 0.1930098831653595
-    },
-    {
-      "timestamp": "2026-09-22 20:00:00+00:00",
-      "depeg_bps": -1.4446344375610352
-    },
-    {
-      "timestamp": "2026-09-22 21:00:00+00:00",
-      "depeg_bps": -1.0951728820800781
-    },
-    {
-      "timestamp": "2026-09-22 22:00:00+00:00",
-      "depeg_bps": -1.0102781057357788
-    },
-    {
-      "timestamp": "2026-09-22 23:00:00+00:00",
-      "depeg_bps": -0.44922396540641785
-    },
-    {
-      "timestamp": "2026-09-23 00:00:00+00:00",
-      "depeg_bps": -0.42045652866363525
-    },
-    {
-      "timestamp": "2026-09-23 01:00:00+00:00",
-      "depeg_bps": -0.40044280886650085
-    },
-    {
-      "timestamp": "2026-09-23 02:00:00+00:00",
-      "depeg_bps": 0.29877492785453796
-    },
-    {
-      "timestamp": "2026-09-23 03:00:00+00:00",
-      "depeg_bps": 0.32798612117767334
-    },
-    {
-      "timestamp": "2026-09-23 04:00:00+00:00",
-      "depeg_bps": 0.34219226241111755
-    },
-    {
-      "timestamp": "2026-09-23 05:00:00+00:00",
-      "depeg_bps": 0.363547146320343
-    },
-    {
-      "timestamp": "2026-09-23 06:00:00+00:00",
-      "depeg_bps": 0.38584408164024353
-    },
-    {
-      "timestamp": "2026-09-23 07:00:00+00:00",
-      "depeg_bps": 0.3615490794181824
-    },
-    {
-      "timestamp": "2026-09-23 08:00:00+00:00",
-      "depeg_bps": 0.35982075333595276
-    },
-    {
-      "timestamp": "2026-09-23 09:00:00+00:00",
-      "depeg_bps": 0.2979761064052582
-    },
-    {
-      "timestamp": "2026-09-23 10:00:00+00:00",
-      "depeg_bps": 0.2914262115955353
-    },
-    {
-      "timestamp": "2026-09-23 11:00:00+00:00",
-      "depeg_bps": 0.5852885842323303
-    },
-    {
-      "timestamp": "2026-09-23 12:00:00+00:00",
-      "depeg_bps": 0.858519971370697
-    },
-    {
-      "timestamp": "2026-09-23 13:00:00+00:00",
-      "depeg_bps": 0.8611514568328857
-    },
-    {
-      "timestamp": "2026-09-23 14:00:00+00:00",
-      "depeg_bps": 0.9262611269950867
-    },
-    {
-      "timestamp": "2026-09-23 15:00:00+00:00",
-      "depeg_bps": 0.5650125741958618
-    },
-    {
-      "timestamp": "2026-09-23 16:00:00+00:00",
-      "depeg_bps": -0.4038585126399994
-    },
-    {
-      "timestamp": "2026-09-23 17:00:00+00:00",
-      "depeg_bps": 0.19522720575332642
-    },
-    {
-      "timestamp": "2026-09-23 18:00:00+00:00",
-      "depeg_bps": 0.19755366444587708
-    },
-    {
-      "timestamp": "2026-09-23 19:00:00+00:00",
-      "depeg_bps": 0.16086316108703613
-    },
-    {
-      "timestamp": "2026-09-23 20:00:00+00:00",
-      "depeg_bps": 0.21044333279132843
-    },
-    {
-      "timestamp": "2026-09-23 21:00:00+00:00",
-      "depeg_bps": 0.19609399139881134
-    },
-    {
-      "timestamp": "2026-09-23 22:00:00+00:00",
-      "depeg_bps": 0.22319096326828003
-    },
-    {
-      "timestamp": "2026-09-23 23:00:00+00:00",
-      "depeg_bps": 0.173224076628685
-    },
-    {
-      "timestamp": "2026-09-24 00:00:00+00:00",
-      "depeg_bps": 0.22969123721122742
-    },
-    {
-      "timestamp": "2026-09-24 01:00:00+00:00",
-      "depeg_bps": 0.2084529548883438
-    },
-    {
-      "timestamp": "2026-09-24 02:00:00+00:00",
-      "depeg_bps": 0.2157953828573227
-    },
-    {
-      "timestamp": "2026-09-24 03:00:00+00:00",
-      "depeg_bps": 0.21369612216949463
-    },
-    {
-      "timestamp": "2026-09-24 04:00:00+00:00",
-      "depeg_bps": 0.4949619472026825
-    },
-    {
-      "timestamp": "2026-09-24 05:00:00+00:00",
-      "depeg_bps": 0.49872931838035583
-    },
-    {
-      "timestamp": "2026-09-24 06:00:00+00:00",
-      "depeg_bps": 0.49482032656669617
-    },
-    {
-      "timestamp": "2026-09-24 07:00:00+00:00",
-      "depeg_bps": 0.31102561950683594
-    },
-    {
-      "timestamp": "2026-09-24 08:00:00+00:00",
-      "depeg_bps": 0.9905306696891785
-    },
-    {
-      "timestamp": "2026-09-24 09:00:00+00:00",
-      "depeg_bps": 1.1432026624679565
-    },
     {
       "timestamp": "2026-09-24 10:00:00+00:00",
       "depeg_bps": 1.0702879428863525
@@ -937,6 +361,582 @@
     {
       "timestamp": "2026-09-25 09:00:00+00:00",
       "depeg_bps": 1.5740923881530762
+    },
+    {
+      "timestamp": "2026-09-25 10:00:00+00:00",
+      "depeg_bps": 1.5592641830444336
+    },
+    {
+      "timestamp": "2026-09-25 11:00:00+00:00",
+      "depeg_bps": 1.397681474685669
+    },
+    {
+      "timestamp": "2026-09-25 12:00:00+00:00",
+      "depeg_bps": 1.5106666088104248
+    },
+    {
+      "timestamp": "2026-09-25 13:00:00+00:00",
+      "depeg_bps": 1.5483970642089844
+    },
+    {
+      "timestamp": "2026-09-25 14:00:00+00:00",
+      "depeg_bps": 1.6341636180877686
+    },
+    {
+      "timestamp": "2026-09-25 15:00:00+00:00",
+      "depeg_bps": 1.5792014598846436
+    },
+    {
+      "timestamp": "2026-09-25 16:00:00+00:00",
+      "depeg_bps": 1.5438810586929321
+    },
+    {
+      "timestamp": "2026-09-25 17:00:00+00:00",
+      "depeg_bps": 1.5521399974822998
+    },
+    {
+      "timestamp": "2026-09-25 18:00:00+00:00",
+      "depeg_bps": 1.552547812461853
+    },
+    {
+      "timestamp": "2026-09-25 19:00:00+00:00",
+      "depeg_bps": 1.5876741409301758
+    },
+    {
+      "timestamp": "2026-09-25 20:00:00+00:00",
+      "depeg_bps": 1.5637493133544922
+    },
+    {
+      "timestamp": "2026-09-25 21:00:00+00:00",
+      "depeg_bps": 1.5552152395248413
+    },
+    {
+      "timestamp": "2026-09-25 22:00:00+00:00",
+      "depeg_bps": 1.536936640739441
+    },
+    {
+      "timestamp": "2026-09-25 23:00:00+00:00",
+      "depeg_bps": 1.3026705980300903
+    },
+    {
+      "timestamp": "2026-09-26 00:00:00+00:00",
+      "depeg_bps": 1.2312942743301392
+    },
+    {
+      "timestamp": "2026-09-26 01:00:00+00:00",
+      "depeg_bps": 1.224509596824646
+    },
+    {
+      "timestamp": "2026-09-26 02:00:00+00:00",
+      "depeg_bps": 1.2212907075881958
+    },
+    {
+      "timestamp": "2026-09-26 03:00:00+00:00",
+      "depeg_bps": 1.2164502143859863
+    },
+    {
+      "timestamp": "2026-09-26 04:00:00+00:00",
+      "depeg_bps": 1.2117061614990234
+    },
+    {
+      "timestamp": "2026-09-26 05:00:00+00:00",
+      "depeg_bps": 1.2087076902389526
+    },
+    {
+      "timestamp": "2026-09-26 06:00:00+00:00",
+      "depeg_bps": 1.2032371759414673
+    },
+    {
+      "timestamp": "2026-09-26 07:00:00+00:00",
+      "depeg_bps": 1.1948081254959106
+    },
+    {
+      "timestamp": "2026-09-26 08:00:00+00:00",
+      "depeg_bps": 1.1886430978775024
+    },
+    {
+      "timestamp": "2026-09-26 09:00:00+00:00",
+      "depeg_bps": 1.183823585510254
+    },
+    {
+      "timestamp": "2026-09-26 10:00:00+00:00",
+      "depeg_bps": 1.1767387390136719
+    },
+    {
+      "timestamp": "2026-09-26 11:00:00+00:00",
+      "depeg_bps": 1.18234384059906
+    },
+    {
+      "timestamp": "2026-09-26 12:00:00+00:00",
+      "depeg_bps": 1.203988790512085
+    },
+    {
+      "timestamp": "2026-09-26 13:00:00+00:00",
+      "depeg_bps": 1.199215054512024
+    },
+    {
+      "timestamp": "2026-09-26 14:00:00+00:00",
+      "depeg_bps": 1.1927434206008911
+    },
+    {
+      "timestamp": "2026-09-26 15:00:00+00:00",
+      "depeg_bps": 1.176751732826233
+    },
+    {
+      "timestamp": "2026-09-26 16:00:00+00:00",
+      "depeg_bps": 1.1074280738830566
+    },
+    {
+      "timestamp": "2026-09-26 17:00:00+00:00",
+      "depeg_bps": 1.1111736297607422
+    },
+    {
+      "timestamp": "2026-09-26 18:00:00+00:00",
+      "depeg_bps": 1.0925384759902954
+    },
+    {
+      "timestamp": "2026-09-26 19:00:00+00:00",
+      "depeg_bps": 1.0598421096801758
+    },
+    {
+      "timestamp": "2026-09-26 20:00:00+00:00",
+      "depeg_bps": 1.0590853691101074
+    },
+    {
+      "timestamp": "2026-09-26 21:00:00+00:00",
+      "depeg_bps": 1.0347270965576172
+    },
+    {
+      "timestamp": "2026-09-26 22:00:00+00:00",
+      "depeg_bps": 1.037564992904663
+    },
+    {
+      "timestamp": "2026-09-26 23:00:00+00:00",
+      "depeg_bps": 1.0328261852264404
+    },
+    {
+      "timestamp": "2026-09-27 00:00:00+00:00",
+      "depeg_bps": 1.021295189857483
+    },
+    {
+      "timestamp": "2026-09-27 01:00:00+00:00",
+      "depeg_bps": 1.0105116367340088
+    },
+    {
+      "timestamp": "2026-09-27 02:00:00+00:00",
+      "depeg_bps": 0.994392991065979
+    },
+    {
+      "timestamp": "2026-09-27 03:00:00+00:00",
+      "depeg_bps": 0.973061740398407
+    },
+    {
+      "timestamp": "2026-09-27 04:00:00+00:00",
+      "depeg_bps": 1.0041403770446777
+    },
+    {
+      "timestamp": "2026-09-27 05:00:00+00:00",
+      "depeg_bps": 2.189910888671875
+    },
+    {
+      "timestamp": "2026-09-27 06:00:00+00:00",
+      "depeg_bps": 2.18587589263916
+    },
+    {
+      "timestamp": "2026-09-27 07:00:00+00:00",
+      "depeg_bps": 1.427712082862854
+    },
+    {
+      "timestamp": "2026-09-27 08:00:00+00:00",
+      "depeg_bps": 1.3478349447250366
+    },
+    {
+      "timestamp": "2026-09-27 09:00:00+00:00",
+      "depeg_bps": 1.340075969696045
+    },
+    {
+      "timestamp": "2026-09-27 10:00:00+00:00",
+      "depeg_bps": 1.122199535369873
+    },
+    {
+      "timestamp": "2026-09-27 11:00:00+00:00",
+      "depeg_bps": 1.3063267469406128
+    },
+    {
+      "timestamp": "2026-09-27 12:00:00+00:00",
+      "depeg_bps": 1.7571009397506714
+    },
+    {
+      "timestamp": "2026-09-27 13:00:00+00:00",
+      "depeg_bps": 1.7356488704681396
+    },
+    {
+      "timestamp": "2026-09-27 14:00:00+00:00",
+      "depeg_bps": 1.715999960899353
+    },
+    {
+      "timestamp": "2026-09-27 15:00:00+00:00",
+      "depeg_bps": 1.6880460977554321
+    },
+    {
+      "timestamp": "2026-09-27 16:00:00+00:00",
+      "depeg_bps": 1.6342551708221436
+    },
+    {
+      "timestamp": "2026-09-27 17:00:00+00:00",
+      "depeg_bps": 1.6293209791183472
+    },
+    {
+      "timestamp": "2026-09-27 18:00:00+00:00",
+      "depeg_bps": 1.6375406980514526
+    },
+    {
+      "timestamp": "2026-09-27 19:00:00+00:00",
+      "depeg_bps": 1.6466268301010132
+    },
+    {
+      "timestamp": "2026-09-27 20:00:00+00:00",
+      "depeg_bps": 1.6590055227279663
+    },
+    {
+      "timestamp": "2026-09-27 21:00:00+00:00",
+      "depeg_bps": 1.6531378030776978
+    },
+    {
+      "timestamp": "2026-09-27 22:00:00+00:00",
+      "depeg_bps": 1.6336854696273804
+    },
+    {
+      "timestamp": "2026-09-27 23:00:00+00:00",
+      "depeg_bps": 1.6310335397720337
+    },
+    {
+      "timestamp": "2026-09-28 00:00:00+00:00",
+      "depeg_bps": 1.639080286026001
+    },
+    {
+      "timestamp": "2026-09-28 01:00:00+00:00",
+      "depeg_bps": 1.6329957246780396
+    },
+    {
+      "timestamp": "2026-09-28 02:00:00+00:00",
+      "depeg_bps": 1.6402007341384888
+    },
+    {
+      "timestamp": "2026-09-28 03:00:00+00:00",
+      "depeg_bps": 1.6405788660049438
+    },
+    {
+      "timestamp": "2026-09-28 04:00:00+00:00",
+      "depeg_bps": 1.6381523609161377
+    },
+    {
+      "timestamp": "2026-09-28 05:00:00+00:00",
+      "depeg_bps": 1.658678650856018
+    },
+    {
+      "timestamp": "2026-09-28 06:00:00+00:00",
+      "depeg_bps": 2.1460893154144287
+    },
+    {
+      "timestamp": "2026-09-28 07:00:00+00:00",
+      "depeg_bps": 2.976877212524414
+    },
+    {
+      "timestamp": "2026-09-28 08:00:00+00:00",
+      "depeg_bps": 3.134876012802124
+    },
+    {
+      "timestamp": "2026-09-28 09:00:00+00:00",
+      "depeg_bps": 3.9085593223571777
+    },
+    {
+      "timestamp": "2026-09-28 10:00:00+00:00",
+      "depeg_bps": 3.902916431427002
+    },
+    {
+      "timestamp": "2026-09-28 11:00:00+00:00",
+      "depeg_bps": 3.862121820449829
+    },
+    {
+      "timestamp": "2026-09-28 12:00:00+00:00",
+      "depeg_bps": 2.3852994441986084
+    },
+    {
+      "timestamp": "2026-09-28 13:00:00+00:00",
+      "depeg_bps": 2.298327684402466
+    },
+    {
+      "timestamp": "2026-09-28 14:00:00+00:00",
+      "depeg_bps": 2.635112762451172
+    },
+    {
+      "timestamp": "2026-09-28 15:00:00+00:00",
+      "depeg_bps": 2.707806348800659
+    },
+    {
+      "timestamp": "2026-09-28 16:00:00+00:00",
+      "depeg_bps": 2.774611473083496
+    },
+    {
+      "timestamp": "2026-09-28 17:00:00+00:00",
+      "depeg_bps": 2.7465312480926514
+    },
+    {
+      "timestamp": "2026-09-28 18:00:00+00:00",
+      "depeg_bps": 2.812021493911743
+    },
+    {
+      "timestamp": "2026-09-28 19:00:00+00:00",
+      "depeg_bps": 3.384709358215332
+    },
+    {
+      "timestamp": "2026-09-28 20:00:00+00:00",
+      "depeg_bps": 3.571995735168457
+    },
+    {
+      "timestamp": "2026-09-28 21:00:00+00:00",
+      "depeg_bps": 3.765810966491699
+    },
+    {
+      "timestamp": "2026-09-28 22:00:00+00:00",
+      "depeg_bps": 4.042881965637207
+    },
+    {
+      "timestamp": "2026-09-28 23:00:00+00:00",
+      "depeg_bps": 4.052911758422852
+    },
+    {
+      "timestamp": "2026-09-29 00:00:00+00:00",
+      "depeg_bps": 4.052254676818848
+    },
+    {
+      "timestamp": "2026-09-29 01:00:00+00:00",
+      "depeg_bps": 4.038515567779541
+    },
+    {
+      "timestamp": "2026-09-29 02:00:00+00:00",
+      "depeg_bps": 3.9987292289733887
+    },
+    {
+      "timestamp": "2026-09-29 03:00:00+00:00",
+      "depeg_bps": 3.973680019378662
+    },
+    {
+      "timestamp": "2026-09-29 04:00:00+00:00",
+      "depeg_bps": 4.015331745147705
+    },
+    {
+      "timestamp": "2026-09-29 05:00:00+00:00",
+      "depeg_bps": 4.053849697113037
+    },
+    {
+      "timestamp": "2026-09-29 06:00:00+00:00",
+      "depeg_bps": 4.108158588409424
+    },
+    {
+      "timestamp": "2026-09-29 07:00:00+00:00",
+      "depeg_bps": 4.343163013458252
+    },
+    {
+      "timestamp": "2026-09-29 08:00:00+00:00",
+      "depeg_bps": 4.482604503631592
+    },
+    {
+      "timestamp": "2026-09-29 09:00:00+00:00",
+      "depeg_bps": 4.166028022766113
+    },
+    {
+      "timestamp": "2026-09-29 10:00:00+00:00",
+      "depeg_bps": 4.161196231842041
+    },
+    {
+      "timestamp": "2026-09-29 11:00:00+00:00",
+      "depeg_bps": 4.05718994140625
+    },
+    {
+      "timestamp": "2026-09-29 12:00:00+00:00",
+      "depeg_bps": 3.6664023399353027
+    },
+    {
+      "timestamp": "2026-09-29 13:00:00+00:00",
+      "depeg_bps": 3.5449066162109375
+    },
+    {
+      "timestamp": "2026-09-29 14:00:00+00:00",
+      "depeg_bps": 3.5350091457366943
+    },
+    {
+      "timestamp": "2026-09-29 15:00:00+00:00",
+      "depeg_bps": 3.5143442153930664
+    },
+    {
+      "timestamp": "2026-09-29 16:00:00+00:00",
+      "depeg_bps": 3.235718011856079
+    },
+    {
+      "timestamp": "2026-09-29 17:00:00+00:00",
+      "depeg_bps": 3.186422348022461
+    },
+    {
+      "timestamp": "2026-09-29 18:00:00+00:00",
+      "depeg_bps": 3.179867744445801
+    },
+    {
+      "timestamp": "2026-09-29 19:00:00+00:00",
+      "depeg_bps": 3.1521449089050293
+    },
+    {
+      "timestamp": "2026-09-29 20:00:00+00:00",
+      "depeg_bps": 3.0952179431915283
+    },
+    {
+      "timestamp": "2026-09-29 21:00:00+00:00",
+      "depeg_bps": 3.3495471477508545
+    },
+    {
+      "timestamp": "2026-09-29 22:00:00+00:00",
+      "depeg_bps": 3.449840545654297
+    },
+    {
+      "timestamp": "2026-09-29 23:00:00+00:00",
+      "depeg_bps": 3.4476966857910156
+    },
+    {
+      "timestamp": "2026-09-30 00:00:00+00:00",
+      "depeg_bps": 3.4387755393981934
+    },
+    {
+      "timestamp": "2026-09-30 01:00:00+00:00",
+      "depeg_bps": 3.433119297027588
+    },
+    {
+      "timestamp": "2026-09-30 02:00:00+00:00",
+      "depeg_bps": 3.899782657623291
+    },
+    {
+      "timestamp": "2026-09-30 03:00:00+00:00",
+      "depeg_bps": 3.961089611053467
+    },
+    {
+      "timestamp": "2026-09-30 04:00:00+00:00",
+      "depeg_bps": 3.959930181503296
+    },
+    {
+      "timestamp": "2026-09-30 05:00:00+00:00",
+      "depeg_bps": 4.101225852966309
+    },
+    {
+      "timestamp": "2026-09-30 06:00:00+00:00",
+      "depeg_bps": 4.13157320022583
+    },
+    {
+      "timestamp": "2026-09-30 07:00:00+00:00",
+      "depeg_bps": 4.145793914794922
+    },
+    {
+      "timestamp": "2026-09-30 08:00:00+00:00",
+      "depeg_bps": 4.15055513381958
+    },
+    {
+      "timestamp": "2026-09-30 09:00:00+00:00",
+      "depeg_bps": 4.126386642456055
+    },
+    {
+      "timestamp": "2026-09-30 10:00:00+00:00",
+      "depeg_bps": 4.1212029457092285
+    },
+    {
+      "timestamp": "2026-09-30 11:00:00+00:00",
+      "depeg_bps": 4.1095757484436035
+    },
+    {
+      "timestamp": "2026-09-30 12:00:00+00:00",
+      "depeg_bps": 4.158479690551758
+    },
+    {
+      "timestamp": "2026-09-30 13:00:00+00:00",
+      "depeg_bps": 4.142800807952881
+    },
+    {
+      "timestamp": "2026-09-30 14:00:00+00:00",
+      "depeg_bps": 4.289121627807617
+    },
+    {
+      "timestamp": "2026-09-30 15:00:00+00:00",
+      "depeg_bps": 6.124421119689941
+    },
+    {
+      "timestamp": "2026-09-30 16:00:00+00:00",
+      "depeg_bps": 6.051227569580078
+    },
+    {
+      "timestamp": "2026-09-30 17:00:00+00:00",
+      "depeg_bps": 5.826182842254639
+    },
+    {
+      "timestamp": "2026-09-30 18:00:00+00:00",
+      "depeg_bps": 4.40216588973999
+    },
+    {
+      "timestamp": "2026-09-30 19:00:00+00:00",
+      "depeg_bps": 4.430693626403809
+    },
+    {
+      "timestamp": "2026-09-30 20:00:00+00:00",
+      "depeg_bps": 4.6515583992004395
+    },
+    {
+      "timestamp": "2026-09-30 21:00:00+00:00",
+      "depeg_bps": 5.021551609039307
+    },
+    {
+      "timestamp": "2026-09-30 22:00:00+00:00",
+      "depeg_bps": 5.010232448577881
+    },
+    {
+      "timestamp": "2026-09-30 23:00:00+00:00",
+      "depeg_bps": 5.168914318084717
+    },
+    {
+      "timestamp": "2026-10-01 00:00:00+00:00",
+      "depeg_bps": 5.24888801574707
+    },
+    {
+      "timestamp": "2026-10-01 01:00:00+00:00",
+      "depeg_bps": 5.5324931144714355
+    },
+    {
+      "timestamp": "2026-10-01 02:00:00+00:00",
+      "depeg_bps": 5.63812780380249
+    },
+    {
+      "timestamp": "2026-10-01 03:00:00+00:00",
+      "depeg_bps": 6.119509696960449
+    },
+    {
+      "timestamp": "2026-10-01 04:00:00+00:00",
+      "depeg_bps": 6.131510257720947
+    },
+    {
+      "timestamp": "2026-10-01 05:00:00+00:00",
+      "depeg_bps": 6.117321968078613
+    },
+    {
+      "timestamp": "2026-10-01 06:00:00+00:00",
+      "depeg_bps": 5.505807399749756
+    },
+    {
+      "timestamp": "2026-10-01 07:00:00+00:00",
+      "depeg_bps": 4.857013702392578
+    },
+    {
+      "timestamp": "2026-10-01 08:00:00+00:00",
+      "depeg_bps": 4.9552903175354
+    },
+    {
+      "timestamp": "2026-10-01 09:00:00+00:00",
+      "depeg_bps": 4.924170970916748
     }
   ]
 }
