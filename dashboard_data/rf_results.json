@@ -1,252 +1,252 @@
 {
-  "probability": 0.04305566720768062,
-  "auc": 0.6477271181830545,
-  "brier_score": 0.015244375915634047,
+  "probability": 0.02162987600310598,
+  "auc": 0.6383507186300159,
+  "brier_score": 0.015170470177217232,
   "calibrated": true,
   "target_threshold_bps": 15,
   "target_window_hours": 24,
-  "timestamp": "2026-10-13 08:00:00+00:00",
+  "timestamp": "2026-10-14 06:00:00+00:00",
   "alpha": 0.4,
   "local_shap": [
     {
-      "feature": "curve_entropy",
-      "shap_value": 0.08282877552710347,
-      "feature_value": 0.8118814826011658,
-      "display_name": "Curve pool entropy"
-    },
-    {
       "feature": "tangent_up",
-      "shap_value": 0.08240598219334697,
-      "feature_value": 52178.87109375,
+      "shap_value": 0.07721580655421786,
+      "feature_value": 160107.03125,
       "display_name": "tangent_up"
     },
     {
+      "feature": "curve_entropy",
+      "shap_value": 0.07526752680023506,
+      "feature_value": 0.840864360332489,
+      "display_name": "Curve pool entropy"
+    },
+    {
       "feature": "tvlUSD_500",
-      "shap_value": -0.07697528602906374,
-      "feature_value": 8575625.0,
+      "shap_value": -0.06526898448236841,
+      "feature_value": 8575782.0,
       "display_name": "Uniswap TVL (5bp pool)"
     },
     {
       "feature": "w_USDC",
-      "shap_value": 0.04355836466896813,
-      "feature_value": 0.14979888498783112,
+      "shap_value": 0.047240078995594174,
+      "feature_value": 0.15862402319908142,
       "display_name": "Curve USDC weight"
     },
     {
-      "feature": "tangent_down",
-      "shap_value": 0.035714742574805274,
-      "feature_value": 238540.828125,
-      "display_name": "tangent_down"
-    },
-    {
       "feature": "swap_size_imbalance",
-      "shap_value": 0.033632815580485795,
-      "feature_value": 0.9748206734657288,
+      "shap_value": 0.034815677432388246,
+      "feature_value": 0.9474785327911377,
       "display_name": "swap_size_imbalance"
     },
     {
-      "feature": "totalValueLockedUSD",
-      "shap_value": -0.03188664381524584,
-      "feature_value": 153662016.0,
-      "display_name": "Curve TVL (USD)"
-    },
-    {
-      "feature": "w_USDT",
-      "shap_value": 0.0312989578064627,
-      "feature_value": 0.7044481039047241,
-      "display_name": "Curve USDT weight"
-    },
-    {
       "feature": "tick_width_24h_rolling_median",
-      "shap_value": 0.026086871512295447,
+      "shap_value": 0.03277042119117658,
       "feature_value": 200.0,
       "display_name": "Tick width (24h median)"
     },
     {
+      "feature": "w_USDT",
+      "shap_value": 0.02819761555091974,
+      "feature_value": 0.6853463053703308,
+      "display_name": "Curve USDT weight"
+    },
+    {
+      "feature": "tangent_down",
+      "shap_value": -0.025919674719189916,
+      "feature_value": 1375408.5,
+      "display_name": "tangent_down"
+    },
+    {
+      "feature": "supplied_USD_usdc",
+      "shap_value": -0.02500237941560768,
+      "feature_value": 2386536704.0,
+      "display_name": "AAVE USDC supplied (USD)"
+    },
+    {
+      "feature": "totalValueLockedUSD",
+      "shap_value": -0.022468611082220792,
+      "feature_value": 153539488.0,
+      "display_name": "Curve TVL (USD)"
+    },
+    {
+      "feature": "low_ratio",
+      "shap_value": -0.02057803712156123,
+      "feature_value": 0.42924946546554565,
+      "display_name": "low_ratio"
+    },
+    {
       "feature": "hourlyVolumeUSD",
-      "shap_value": -0.02238556818521577,
-      "feature_value": 132.07708740234375,
+      "shap_value": -0.01863900303196052,
+      "feature_value": 80949.7421875,
       "display_name": "Curve hourly volume (USD)"
     },
     {
       "feature": "E_odd",
-      "shap_value": -0.020873998905654275,
-      "feature_value": 1.5373884439468384,
+      "shap_value": -0.017119627760153876,
+      "feature_value": 1.5507171154022217,
       "display_name": "E_odd"
     },
     {
-      "feature": "supplied_USD_usdc",
-      "shap_value": -0.018855070124022835,
-      "feature_value": 2401889792.0,
-      "display_name": "AAVE USDC supplied (USD)"
-    },
-    {
-      "feature": "low_ratio",
-      "shap_value": -0.017549028709263663,
-      "feature_value": 0.4300440847873688,
-      "display_name": "low_ratio"
-    },
-    {
-      "feature": "hhi_24h_rolling_mean",
-      "shap_value": -0.012135609352313472,
-      "feature_value": 0.13468709588050842,
-      "display_name": "Liq. ownership HHI (24h MA)"
-    },
-    {
       "feature": "E_total",
-      "shap_value": -0.01137776291045635,
-      "feature_value": 1149.990234375,
+      "shap_value": -0.015193813985882647,
+      "feature_value": 1149.6202392578125,
       "display_name": "E_total"
     },
     {
       "feature": "weighted_mean_age_hours",
-      "shap_value": -0.010546461919619013,
-      "feature_value": 12778.3447265625,
+      "shap_value": -0.01238480439347085,
+      "feature_value": 4272.30224609375,
       "display_name": "LP position age (hours)"
     },
     {
+      "feature": "btc_price_usd",
+      "shap_value": -0.009983287539975898,
+      "feature_value": 83491.1875,
+      "display_name": "BTC price (USD)"
+    },
+    {
+      "feature": "supplied_USD_usdt",
+      "shap_value": -0.009192033919655495,
+      "feature_value": 2775101440.0,
+      "display_name": "AAVE USDT supplied (USD)"
+    },
+    {
       "feature": "utilisation_rate_usdc",
-      "shap_value": 0.009926320527671346,
-      "feature_value": 0.9349274039268494,
+      "shap_value": 0.009009835681202644,
+      "feature_value": 0.9398961067199707,
       "display_name": "AAVE USDC utilisation"
     },
     {
-      "feature": "odd_ratio",
-      "shap_value": -0.007855657084658584,
-      "feature_value": 0.027623699977993965,
-      "display_name": "odd_ratio"
+      "feature": "mid_ratio",
+      "shap_value": -0.008798273787408915,
+      "feature_value": 0.3330354690551758,
+      "display_name": "mid_ratio"
     },
     {
-      "feature": "Gegenbauer_0.4_deg1",
-      "shap_value": -0.007218242556921462,
-      "feature_value": 0.19801634550094604,
-      "display_name": "Liq. curve shape (deg 1)"
-    },
-    {
-      "feature": "btc_price_usd",
-      "shap_value": -0.0067829981573794855,
-      "feature_value": 83764.5234375,
-      "display_name": "BTC price (USD)"
+      "feature": "hhi_24h_rolling_mean",
+      "shap_value": -0.008412497493501108,
+      "feature_value": 0.12113948911428452,
+      "display_name": "Liq. ownership HHI (24h MA)"
     }
   ],
   "global_shap": [
     {
       "feature": "curve_entropy",
-      "importance": 0.07295229854753554,
+      "importance": 0.071355501809216,
       "display_name": "Curve pool entropy"
     },
     {
       "feature": "tangent_up",
-      "importance": 0.05065108970448477,
+      "importance": 0.04933356389355426,
       "display_name": "tangent_up"
     },
     {
       "feature": "tvlUSD_500",
-      "importance": 0.0463871195482461,
+      "importance": 0.03886796334619967,
       "display_name": "Uniswap TVL (5bp pool)"
     },
     {
       "feature": "w_USDC",
-      "importance": 0.03495937258064583,
+      "importance": 0.03651773997409014,
       "display_name": "Curve USDC weight"
     },
     {
       "feature": "w_USDT",
-      "importance": 0.033923656866366746,
+      "importance": 0.035329595656783196,
       "display_name": "Curve USDT weight"
     },
     {
       "feature": "tick_width_24h_rolling_median",
-      "importance": 0.031236970312924304,
+      "importance": 0.0331673150016186,
       "display_name": "Tick width (24h median)"
     },
     {
       "feature": "swap_size_imbalance",
-      "importance": 0.026813737155886707,
+      "importance": 0.028859752004766346,
       "display_name": "swap_size_imbalance"
     },
     {
       "feature": "usd_index",
-      "importance": 0.025884966260693833,
+      "importance": 0.02657336265721964,
       "display_name": "USD index (DXY proxy)"
     },
     {
       "feature": "supplied_USD_usdc",
-      "importance": 0.019683763782808134,
+      "importance": 0.01968613937620812,
       "display_name": "AAVE USDC supplied (USD)"
     },
     {
       "feature": "tangent_down",
-      "importance": 0.017318778125879206,
+      "importance": 0.018035864294221902,
       "display_name": "tangent_down"
     },
     {
-      "feature": "totalValueLockedUSD",
-      "importance": 0.0172273621545553,
-      "display_name": "Curve TVL (USD)"
-    },
-    {
       "feature": "utilisation_rate_usdt",
-      "importance": 0.014779808142323264,
+      "importance": 0.016197351452469384,
       "display_name": "AAVE USDT utilisation"
     },
     {
-      "feature": "hourlyVolumeUSD",
-      "importance": 0.013912838410478629,
-      "display_name": "Curve hourly volume (USD)"
+      "feature": "totalValueLockedUSD",
+      "importance": 0.01536683011415641,
+      "display_name": "Curve TVL (USD)"
     },
     {
       "feature": "weighted_mean_age_hours",
-      "importance": 0.012161963874106485,
+      "importance": 0.014310512963140837,
       "display_name": "LP position age (hours)"
     },
     {
+      "feature": "hourlyVolumeUSD",
+      "importance": 0.011718174747722927,
+      "display_name": "Curve hourly volume (USD)"
+    },
+    {
       "feature": "low_ratio",
-      "importance": 0.011490059713209348,
+      "importance": 0.011687104722850986,
       "display_name": "low_ratio"
     },
     {
+      "feature": "eth_price_usd",
+      "importance": 0.01007374631916975,
+      "display_name": "ETH price (USD)"
+    },
+    {
+      "feature": "utilisation_rate_usdc",
+      "importance": 0.009806253342661796,
+      "display_name": "AAVE USDC utilisation"
+    },
+    {
+      "feature": "E_total",
+      "importance": 0.00957522008164459,
+      "display_name": "E_total"
+    },
+    {
       "feature": "E_odd",
-      "importance": 0.010572111955881617,
+      "importance": 0.00941299280301238,
       "display_name": "E_odd"
     },
     {
       "feature": "fear_greed_index",
-      "importance": 0.010255020093528997,
+      "importance": 0.00925743270145796,
       "display_name": "Fear & greed index"
-    },
-    {
-      "feature": "utilisation_rate_usdc",
-      "importance": 0.009845986283593526,
-      "display_name": "AAVE USDC utilisation"
-    },
-    {
-      "feature": "E_low",
-      "importance": 0.009134116372198124,
-      "display_name": "E_low"
-    },
-    {
-      "feature": "E_total",
-      "importance": 0.009027893408113209,
-      "display_name": "E_total"
     }
   ],
   "notable_values": {
-    "tvlUSD_100": 44358664.0,
-    "net_amountUSD_100": 562442.625,
-    "swap_count_100": 73.0,
-    "w_USDC": 0.14979888498783112,
-    "w_USDT": 0.7044481039047241,
-    "curve_entropy": 0.8118814826011658,
-    "Gegenbauer_0.4_deg0": 33.08074188232422,
-    "Gegenbauer_0.4_deg1": 0.19801634550094604,
-    "Gegenbauer_0.4_deg2": -4.888226509094238,
-    "hhi_24h_rolling_mean": 0.13468709588050842,
+    "tvlUSD_100": 44355876.0,
+    "net_amountUSD_100": 587608.0625,
+    "swap_count_100": 86.0,
+    "w_USDC": 0.15862402319908142,
+    "w_USDT": 0.6853463053703308,
+    "curve_entropy": 0.840864360332489,
+    "Gegenbauer_0.4_deg0": 33.07713317871094,
+    "Gegenbauer_0.4_deg1": 0.19455741345882416,
+    "Gegenbauer_0.4_deg2": -4.878073692321777,
+    "hhi_24h_rolling_mean": 0.12113948911428452,
     "tick_width_24h_rolling_median": 200.0,
-    "utilisation_rate_usdt": 0.8979369401931763,
-    "utilisation_rate_usdc": 0.9349274039268494,
-    "fear_greed_index": 57.0,
-    "depeg_bps": 12.11417293548584,
+    "utilisation_rate_usdt": 0.8832438588142395,
+    "utilisation_rate_usdc": 0.9398961067199707,
+    "fear_greed_index": 62.0,
+    "depeg_bps": 10.016335487365723,
     "display_names": {
       "tvlUSD_100": "Uniswap TVL (1bp pool)",
       "net_amountUSD_100": "Uniswap net flow USD (1bp)",
@@ -266,94 +266,6 @@
     }
   },
   "depeg_history": [
-    {
-      "timestamp": "2026-10-06 09:00:00+00:00",
-      "depeg_bps": 0.9077211022377014
-    },
-    {
-      "timestamp": "2026-10-06 10:00:00+00:00",
-      "depeg_bps": 0.7698089480400085
-    },
-    {
-      "timestamp": "2026-10-06 11:00:00+00:00",
-      "depeg_bps": 0.7153618931770325
-    },
-    {
-      "timestamp": "2026-10-06 12:00:00+00:00",
-      "depeg_bps": 0.5847817063331604
-    },
-    {
-      "timestamp": "2026-10-06 13:00:00+00:00",
-      "depeg_bps": 0.5875234007835388
-    },
-    {
-      "timestamp": "2026-10-06 14:00:00+00:00",
-      "depeg_bps": 0.4846564829349518
-    },
-    {
-      "timestamp": "2026-10-06 15:00:00+00:00",
-      "depeg_bps": 0.5181178450584412
-    },
-    {
-      "timestamp": "2026-10-06 16:00:00+00:00",
-      "depeg_bps": 0.5091097354888916
-    },
-    {
-      "timestamp": "2026-10-06 17:00:00+00:00",
-      "depeg_bps": 0.5405068397521973
-    },
-    {
-      "timestamp": "2026-10-06 18:00:00+00:00",
-      "depeg_bps": 0.4850348234176636
-    },
-    {
-      "timestamp": "2026-10-06 19:00:00+00:00",
-      "depeg_bps": 0.4098856449127197
-    },
-    {
-      "timestamp": "2026-10-06 20:00:00+00:00",
-      "depeg_bps": 0.38916394114494324
-    },
-    {
-      "timestamp": "2026-10-06 21:00:00+00:00",
-      "depeg_bps": 0.2274513840675354
-    },
-    {
-      "timestamp": "2026-10-06 22:00:00+00:00",
-      "depeg_bps": 0.19602786004543304
-    },
-    {
-      "timestamp": "2026-10-06 23:00:00+00:00",
-      "depeg_bps": 0.19055959582328796
-    },
-    {
-      "timestamp": "2026-10-07 00:00:00+00:00",
-      "depeg_bps": 0.166142076253891
-    },
-    {
-      "timestamp": "2026-10-07 01:00:00+00:00",
-      "depeg_bps": 0.2664429545402527
-    },
-    {
-      "timestamp": "2026-10-07 02:00:00+00:00",
-      "depeg_bps": 0.8352442383766174
-    },
-    {
-      "timestamp": "2026-10-07 03:00:00+00:00",
-      "depeg_bps": 0.880234956741333
-    },
-    {
-      "timestamp": "2026-10-07 04:00:00+00:00",
-      "depeg_bps": 1.055182933807373
-    },
-    {
-      "timestamp": "2026-10-07 05:00:00+00:00",
-      "depeg_bps": 1.020536184310913
-    },
-    {
-      "timestamp": "2026-10-07 06:00:00+00:00",
-      "depeg_bps": 0.9985119104385376
-    },
     {
       "timestamp": "2026-10-07 07:00:00+00:00",
       "depeg_bps": 1.1251789331436157
@@ -937,6 +849,94 @@
     {
       "timestamp": "2026-10-13 08:00:00+00:00",
       "depeg_bps": 12.11417293548584
+    },
+    {
+      "timestamp": "2026-10-13 09:00:00+00:00",
+      "depeg_bps": 10.902971267700195
+    },
+    {
+      "timestamp": "2026-10-13 10:00:00+00:00",
+      "depeg_bps": 10.238668441772461
+    },
+    {
+      "timestamp": "2026-10-13 11:00:00+00:00",
+      "depeg_bps": 10.224764823913574
+    },
+    {
+      "timestamp": "2026-10-13 12:00:00+00:00",
+      "depeg_bps": 10.689133644104004
+    },
+    {
+      "timestamp": "2026-10-13 13:00:00+00:00",
+      "depeg_bps": 11.816271781921387
+    },
+    {
+      "timestamp": "2026-10-13 14:00:00+00:00",
+      "depeg_bps": 11.101481437683105
+    },
+    {
+      "timestamp": "2026-10-13 15:00:00+00:00",
+      "depeg_bps": 10.493489265441895
+    },
+    {
+      "timestamp": "2026-10-13 16:00:00+00:00",
+      "depeg_bps": 8.33155632019043
+    },
+    {
+      "timestamp": "2026-10-13 17:00:00+00:00",
+      "depeg_bps": 10.647870063781738
+    },
+    {
+      "timestamp": "2026-10-13 18:00:00+00:00",
+      "depeg_bps": 9.454397201538086
+    },
+    {
+      "timestamp": "2026-10-13 19:00:00+00:00",
+      "depeg_bps": 8.990859031677246
+    },
+    {
+      "timestamp": "2026-10-13 20:00:00+00:00",
+      "depeg_bps": 10.194819450378418
+    },
+    {
+      "timestamp": "2026-10-13 21:00:00+00:00",
+      "depeg_bps": 9.032602310180664
+    },
+    {
+      "timestamp": "2026-10-13 22:00:00+00:00",
+      "depeg_bps": 9.146234512329102
+    },
+    {
+      "timestamp": "2026-10-13 23:00:00+00:00",
+      "depeg_bps": 8.639815330505371
+    },
+    {
+      "timestamp": "2026-10-14 00:00:00+00:00",
+      "depeg_bps": 8.481572151184082
+    },
+    {
+      "timestamp": "2026-10-14 01:00:00+00:00",
+      "depeg_bps": 8.236701011657715
+    },
+    {
+      "timestamp": "2026-10-14 02:00:00+00:00",
+      "depeg_bps": 7.972740173339844
+    },
+    {
+      "timestamp": "2026-10-14 03:00:00+00:00",
+      "depeg_bps": 8.952717781066895
+    },
+    {
+      "timestamp": "2026-10-14 04:00:00+00:00",
+      "depeg_bps": 8.483805656433105
+    },
+    {
+      "timestamp": "2026-10-14 05:00:00+00:00",
+      "depeg_bps": 8.318305015563965
+    },
+    {
+      "timestamp": "2026-10-14 06:00:00+00:00",
+      "depeg_bps": 10.016335487365723
     }
   ]
 }
