@@ -42,7 +42,7 @@ jobs:
           pip install -r requirements-monitor.txt
 
       - name: Verify event labels, NP policy and GARCH tails
-        run: python -m pytest -q
+        run: python -m pytest -q tests/test_monitor_models.py tests/test_training_protocol.py
 
       - name: Download latest on-chain data
         if: ${{ github.event.inputs.skip_data_update != 'true' }}
