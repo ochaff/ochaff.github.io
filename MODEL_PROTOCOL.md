@@ -49,8 +49,9 @@ SHAP is red; negative local SHAP is green. If SHAP fails, local attributions
 remain unavailable and the global basis is explicitly marked as forest
 feature importance.
 
-Histograms use the previous 90 days of hourly feature observations, excluding
-the current row. Edges span the empirical 0.5th–99.5th percentiles; observations
+Histograms use the full available history of hourly feature observations,
+excluding the current row. Each feature records its finite-value reference
+start and end dates, observation count and `full_history` scope. Edges span the empirical 0.5th–99.5th percentiles; observations
 outside this range are grouped into the end bins. The displayed percentile
 rank uses all reference values. Current markers outside the displayed range
 are clamped to an edge and flagged with an arrow. No synthetic distributions

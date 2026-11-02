@@ -194,13 +194,17 @@ def test_monitoring_band_boundaries():
 
 
 def test_histograms_use_real_reference_values_excluding_current_and_keep_outliers():
-    index = pd.date_range('2026-01-01', periods=1000, freq='h', tz='UTC')
-    df = pd.DataFrame({'signal': np.arange(1000.), 'constant': 3.}, index=index)
+    # More than 90 days: the oldest observations must remain in the reference.
+    index = pd.date_range('2026-01-01', periods=3000, freq='h', tz='UTC')
+    df = pd.DataFrame({'signal': np.arange(3000.), 'constant': 3.}, index=index)
     rows = feature_catalog(df, {'signal': -.1}, {'signal': .2})
     row = rows[0]
-    assert row['value'] == 999 and row['local_shap'] == -.1
-    assert row['histogram']['reference_count'] == 999
-    assert sum(row['histogram']['counts']) == 999
+    assert row['value'] == 2999 and row['local_shap'] == -.1
+    assert row['histogram']['reference_count'] == 2999
+    assert sum(row['histogram']['counts']) == 2999
+    assert row['histogram']['reference_scope'] == 'full_history'
+    assert row['histogram']['reference_start'] == str(index[0])
+    assert row['histogram']['reference_end'] == str(index[-2])
     assert row['histogram']['percentile'] == 100
     assert rows[1]['local_shap'] is None
     assert np.diff(rows[1]['histogram']['edges']).min() > 0

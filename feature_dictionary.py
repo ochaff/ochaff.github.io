@@ -187,7 +187,7 @@ def dictionary_document(definitions):
              f'Collection source revision: `{COLLECTION_COMMIT}`. '
              f'Preprocessing audited at `{PREPROCESSING_COMMIT}` (`build_dataset.py`).', '',
              'Model imputation is separate: causal forward fill followed by training-period medians. '
-             'Histograms describe the preceding 90 days, excluding the current row. '
+             'Histograms describe the full available history, excluding the current row. '
              'Local SHAP explains the base forest score before calibration.', '']
     for name, item in definitions.items():
         lines.extend([f'## {name}', '', f'**{item["label"]}** — {item["description"]}', '',

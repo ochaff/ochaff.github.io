@@ -4,7 +4,7 @@ Definitions follow the enabled collection and preprocessing calculations. There 
 
 Collection source revision: `5301eb5c5b767329a0ed08c5bed68296b00f0fcb`. Preprocessing audited at `a8422954fbfb38c482fd638a32313bf1f1365989` (`build_dataset.py`).
 
-Model imputation is separate: causal forward fill followed by training-period medians. Histograms describe the preceding 90 days, excluding the current row. Local SHAP explains the base forest score before calibration.
+Model imputation is separate: causal forward fill followed by training-period medians. Histograms describe the full available history, excluding the current row. Local SHAP explains the base forest score before calibration.
 
 ## tvlUSD_100
 
