@@ -270,42 +270,96 @@ def hourly_forecast_summary(paths, origin, means):
             for h in range(paths.shape[1])]
 
 
-def garch_forecast(prices, *, simulations=100_000, seed=42, lookback=24 * 365):
-    """Fit AR(1)-GARCH(1,1)-t to signed depeg levels, simulate the next 24h."""
+def student_t_marginal(mean, variance, nu, alpha=.01):
+    """QuantLet marginal approximation, including exact clipped-loss tail means.
+
+    The multi-step predictive mixture need not itself be Student-t. These are
+    Student-t marginals scaled by the analytical expected conditional variance,
+    as in QuantLet's probabilistic-forecast benchmark, not simulated path tails.
+    """
+    from scipy.stats import t
+    if not (np.isfinite([mean, variance, nu, alpha]).all()
+            and variance >= 0 and nu > 2 and 0 < alpha < .5):
+        raise ValueError('Invalid Student-t marginal parameters')
+    scale = math.sqrt(variance * (nu - 2) / nu)
+    q = t.ppf(alpha, nu)
+    lower, upper = mean + scale * q, mean - scale * q
+    def first_tail_moment(z):
+        return (nu + z * z) / (nu - 1) * t.pdf(z, nu)
+    tail = scale * first_tail_moment(q) / alpha
+    if scale:
+        # Integrate only positive losses. Merely clipping the signed tail mean
+        # gives incorrect ES when a token's VaR is zero but rare losses exist.
+        zl = (min(lower, 0) - mean) / scale
+        zu = (max(upper, 0) - mean) / scale
+        es_usdc = max(0., (-mean * t.cdf(zl, nu) + scale * first_tail_moment(zl)) / alpha)
+        es_usdt = max(0., (mean * t.sf(zu, nu) + scale * first_tail_moment(zu)) / alpha)
+    else:
+        es_usdc, es_usdt = max(-mean, 0), max(mean, 0)
+    return {'lower_bps': float(lower), 'upper_bps': float(upper),
+            'lower_es_bps': float(mean - tail), 'upper_es_bps': float(mean + tail),
+            'USDC': {'var_bps': float(max(-lower, 0)), 'es_bps': float(es_usdc)},
+            'USDT': {'var_bps': float(max(upper, 0)), 'es_bps': float(es_usdt)}}
+
+
+def garch_forecast(prices):
+    """Constant-mean GARCH(1,1)-t, aligned with QuantLet benchmark 12.
+
+    Fit once at the live origin on expanding history, in signed depeg bps.
+    Internal historical gaps are causally forward-filled (reference dataset
+    convention); an unobserved latest hour is an error, never a fresh forecast.
+    """
     from arch import arch_model
     p = hourly_prices(prices)
-    # Use only the latest contiguous observed block: dropping missing hours
-    # would silently treat multi-hour gaps as one-hour transitions.
-    missing = np.flatnonzero(p.isna().to_numpy())
-    if len(missing):
-        p = p.iloc[missing[-1] + 1:]
-    p = p.iloc[-lookback:].rename('depeg')
+    if p.empty or pd.isna(p.iloc[-1]):
+        raise ValueError('GARCH requires an observed price at the forecast origin')
+    p = p.loc[p.first_valid_index():].astype('float64')
+    imputed_hours = int(p.isna().sum())
+    p = p.ffill().rename('depeg')
     if len(p) < 720 or float(p.std()) < 1e-8:
-        raise ValueError('GARCH requires 720 nonconstant, contiguous hourly prices')
-    if simulations < 20_000:
-        raise ValueError('Use at least 20,000 paths for the 0.5% tail')
-    model = arch_model(p, mean='AR', lags=1, vol='GARCH', p=1, q=1,
+        raise ValueError('GARCH requires 720 nonconstant hourly prices')
+    model = arch_model(p, mean='Constant', vol='GARCH', p=1, q=1,
                        dist='StudentsT', rescale=False)
     fit = model.fit(disp='off', options={'maxiter': 2000})
     if fit.convergence_flag != 0 or not np.isfinite(fit.params).all():
         raise RuntimeError(f'GARCH optimizer did not converge: {fit.optimization_result.message}')
-    phi = float(fit.params['depeg[1]'])
-    if abs(phi) >= 1:
-        raise RuntimeError('GARCH autoregressive mean is not stationary')
-    nu = float(fit.params['nu'])
-    rng = np.random.default_rng(seed)
-    def innovations(size):
-        # arch expects unit-variance innovations, not raw Student-t draws.
-        return rng.standard_t(nu, size=size) * np.sqrt((nu - 2) / nu)
-    forecast = fit.forecast(horizon=HORIZON, method='simulation', simulations=simulations,
-                            rng=innovations, reindex=False)
-    paths = forecast.simulations.values[-1]
-    tails, direction = tail_risk(paths)
-    hourly = hourly_forecast_summary(paths, p.index[-1], forecast.mean.iloc[-1].to_numpy())
-    return {'status': 'ok', 'model': 'AR(1)-GARCH(1,1)', 'innovations': 'Student-t',
+    nu = max(float(fit.params['nu']), 2.05)  # same lower guard as reference
+    forecast = fit.forecast(horizon=HORIZON, method='analytic', reindex=False)
+    means = forecast.mean.iloc[-1].to_numpy()
+    variances = np.maximum(forecast.variance.iloc[-1].to_numpy(), 1e-12)
+    if not np.isfinite(means).all() or not np.isfinite(variances).all():
+        raise RuntimeError('GARCH produced nonfinite analytical forecasts')
+    hourly = []
+    for h, (mean, variance) in enumerate(zip(means, variances), 1):
+        marginal = student_t_marginal(mean, variance, nu)
+        hourly.append({'hour': h, 'timestamp': str(p.index[-1] + h * HOUR),
+                       'mean_bps': float(mean), 'median_bps': float(mean),
+                       'variance_bps2': float(variance), 'sigma_bps': float(np.sqrt(variance)),
+                       'lower_1pct_bps': marginal['lower_bps'], 'upper_1pct_bps': marginal['upper_bps'],
+                       'lower_es_1pct_bps': marginal['lower_es_bps'],
+                       'upper_es_1pct_bps': marginal['upper_es_bps']})
+    tails = {token: {} for token in ('USDC', 'USDT')}
+    for alpha in (.01, .005):
+        marginal = student_t_marginal(means[-1], variances[-1], nu, alpha)
+        for token in tails:
+            tails[token][str(alpha)] = marginal[token]
+    usdc, usdt = (tails[token]['0.01']['var_bps'] for token in tails)
+    direction = 'Balanced' if usdc == usdt else ('USDC' if usdc > usdt else 'USDT')
+    persistence = float(fit.params['alpha[1]'] + fit.params['beta[1]'])
+    return {'status': 'ok', 'model': 'Constant-mean GARCH(1,1)', 'innovations': 'Student-t',
             'timestamp': str(p.index[-1]), 'horizon_hours': HORIZON,
             'risk_direction': direction, 'direction_rule': 'larger_1pct_var',
             'quote': 'USDT per USDC', 'risk_basis': 'adverse_deviation_from_peg_at_hour_24',
             'unit': 'quote_deviation_bps', 'tails': tails, 'hourly': hourly,
-            'fit_rows': len(p), 'fit_start': str(p.index[0]), 'simulations': simulations,
-            'random_seed': seed, 'parameters': {k: float(v) for k, v in fit.params.items()}}
+            'fit_rows': len(p), 'fit_start': str(p.index[0]),
+            'fit_end': str(p.index[-1]), 'historical_imputed_hours': imputed_hours,
+            'missing_price_policy': 'historical_forward_fill_reject_missing_origin',
+            'mean_type': 'Constant', 'fit_window': 'expanding', 'rescale': False,
+            'forecast_method': 'analytic_variance_standardized_student_t_marginals',
+            'forecast_caveat': 'Multi-step Student-t marginals approximate the predictive variance mixture.',
+            'refit_policy': 'once_per_live_workflow_run', 'persistence': persistence,
+            'persistence_status': 'near_integrated' if persistence >= .999 else 'mean_reverting_variance',
+            'quantile_degrees_of_freedom': nu,
+            'reference': {'commit': '303c6399357a00e11897aa30e598bc6f23b6fb45',
+                          'url': 'https://github.com/QuantLet/onchain-insights/blob/303c6399357a00e11897aa30e598bc6f23b6fb45/12.%20Evaluation%20of%20Probabilistic%20Forecasts/benchmark_scripts/GARCH_forecast.py'},
+            'parameters': {k: float(v) for k, v in fit.params.items()}}

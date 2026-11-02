@@ -18,7 +18,7 @@ def test_monitoring_export_and_test_data_do_not_change_the_fitted_forest(monkeyp
     monkeypatch.setitem(sys.modules, 'shap', None)
     index = pd.date_range('2024-01-01', periods=4000, freq='h', tz='UTC')
     rng = np.random.default_rng(42)
-    frame = pd.DataFrame({'signal': rng.normal(size=len(index)),
+    frame = pd.DataFrame({'tvlUSD_100': rng.normal(size=len(index)),
                           'depeg_bps': rng.normal(0, .5, len(index))}, index=index)
     frame.iloc[np.arange(100, 3950, 80), frame.columns.get_loc('depeg_bps')] = 16
     first = train_rf.train_and_explain(frame, .4)
@@ -36,7 +36,7 @@ def test_monitoring_export_and_test_data_do_not_change_the_fitted_forest(monkeyp
 
     # Changes only in the held-out test period leave forest fitting and its
     # fallback feature importances unchanged. They may change current risk.
-    frame.loc[index[-400:], 'signal'] = 1e9
+    frame.loc[index[-400:], 'tvlUSD_100'] = 1e9
     frame.loc[index[-1], 'depeg_bps'] = 16
     second = train_rf.train_and_explain(frame, .4)
     assert first['global_shap'] == second['global_shap']

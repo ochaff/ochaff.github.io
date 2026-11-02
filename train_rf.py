@@ -19,43 +19,11 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from monitor_models import (monitoring_labels, hourly_prices, monitoring_bounds,
                             monitoring_level, feature_catalog, garch_forecast, HORIZON)
-
-# ─── Feature display names ────────────────────────────────────────────────────
-DISPLAY = {
-    "w_USDC": "Curve USDC weight",
-    "w_USDT": "Curve USDT weight",
-    "w_DAI":  "Curve DAI weight",
-    "curve_entropy":            "Curve pool entropy",
-    "totalValueLockedUSD":      "Curve TVL (USD)",
-    "hourlyVolumeUSD":          "Curve hourly volume (USD)",
-    "gauge_share_3crv":         "3CRV gauge share",
-    "hhi_24h_rolling_mean":     "Liq. ownership HHI (24h MA)",
-    "tick_width_24h_rolling_median": "Tick width (24h median)",
-    "n_in_range_log_return":    "In-range positions (log ret.)",
-    "weighted_mean_age_hours":  "LP position age (hours)",
-    "swap_count_100":           "Uniswap swap count (1bp pool)",
-    "swap_count_500":           "Uniswap swap count (5bp pool)",
-    "net_amountUSD_100":        "Uniswap net flow USD (1bp)",
-    "tvlUSD_100":               "Uniswap TVL (1bp pool)",
-    "tvlUSD_500":               "Uniswap TVL (5bp pool)",
-    "liquidation_USD":          "AAVE liquidations (USD)",
-    "supplied_USD_usdt":        "AAVE USDT supplied (USD)",
-    "utilisation_rate_usdt":    "AAVE USDT utilisation",
-    "supplied_USD_usdc":        "AAVE USDC supplied (USD)",
-    "utilisation_rate_usdc":    "AAVE USDC utilisation",
-    "eth_price_usd":            "ETH price (USD)",
-    "btc_price_usd":            "BTC price (USD)",
-    "usd_index":                "USD index (DXY proxy)",
-    "fx_volatility":            "FX volatility (7d)",
-    "fear_greed_index":         "Fear & greed index",
-}
-for i in range(8):
-    DISPLAY[f"Gegenbauer_0.4_deg{i}"] = f"Liq. curve shape (deg {i})"
-    DISPLAY[f"Gegenbauer_0.5_deg{i}"] = f"Liq. curve shape (deg {i})"
+from feature_dictionary import feature_dictionary
 
 
 def _display(col):
-    return DISPLAY.get(col, col)
+    return feature_dictionary([col])[col]['label']
 
 
 # ─── Notable metric definitions ────────────────────────────────────────────────
@@ -264,6 +232,7 @@ def train_and_explain(df, alpha):
         },
         "feature_catalog": [dict(item, display_name=_display(item['feature']))
                             for item in feature_catalog(X.assign(depeg_bps=prices), local_values, global_values)],
+        "feature_dictionary": feature_dictionary([*X.columns, 'depeg_bps']),
         "global_impact_basis": global_basis,
         "shap_basis": "uncalibrated_base_random_forest",
         "alpha": alpha,
@@ -285,7 +254,6 @@ def main():
     parser.add_argument('--dataset-parquet', help='Use an existing feature dataset instead of rebuilding')
     parser.add_argument('--alpha', type=float, default=.4)
     parser.add_argument('--output', default='dashboard_data/rf_results.json')
-    parser.add_argument('--simulations', type=int, default=100_000)
     args = parser.parse_args()
     ALPHA = args.alpha
     DATASET_PATH = './preprocessed_datasets'
@@ -325,14 +293,18 @@ def main():
     print(f"Dataset shape: {df.shape}")
     result = train_and_explain(df, ALPHA)
 
-    print('Fitting Student-t GARCH and simulating 24-hour forecasts…', flush=True)
-    result['forecasting'] = garch_forecast(df['depeg_bps'], simulations=args.simulations)
-    result['schema_version'] = 4
+    print('Fitting QuantLet-aligned Student-t GARCH analytical forecasts…', flush=True)
+    result['forecasting'] = garch_forecast(df['depeg_bps'])
+    result['schema_version'] = 5
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     temporary = out_path.with_suffix('.tmp')
     temporary.write_text(json.dumps(result, indent=2, allow_nan=False))
     temporary.replace(out_path)
+    dictionary_path = out_path.parent / 'feature_dictionary.json'
+    temporary_dictionary = dictionary_path.with_suffix('.tmp')
+    temporary_dictionary.write_text(json.dumps(result['feature_dictionary'], indent=2, allow_nan=False))
+    temporary_dictionary.replace(dictionary_path)
     print(f'Saved → {out_path}', flush=True)
 
 

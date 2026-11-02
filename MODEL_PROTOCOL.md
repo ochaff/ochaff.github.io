@@ -38,7 +38,7 @@ Monitoring severity bands are descriptive display levels:
 `monitoring` stores the active target, level, bands and split periods. The
 current export no longer contains `early_warning` or an NP cutoff. The
 2 November 2026 data were retrained under this monitoring objective, yielding
-15.81% (Elevated). The existing GARCH forecast was retained unchanged.
+15.81% (Elevated). Its probability is unchanged by the subsequent GARCH audit.
 
 ## Feature monitor
 
@@ -64,35 +64,71 @@ without falsely attributing a SHAP value to a non-model feature.
 
 ## GARCH forecast and price chart
 
-AR(1)-GARCH(1,1) with standardized Student-t innovations is fitted to signed
-hourly depeg levels in basis points. It uses the latest 8,760 observations of
-the latest contiguous price history, requiring at least 720 nonconstant hours.
-Optimization must converge and the autoregressive mean must be stationary.
+Constant-mean GARCH(1,1) with standardized Student-t innovations is fitted to
+signed hourly depeg levels in basis points, with `rescale=False` and no input
+scaling. The full expanding history is used, requiring at least 720 nonconstant
+hours. Internal historical price gaps are forward-filled causally for this fit
+only; a missing forecast-origin observation is rejected. Missing realized
+prices remain missing for Random Forest labels and the observed price chart.
+The export records the number of historical filled hours and the fitting dates.
 
-Simulate 100,000 recursive 24-hour paths with seed 42. Student-t draws are
-scaled by `sqrt((nu - 2) / nu)`. Export the simulated median, mean, 1st and 99th
-percentiles, and mean of the lowest and highest 1% of signed outcomes at each
-forecast hour. Price-chart tail means retain their signs; hover descriptions
-for forecast VaR/ES use bps from peg even when the axis shows the price ratio.
+This matches the model and analytical marginal forecast in QuantLet's
+[probabilistic-forecast benchmark](https://github.com/QuantLet/onchain-insights/blob/303c6399357a00e11897aa30e598bc6f23b6fb45/12.%20Evaluation%20of%20Probabilistic%20Forecasts/benchmark_scripts/GARCH_forecast.py).
+The live job refits at every update. The reference is a retrospective rolling
+benchmark that reuses fixed parameters between refits; its current invocation
+sets `refit_every=20000` despite an adjacent daily-refit comment. That test-loop
+cadence is not copied into the live monitor.
+
+Forecast 24 hourly expected conditional variances analytically. For horizon h,
+`Q_h(u) = mu + sigma_h × sqrt((nu−2)/nu) × t_nu.ppf(u)`, with the reference's
+`nu >= 2.05` guard. The median is the constant fitted mean. The signed lower and
+upper 1% ES curves use analytical Student-t tail integrals. These multi-step
+Student-t marginals **approximate** the predictive variance mixture; they are
+not exact recursive-path distribution quantiles. No Monte Carlo sampling,
+random seed, artificial smoothing, or monotonicity constraint is used.
 
 Terminal token VaR/ES use nonnegative adverse quote-deviation losses at hour
-24: `USDC = max(-depeg_bps, 0)`, `USDT = max(depeg_bps, 0)`. The token with the
+24: `USDC = max(−depeg_bps, 0)`, `USDT = max(depeg_bps, 0)`. The token with the
 larger 1% VaR is the **Token at risk**. These are relative quote deviations,
-not USD portfolio P&L. ES averages the worst alpha fraction, with fractional
-order-statistic weighting. Fit dates, parameters and simulation settings are
-included in the JSON.
+not USD portfolio P&L. ES integrates positive losses over the worst alpha mass,
+including zero losses where appropriate; clipping a signed tail mean alone
+would be incorrect when VaR is zero but rare adverse outcomes remain possible.
+Both 1% and 0.5% terminal levels are exported.
+
+Each hourly record includes `variance_bps2` and `sigma_bps`. The export includes
+parameters, variance persistence `alpha + beta`, the forecast method and a
+near-integrated flag when persistence is at least 0.999. The 2 November 2026 fit
+is near-integrated; its sigma rises from 9.46 to 9.52 bps over 24 hours. Model
+alignment does not establish out-of-sample interval coverage. See
+[GARCH_AUDIT.md](GARCH_AUDIT.md) for the old forecast diagnosis and current fit.
 
 The price chart uses signed `price_history` and
 `price_ratio = 1 + depeg_bps / 10000`. `depeg_history` remains absolute for the
 original page. The chart provides 24-hour, 72-hour and seven-day history
 windows, price/bps axes, interval and ES toggles, and ±15 bps reference lines.
+Forecast hover values always use bps from peg.
 
-The 2 November uploaded GARCH run was enriched by replaying the matching
-public release with its original fitted parameters and random seed. Existing
-means, quantiles and VaR/ES matched within 1e-12 and were preserved exactly.
-Future workflow runs export the chart fields directly.
+## Audited feature definitions
 
-Simulation follows the [arch forecasting API](https://arch.readthedocs.io/en/latest/univariate/forecasting.html).
+`feature_dictionary.py` provides definitions, units, exact formulas, notes and
+collection/preprocessing sources for all 50 enabled predictors plus the raw
+depeg measure. Unknown feature names fail export, requiring an audited definition
+when a dataset's feature configuration changes. Gegenbauer alpha variants are
+recognized for degrees 0–7. Optional technical indicators outside the current
+workflow need definitions before they can be published.
+
+Every model run embeds the dictionary in `rf_results.json` and writes the same
+map to `dashboard_data/feature_dictionary.json`. The checked-in human-readable
+companion is [FEATURE_DICTIONARY.md](FEATURE_DICTIONARY.md). The Metrics tab
+shows a `?` button beside every feature: hover, keyboard focus or tap reveals
+the definition. Escape, blur or clicking elsewhere dismisses it. The floating
+panel is placed outside the clipped feature grid and constrained to the viewport.
+
+Labels now reflect actual calculations: `net_amountUSD` is swap notional,
+`n_in_range_log_return` is a fractional count change, and `gauge_share_3crv`
+is an LP-token-per-USD inventory proxy, not a percentage. The underlying model
+feature names, values, forest, probability, SHAP values and histograms were not
+changed by the dictionary update.
 
 ## Liquidity views
 

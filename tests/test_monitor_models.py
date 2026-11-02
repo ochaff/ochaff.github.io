@@ -6,7 +6,7 @@ from scipy.stats import binom
 from monitor_models import (HOUR, complete_events, event_onsets, garch_forecast,
                             hourly_prices, hourly_forecast_summary, np_policy, onset_labels, partition_bounds,
                             tail_risk, monitoring_labels, monitoring_bounds,
-                            monitoring_level, feature_catalog)
+                            monitoring_level, feature_catalog, student_t_marginal)
 
 
 def prices(n=200):
@@ -94,16 +94,71 @@ def test_student_t_garch_forecast_has_24_hours_and_finite_tail_risk():
     p = prices(1000)
     for i in range(1, len(p)):
         p.iloc[i] = .7 * p.iloc[i - 1] + rng.standard_t(7)
-    result = garch_forecast(p, simulations=20_000)
+    p.iloc[200] = np.nan
+    result = garch_forecast(p)
     assert len(result['hourly']) == 24
     assert result['hourly'][-1]['timestamp'] == str(p.index[-1] + 24 * HOUR)
     assert result['parameters']['nu'] > 2
-    assert result['simulations'] == 20_000
+    assert result['mean_type'] == 'Constant'
+    assert result['forecast_method'] == 'analytic_variance_standardized_student_t_marginals'
+    assert result['fit_rows'] == len(p)
+    assert result['historical_imputed_hours'] == 1
+    params = result['parameters']
+    variance = np.array([h['variance_bps2'] for h in result['hourly']])
+    np.testing.assert_allclose(variance[1:], params['omega'] + result['persistence'] * variance[:-1])
     for token in result['tails'].values():
         assert token['0.005']['es_bps'] >= token['0.005']['var_bps'] >= 0
     for hour in result['hourly']:
+        assert hour['median_bps'] == params['mu']
+        assert hour['sigma_bps'] ** 2 == pytest.approx(hour['variance_bps2'])
         assert hour['lower_es_1pct_bps'] <= hour['lower_1pct_bps'] <= hour['median_bps']
         assert hour['median_bps'] <= hour['upper_1pct_bps'] <= hour['upper_es_1pct_bps']
+    p.iloc[-1] = np.nan
+    with pytest.raises(ValueError, match='origin'):
+        garch_forecast(p)
+
+
+@pytest.mark.parametrize('mean', [-5., 0., 5.])
+@pytest.mark.parametrize('alpha', [.01, .005])
+def test_analytical_student_t_quantiles_and_clipped_loss_es_against_integration(mean, alpha):
+    from scipy.integrate import quad
+    from scipy.stats import t
+    nu, variance = 7., 1.
+    scale = np.sqrt((nu - 2) / nu)
+    result = student_t_marginal(mean, variance, nu, alpha)
+    lower, upper = mean + scale * t.ppf([alpha, 1 - alpha], nu)
+    assert result['lower_bps'] == pytest.approx(lower)
+    assert result['upper_bps'] == pytest.approx(upper)
+    density = lambda y: t.pdf((y - mean) / scale, nu) / scale
+    expected_usdc = quad(lambda y: -y * density(y), -np.inf, min(lower, 0))[0] / alpha
+    expected_usdt = quad(lambda y: y * density(y), max(upper, 0), np.inf)[0] / alpha
+    assert result['USDC']['es_bps'] == pytest.approx(expected_usdc)
+    assert result['USDT']['es_bps'] == pytest.approx(expected_usdt)
+    for token in ['USDC', 'USDT']:
+        assert result[token]['es_bps'] >= result[token]['var_bps'] >= 0
+    if abs(mean) == 5:
+        safe = 'USDC' if mean > 0 else 'USDT'
+        assert result[safe]['var_bps'] == 0
+        assert result[safe]['es_bps'] > 0
+
+
+def test_feature_dictionary_covers_published_catalog_and_records_legacy_calculations():
+    import json
+    from pathlib import Path
+    from feature_dictionary import feature_dictionary
+    data = json.loads((Path(__file__).parents[1] / 'dashboard_data/rf_results.json').read_text())
+    names = [r['feature'] for r in data['feature_catalog']]
+    definitions = feature_dictionary(names)
+    assert len(definitions) == 51
+    assert all(all(d[key] for key in ['label', 'description', 'formula', 'units',
+                                    'collection_source', 'preprocessing_function'])
+               for d in definitions.values())
+    assert 'not signed net flow' in definitions['net_amountUSD_100']['notes']
+    assert 'pct_change()' in definitions['n_in_range_log_return']['notes']
+    assert definitions['gauge_share_3crv']['units'] == '3CRV tokens / USD'
+    assert 'Gegenbauer_0.5_deg7' in feature_dictionary(['Gegenbauer_0.5_deg7'])
+    with pytest.raises(ValueError, match='missing audited definitions'):
+        feature_dictionary(['unknown_new_feature'])
 
 
 def test_forecast_median_and_signed_tail_means_are_not_loss_clipped():
