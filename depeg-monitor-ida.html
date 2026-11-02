@@ -1,0 +1,612 @@
+---
+title: AMMonitor
+layout: null
+sitemap: false
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMMonitor — USDC / USDT Pool Monitor</title>
+  <meta name="description" content="AMMonitor: USDC / USDT pool monitoring, depeg probabilities, liquidity metrics and model explanations.">
+  <link rel="icon" type="image/png" href="assets/ammonitor/ammonitor-logo.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Design tokens ──────────────────────────────────────────────────────── */
+    :root {
+      color-scheme: light;
+      --surface-0:    #f4f7fa;
+      --surface-1:    #ffffff;
+      --surface-2:    #edf3f8;
+      --border:       #d7e2ec;
+      --text-primary: #102e45;
+      --text-secondary:#526a7c;
+      --text-muted:   #607889;
+
+      --blue:    #054476;
+      --green:   #1baf7a;
+      --amber:   #eda100;
+      --red:     #DB3549;
+
+      --status-low:  #1baf7a;
+      --status-mid:  #eda100;
+      --status-high: #DB3549;
+
+      --shap-pos: #DB3549;
+      --shap-neg: #054476;
+
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 0 0 1px var(--border);
+    }
+    /* ── Reset / base ──────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--surface-0);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── AMMonitor identity ──────────────────────────────────────────────── */
+    .dashboard-header { background:var(--surface-1); border-top:4px solid var(--blue); border-bottom:1px solid var(--border); }
+    .header-inner { max-width:1100px; margin:0 auto; padding:22px 24px; display:flex; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand-logo { width:74px; height:60px; object-fit:contain; }
+    .brand-name { color:var(--blue); font-size:1.75rem; font-weight:800; letter-spacing:-.04em; line-height:1.1; }
+    .brand-name span { color:var(--red); }
+    .brand-caption { color:var(--text-secondary); font-size:.8rem; margin-top:4px; }
+    .partners { display:flex; align-items:center; gap:24px; }
+    .partner { display:flex; align-items:center; gap:10px; }
+    .partner img { display:block; object-fit:contain; }
+    .ida-logo { width:88px; height:44px; }
+    .msca-logo { width:48px; height:48px; }
+    .partner:focus-visible { outline:3px solid var(--red); outline-offset:6px; border-radius:4px; }
+    .partner + .partner { border-left:1px solid var(--border); padding-left:24px; }
+    .resources { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    .resource-link { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; padding:8px 14px; color:var(--blue); background:var(--surface-1); border:1px solid var(--border); border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; }
+    .resource-link:hover { border-color:var(--blue); background:var(--surface-2); }
+    .resource-link:focus-visible { outline:3px solid var(--red); outline-offset:3px; }
+    .resource-link img { width:24px; height:24px; object-fit:contain; }
+    .resource-link .arrow { color:var(--red); }
+    @media (max-width:600px) {
+      .header-inner { padding:18px 20px; gap:20px; }
+      .partners { width:100%; gap:18px; }
+      .partner + .partner { padding-left:18px; }
+      .brand-name { font-size:1.6rem; }
+      .legend-row { flex-wrap:wrap; gap:8px 16px; }
+      .risk-card { padding:24px 16px; }
+    }
+
+    /* ── Page layout ──────────────────────────────────────────────────────── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+    .page-header { margin-bottom: 28px; }
+    .page-title { color:var(--blue); font-size: 1.5rem; font-weight: 700; }
+    .page-subtitle { color: var(--text-secondary); font-size: .9rem; margin-top: 4px; }
+    #last-updated { color: var(--text-muted); font-size: .82rem; margin-top: 6px; }
+
+    /* ── Cards ────────────────────────────────────────────────────────────── */
+    .card {
+      min-width: 0;
+      background: var(--surface-1);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 22px;
+    }
+    .card-title {
+      font-size: .78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    /* ── Top row ──────────────────────────────────────────────────────────── */
+    .top-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 700px) {
+      .top-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── Probability gauge ────────────────────────────────────────────────── */
+    .gauge-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 20px;
+    }
+    .gauge-wrap { position: relative; width: 180px; height: 110px; }
+    .gauge-label {
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+    .gauge-pct {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.02em;
+    }
+    .gauge-caption {
+      font-size: .78rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .gauge-band {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+    .band-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── Stat tiles ───────────────────────────────────────────────────────── */
+    .tiles-card { padding: 16px 20px; }
+    .tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .tile {
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .tile-label {
+      font-size: .72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 4px;
+    }
+    .tile-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    /* ── History chart ────────────────────────────────────────────────────── */
+    .history-card { margin-bottom: 16px; }
+    .history-card canvas { max-height: 180px; }
+
+    /* ── SHAP row ─────────────────────────────────────────────────────────── */
+    .shap-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 700px) {
+      .shap-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── Legend row ───────────────────────────────────────────────────────── */
+    .legend-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: .78rem;
+      color: var(--text-secondary);
+    }
+    .legend-swatch {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    /* ── AUC badge ────────────────────────────────────────────────────────── */
+    .auc-badge {
+      display: inline-block;
+      background: var(--surface-2);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: .75rem;
+      color: var(--text-secondary);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* ── Loading / error ──────────────────────────────────────────────────── */
+    .loading-msg {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-secondary);
+    }
+    .error-msg {
+      background: #fff0f0;
+      border: 1px solid #f9c7c7;
+      border-radius: 8px;
+      padding: 16px 20px;
+      color: #b91c1c;
+      font-size: .9rem;
+    }
+    .risk-card { display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center; text-align:center; min-height:238px; }
+    .risk-ring { --risk:0deg; width:166px; aspect-ratio:1; padding:12px; border-radius:50%; background:conic-gradient(var(--red) var(--risk),var(--surface-2) 0); transform:rotate(-135deg); }
+    .risk-ring-inner { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:50%; background:var(--surface-1); transform:rotate(135deg); }
+    .risk-value { color:var(--text-primary); font-size:2.3rem; font-weight:800; letter-spacing:-.06em; line-height:1; }
+    .risk-detail { color:var(--text-secondary); font-size:.72rem; margin-top:5px; }
+    .metric-sections { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .alert-state { padding:6px 12px; border-radius:6px; font-size:.9rem; font-weight:700; background:var(--surface-2); color:var(--blue); }
+    .alert-state.is-alert { background:#fcebef; color:var(--red); }
+    .policy-detail { color:var(--text-secondary); font-size:.76rem; max-width:42em; line-height:1.6; }
+    .forecast-direction { color:var(--blue); font-size:1.3rem; font-weight:750; margin-bottom:6px; }
+    .forecast-note { font-size:.77rem; color:var(--text-secondary); margin:8px 0; }
+    .risk-table { width:100%; border-collapse:collapse; margin-top:16px; font-size:.82rem; font-variant-numeric:tabular-nums; }
+    .risk-table th { color:var(--text-secondary); font-size:.7rem; text-transform:uppercase; letter-spacing:.03em; text-align:right; padding:8px 6px; border-bottom:2px solid var(--border); }
+    .risk-table td { padding:9px 6px; text-align:right; border-bottom:1px solid var(--border); }
+    .risk-table th:first-child, .risk-table td:first-child { text-align:left; }
+    .policy-notes { margin-top:12px; font-size:.75rem; color:var(--text-secondary); }
+    .policy-notes summary { cursor:pointer; color:var(--blue); font-weight:600; }
+    .policy-notes p { margin-top:8px; }
+    .curve-card { margin-top:16px; overflow:hidden; }
+    .curve-frame { display:block; width:100%; height:800px; border:0; background:var(--surface-1); }
+    @media (max-width:600px) { .page { padding:24px 16px 40px; } }
+    @media (max-width:700px) { .metric-sections { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <div class="header-inner">
+    <div class="brand" aria-label="AMMonitor">
+      <img class="brand-logo" src="assets/ammonitor/ammonitor-logo.png" alt="AMMonitor logo" width="74" height="60">
+      <div>
+        <div class="brand-name">AM<span>Monitor</span></div>
+        <div class="brand-caption">Stablecoin pool monitoring</div>
+      </div>
+    </div>
+    <div class="partners" aria-label="Research teams">
+      <a class="partner" href="https://www.theida.net/" target="_blank" rel="noopener noreferrer" aria-label="IDA website">
+        <img class="ida-logo" src="assets/ammonitor/ida-logo.png" alt="IDA" width="88" height="44">
+      </a>
+      <a class="partner" href="https://www.digital-finance-msca.com/" target="_blank" rel="noopener noreferrer" aria-label="MSCA Digital Finance website">
+        <img class="msca-logo" src="assets/ammonitor/msca-logo.png" alt="MSCA Digital Finance" width="48" height="48">
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-header">
+    <h1 class="page-title">USDC / USDT v3 pool monitor <span id="model-auc"></span></h1>
+    <p class="page-subtitle" id="monitor-description">24-hour depeg probability · Uniswap Ethereum 0.01% pool</p>
+    <nav class="resources" aria-label="Dashboard resources">
+      <a class="resource-link" href="https://app.uniswap.org/explore/pools/ethereum/0x3416cF6C708Da44DB2624D63ea0AAef7113527C6" target="_blank" rel="noopener noreferrer">Open pool in Uniswap <span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="resource-link" href="https://github.com/MSCA-DN-Digital-Finance/stablecoin-onchain-data" target="_blank" rel="noopener noreferrer">Dataset <span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="resource-link" href="https://github.com/QuantLet/onchain-insights" target="_blank" rel="noopener noreferrer"><img src="assets/ammonitor/quantlet-logo.png" alt="QuantLet logo" width="24" height="24">Models on QuantLet <span class="arrow" aria-hidden="true">↗</span></a>
+    </nav>
+    <div id="last-updated" role="status">Loading latest observation…</div>
+  </div>
+  <div id="app" aria-busy="true">
+    <div class="loading-msg" role="status">Loading dashboard…</div>
+  </div>
+</main>
+
+<script>
+/* ── Palette helpers ─────────────────────────────────────────────────────── */
+function css(prop) {
+  return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+}
+function probColor(p) {
+  if (p < 0.25) return css('--status-low');
+  if (p < 0.55) return css('--status-mid');
+  return css('--status-high');
+}
+function probBand(p) {
+  if (p < 0.25) return { text: 'Low risk',  bg: '#e7f9f2', key: 'low' };
+  if (p < 0.55) return { text: 'Elevated',  bg: '#fff8e6', key: 'mid' };
+  return             { text: 'High risk', bg: '#fef0f0', key: 'high' };
+}
+
+/* ── SVG arc gauge ───────────────────────────────────────────────────────── */
+function gaugeSVG(prob, color) {
+  const cx = 90, cy = 100, r = 72;
+  function pt(a) { return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) }; }
+  const s = pt(Math.PI), e = pt(2 * Math.PI), p = pt(Math.PI + prob * Math.PI);
+  const track = `M ${s.x} ${s.y} A ${r} ${r} 0 0 1 ${e.x} ${e.y}`;
+  const arc   = `M ${s.x} ${s.y} A ${r} ${r} 0 ${prob > 0.5 ? 1 : 0} 1 ${p.x} ${p.y}`;
+  return `<svg viewBox="0 0 180 110" width="180" height="110">
+    <path d="${track}" fill="none" stroke="${css('--surface-2')}" stroke-width="14" stroke-linecap="round"/>
+    <path d="${arc}"   fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ── Tile formatting ─────────────────────────────────────────────────────── */
+const TILE_LABELS = {
+  tvlUSD_100: 'Pool TVL (USD)', net_amountUSD_100: 'Net swap flow (USD)', swap_count_100: 'Swap count (hour)',
+  w_USDC: 'Curve USDC wt.',  w_USDT: 'Curve USDT wt.',  w_DAI: 'Curve DAI wt.',
+  curve_entropy: 'Pool entropy',
+  'Gegenbauer_0.4_deg1': 'Liq. asymmetry (deg 1)',
+  'Gegenbauer_0.4_deg2': 'Liq. shape (deg 2)',
+  hhi_24h_rolling_mean: 'LP ownership HHI',
+  tick_width_24h_rolling_median: 'Avg position width',
+  utilisation_rate_usdt: 'AAVE USDT util.',
+  utilisation_rate_usdc: 'AAVE USDC util.',
+  fear_greed_index: 'Fear & greed',
+  depeg_bps: 'Current depeg',
+};
+const TILE_ORDER = [
+  'depeg_bps','w_USDC','w_USDT','w_DAI','curve_entropy',
+  'Gegenbauer_0.4_deg1','hhi_24h_rolling_mean',
+  'tick_width_24h_rolling_median','utilisation_rate_usdt',
+  'utilisation_rate_usdc','fear_greed_index',
+];
+const MARKET_ORDER = ['depeg_bps','fear_greed_index','utilisation_rate_usdc','utilisation_rate_usdt'];
+const POOL_ORDER = ['tvlUSD_100','net_amountUSD_100','swap_count_100','hhi_24h_rolling_mean','tick_width_24h_rolling_median','Gegenbauer_0.4_deg1','Gegenbauer_0.4_deg2'];
+function fmtVal(k, v) {
+  if (v === null || v === undefined) return '—';
+  if (k.startsWith('w_') || k.includes('utilisation')) return (v*100).toFixed(1)+'%';
+  if (k === 'depeg_bps') return v.toFixed(2)+' bps';
+  if (k === 'curve_entropy') return v.toFixed(3);
+  if (k === 'tvlUSD_100' || k === 'net_amountUSD_100') return '$' + Math.abs(v).toLocaleString('en-US', {maximumFractionDigits:0});
+  if (k === 'swap_count_100') return Math.round(v).toLocaleString('en-US');
+  if (k.includes('hhi')) return v.toFixed(3);
+  if (k.includes('tick_width')) return v.toFixed(0)+' ticks';
+  if (k.includes('fear_greed')) return Math.round(v)+'/100';
+  if (k.includes('Gegenbauer')) return v.toFixed(4);
+  return v.toFixed(3);
+}
+
+/* ── Chart builders ──────────────────────────────────────────────────────── */
+function historyChart(id, history, threshold) {
+  const ctx = document.getElementById(id).getContext('2d');
+  return new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: history.map(d => {
+        const dt = new Date(d.timestamp);
+        return dt.toLocaleDateString('en-GB', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      }),
+      datasets: [{
+        data: history.map(d => d.depeg_bps),
+        borderColor: css('--blue'),
+        backgroundColor: css('--blue') + '22',
+        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
+        fill: true, tension: 0.3,
+      }, {
+        label: `±${threshold} bps threshold`,
+        data: history.map(() => threshold),
+        borderColor: css('--red'), borderWidth: 1.5, borderDash: [6, 5],
+        pointRadius: 0, fill: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: css('--surface-1'), titleColor: css('--text-secondary'),
+          bodyColor: css('--text-primary'), borderColor: css('--border'), borderWidth: 1,
+          callbacks: { label: c => (c.parsed.y != null ? c.parsed.y.toFixed(3) : '—') + ' bps' }
+        }
+      },
+      scales: {
+        x: { ticks: { color: css('--text-muted'), maxTicksLimit: 8, font:{size:11} }, grid: { color: css('--border')+'55' } },
+        y: { ticks: { color: css('--text-muted'), font:{size:11} }, grid: { color: css('--border')+'55' },
+             title: { display:true, text:'bps', color:css('--text-muted'), font:{size:11} } }
+      }
+    }
+  });
+}
+
+function shapChart(id, items, colorFn) {
+  const labels = items.map(d => d.display_name || d.feature).reverse();
+  const values = items.map(d => d.shap_value !== undefined ? d.shap_value : d.importance).reverse();
+  const ctx = document.getElementById(id).getContext('2d');
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: values.map(colorFn),
+        borderRadius: 4, borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: css('--surface-1'), titleColor: css('--text-secondary'),
+          bodyColor: css('--text-primary'), borderColor: css('--border'), borderWidth: 1,
+          callbacks: { label: c => c.parsed.x.toFixed(4) }
+        }
+      },
+      scales: {
+        x: { ticks: { color: css('--text-muted'), font:{size:11} }, grid: { color: css('--border')+'55' } },
+        y: { ticks: { color: css('--text-primary'), font:{size:11} }, grid: { display:false } }
+      }
+    }
+  });
+}
+
+function forecastMarkup(forecast) {
+  if (forecast?.status !== 'ok') {
+    return `<div class="card-title">24-hour Student-t GARCH forecast</div>
+      <div class="forecast-direction">Awaiting model refresh</div>
+      <p class="page-subtitle">Directional risk, 1% and 0.5% VaR and expected shortfall will appear after the forecasting workflow completes.</p>`;
+  }
+  const bps = v => Number.isFinite(v) ? v.toFixed(2) : '—';
+  const direction = forecast.risk_direction === 'Balanced' ? 'Balanced tail risk'
+    : `${forecast.risk_direction} at greater risk`;
+  const rows = ['USDC', 'USDT'].flatMap(token => ['0.01', '0.005'].map(level => {
+    const risk = forecast.tails[token][level];
+    return `<tr><td>${token}</td><td>${Number(level) * 100}%</td><td>${bps(risk.var_bps)}</td><td>${bps(risk.es_bps)}</td></tr>`;
+  })).join('');
+  return `<div class="card-title">24-hour Student-t GARCH forecast</div>
+    <div class="forecast-direction">${direction}</div>
+    <p class="forecast-note">Direction follows the larger 1% VaR. Expected deviation at hour 24: <strong>${bps(forecast.hourly?.[23]?.mean_bps)} bps</strong>.</p>
+    <table class="risk-table"><caption class="forecast-note">Adverse deviation from peg at hour 24 · basis points</caption>
+      <thead><tr><th scope="col">Token</th><th scope="col">Tail</th><th scope="col">VaR (bps)</th><th scope="col">ES (bps)</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="forecast-note">USDT per USDC quote: the lower tail signals USDC weakness; the upper tail signals USDT weakness. ES averages the worst outcomes in each tail.</p>
+    <details class="policy-notes"><summary>Forecast method</summary><p>${forecast.model} with Student-t innovations; ${forecast.simulations.toLocaleString('en-US')} simulated 24-hour paths. Fitted to ${forecast.fit_rows.toLocaleString('en-US')} observed hourly deviations. Values measure relative peg risk, not USD portfolio losses.</p></details>`;
+}
+
+// Match the embedded plot's full height, including its slider and controls.
+// The exported document uses 100% body height and browser margins by default;
+// clear those so the measured content height does not grow with the iframe.
+function fitLiquidityFrame(frame) {
+  const doc = frame.contentDocument;
+  if (!doc?.body) return;
+  doc.documentElement.style.height = 'auto';
+  doc.body.style.height = 'auto';
+  doc.body.style.margin = '0';
+  const resize = () => {
+    frame.style.height = Math.ceil(doc.body.scrollHeight) + 'px';
+  };
+  new ResizeObserver(resize).observe(doc.body);
+  resize();
+}
+
+/* ── Main render ─────────────────────────────────────────────────────────── */
+async function render() {
+  const app = document.getElementById('app');
+  let data;
+  try {
+    const r = await fetch('dashboard_data/rf_results.json?v=' + Date.now());
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    data = await r.json();
+  } catch(e) {
+    app.innerHTML = `<div class="error-msg">
+      <strong>Dashboard data not available.</strong><br>
+      Please try again later. The dataset and models are available through the links above.
+    </div>`;
+    app.setAttribute('aria-busy', 'false');
+    document.getElementById('last-updated').textContent = 'Data unavailable';
+    return;
+  }
+
+  const prob  = data.probability;
+  const threshold = Number(data.target_threshold_bps || 15);
+  const color = data.early_warning ? css(data.early_warning.alert === true ? '--red' : '--blue') : probColor(prob);
+  const band  = probBand(prob);
+  const ts    = data.timestamp
+    ? new Date(data.timestamp).toLocaleString('en-GB', {
+        year:'numeric', month:'short', day:'numeric',
+        hour:'2-digit', minute:'2-digit', timeZoneName:'short'
+      })
+    : '—';
+  const aucBadge = data.auc != null
+    ? `<span class="auc-badge">AUC ${data.auc.toFixed(3)}</span>` : '';
+  const calibrationMeta = data.calibrated
+    ? `Calibrated probability · Brier ${data.brier_score != null ? data.brier_score.toFixed(3) : '—'}`
+    : 'Legacy uncalibrated estimate — run the updated training workflow';
+  const probabilityText = data.calibrated && data.early_warning?.status !== 'censored' ? `${(prob*100).toFixed(1)}%` : '—';
+  const warning = data.early_warning;
+  const policy = warning?.policy;
+  const riskText = warning ? `${warning.min_lead_hours}–${warning.max_lead_hours} h onset score`
+    : 'Legacy 24-hour score';
+  const riskAngle = data.calibrated && warning?.status !== 'censored' ? prob * 360 : 0;
+  const alertText = !warning ? 'Policy awaiting model refresh'
+    : warning.status === 'censored' ? (warning.censor_reason === 'already_depegged'
+      ? 'Already depegged · warning paused' : 'Warning unavailable · incomplete data')
+    : warning.alert === true ? 'Depeg alert'
+    : warning.alert === false ? 'No depeg alert' : 'Policy unavailable';
+  const policyDetail = policy ? `NP cutoff ${policy.threshold != null ? (policy.threshold * 100).toFixed(2) + '%' : 'unavailable'} · target hourly FPR ${(policy.target_fpr * 100).toFixed(0)}%<br>Validation: ${policy.validation_events} events · observed FPR ${policy.validation_fpr != null ? (policy.validation_fpr * 100).toFixed(2) + '%' : '—'}`
+    : 'The next model update will calibrate the alert cutoff on a held-out validation period.';
+
+
+  const nv = data.notable_values || {};
+  const tilesFor = keys => keys
+    .filter(k => nv[k] !== undefined)
+    .map(k => `<div class="tile">
+      <div class="tile-label">${TILE_LABELS[k] || k}</div>
+      <div class="tile-value">${fmtVal(k, nv[k])}</div>
+    </div>`).join('');
+  const marketTiles = tilesFor(MARKET_ORDER);
+  const poolTiles = tilesFor(POOL_ORDER);
+
+  const nLocal  = Math.min(20, (data.local_shap  || []).length);
+  const nGlobal = Math.min(20, (data.global_shap || []).length);
+
+  document.getElementById('model-auc').innerHTML = aucBadge;
+  document.getElementById('monitor-description').textContent = warning
+    ? `Early warning of a ±${threshold} bps depeg onset in 2–24 hours · Uniswap Ethereum 0.01% pool`
+    : `24-hour depeg probability · Uniswap Ethereum 0.01% pool`;
+  document.getElementById('last-updated').textContent = `Data as of ${ts}`;
+  app.setAttribute('aria-busy', 'false');
+
+  app.innerHTML = `
+    <div class="top-row">
+      <div class="card risk-card">
+        <div class="card-title">Early warning · ±${threshold} bps</div>
+        <div class="alert-state ${warning?.alert === true ? 'is-alert' : ''}" role="status">${alertText}</div>
+        <div class="risk-ring" style="--risk:${riskAngle}deg; --red:${color}"><div class="risk-ring-inner"><div class="risk-value" style="color:${color}">${probabilityText}</div><div class="risk-detail">${riskText}</div></div></div>
+        <div class="policy-detail">${policyDetail}</div>
+        <div class="policy-detail">${calibrationMeta}</div>
+        ${policy ? `<details class="policy-notes"><summary>Alert policy</summary><p>Minimum lead: 2 hours; horizon: 24 hours. New depeg events require 24 consecutive observed hours within ±${threshold} bps. Already depegged observations and incomplete history/outcome windows are censored during training and validation. An alert is active when an eligible current score meets the validation-only NP cutoff.</p><p>NP violation tolerance: ${(policy.delta * 100).toFixed(0)}%. The bound assumes independent calibration scores; hourly dependence and distribution changes can affect future FPR. FPR measures hourly negatives, not alert episodes.</p></details>` : ''}
+      </div>
+      <div class="card forecast-card">${forecastMarkup(data.forecasting)}</div>
+    </div>
+
+    <div class="metric-sections">
+      <div class="card tiles-card"><div class="card-title">Market metrics</div><div class="tiles-grid">${marketTiles || '<span class="page-subtitle">No current market metrics available.</span>'}</div></div>
+      <div class="card tiles-card"><div class="card-title">USDC / USDT v3 pool metrics</div><div class="tiles-grid">${poolTiles || '<span class="page-subtitle">Pool metrics will appear after the next model refresh.</span>'}</div></div>
+    </div>
+
+    <div class="card history-card">
+      <div class="card-title">Absolute depeg history — last 7 days (bps) · dashed line marks ${threshold} bps</div>
+      <canvas id="history-chart" role="img" aria-label="Absolute USDC / USDT depeg history in basis points"></canvas>
+    </div>
+
+    <div class="shap-row" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title">Local SHAP — base forest score</div>
+        <div style="height:${nLocal * 26 + 40}px">
+          <canvas id="local-shap-chart" role="img" aria-label="Local SHAP feature contributions to the base forest score"></canvas>
+        </div>
+        <div class="legend-row">
+          <span><span class="legend-swatch" style="background:${css('--shap-pos')}"></span>Increases forest score</span>
+          <span><span class="legend-swatch" style="background:${css('--shap-neg')}"></span>Decreases forest score</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Global SHAP — mean |SHAP| over test set</div>
+        <div style="height:${nGlobal * 26 + 40}px">
+          <canvas id="global-shap-chart" role="img" aria-label="Global SHAP feature importance over the test set"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card curve-card">
+      <div class="card-title">Liquidity curve composition</div>
+      <div class="page-subtitle">Interactive hourly composition of the USDC / USDT liquidity curve.</div>
+      <iframe class="curve-frame" src="figures/uni_liquidity.html" title="Interactive Uniswap USDC USDT liquidity curve composition" loading="lazy"></iframe>
+    </div>
+  `;
+
+  const liquidityFrame = app.querySelector('.curve-frame');
+  liquidityFrame.addEventListener('load', () => fitLiquidityFrame(liquidityFrame));
+
+  if (data.depeg_history?.length) {
+    historyChart('history-chart', data.depeg_history, threshold);
+  }
+  if (data.local_shap?.length) {
+    shapChart('local-shap-chart', data.local_shap, v => v >= 0 ? css('--shap-pos') : css('--shap-neg'));
+  }
+  if (data.global_shap?.length) {
+    shapChart('global-shap-chart', data.global_shap, () => css('--blue'));
+  }
+}
+
+render();
+</script>
+</body>
+</html>

@@ -164,7 +164,7 @@ def load_uniswap_metrics():
     metrics1.index = metrics1['datetime']
     metrics5.index = metrics5['datetime']
     metrics1 = metrics1[['tvlUSD', 'net_amountUSD', 'net_amount0', 'swap_count']]
-    metrics5 = metrics5[['swap_count', 'net_amountUSD', 'tvlUSD']].ffill().bfill()
+    metrics5 = metrics5[['swap_count', 'net_amountUSD', 'tvlUSD']].ffill()
     try:
         metrics = metrics1.join(metrics5, rsuffix='_500', lsuffix='_100')
     except Exception as e:
@@ -669,7 +669,9 @@ def build_dataset(
                 dataset["target"] = hit_hard.fillna(False).astype(int)
 
         dataset = dataset.replace([np.inf, -np.inf], np.nan)
+        observed_depeg = dataset['depeg_bps'].copy()
         dataset = dataset.ffill()
+        dataset['depeg_bps'] = observed_depeg
         dataset = dataset.astype('float32')
         if use_log_price:
             if target:

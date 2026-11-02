@@ -424,7 +424,7 @@ async function render() {
     ? `Calibrated probability · Brier ${data.brier_score != null ? data.brier_score.toFixed(3) : '—'}`
     : 'Legacy uncalibrated estimate — run the updated training workflow';
   const probabilityText = data.calibrated ? `${(prob*100).toFixed(1)}%` : '—';
-  const riskText = data.calibrated ? `${band.text} · next 24 h` : 'Awaiting calibrated model';
+  const riskText = data.calibrated ? `${band.text} · ${data.early_warning ? '2–24 h onset' : 'next 24 h'}` : 'Awaiting calibrated model';
   const riskAngle = data.calibrated ? prob * 360 : 0;
 
   const nv = data.notable_values || {};
@@ -443,14 +443,14 @@ async function render() {
   app.innerHTML = `
     <div class="page-header">
       <div class="page-title">USDC / USDT v3 pool monitor ${aucBadge}</div>
-      <div class="page-subtitle">Calibrated 24-hour probability of crossing ±${threshold} bps · Uniswap Ethereum 0.01% pool</div>
+      <div class="page-subtitle">${data.early_warning ? 'Calibrated 2–24 hour probability of a new' : 'Calibrated 24-hour probability of crossing'} ±${threshold} bps ${data.early_warning ? 'depeg onset · ' : '· '}Uniswap Ethereum 0.01% pool</div>
       <a class="pool-link" href="https://app.uniswap.org/explore/pools/ethereum/0x3416cF6C708Da44DB2624D63ea0AAef7113527C6" target="_blank" rel="noreferrer">Open this pool in Uniswap ↗</a>
       <div id="last-updated">Data as of ${ts}</div>
     </div>
 
     <div class="top-row">
       <div class="card risk-card">
-        <div class="card-title">24h Depeg Probability · ±${threshold} bps</div>
+        <div class="card-title">${data.early_warning ? '2–24h Depeg Onset Probability' : '24h Depeg Probability'} · ±${threshold} bps</div>
         <div class="risk-ring" style="--risk:${riskAngle}deg; --red:${color}"><div class="risk-ring-inner"><div class="risk-value" style="color:${color}">${probabilityText}</div><div class="risk-detail">${riskText}</div></div></div>
         <div class="page-subtitle">${calibrationMeta}</div>
       </div>

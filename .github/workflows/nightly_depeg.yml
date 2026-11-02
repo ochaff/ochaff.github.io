@@ -1,4 +1,4 @@
-name: Depeg Monitor Update
+name: AMMonitor Model Update
 
 on:
   # The data repository should send this event after publishing a release.
@@ -15,6 +15,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: ammonitor-update-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -35,17 +39,15 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip
-          pip install \
-            pandas \
-            numpy \
-            scipy \
-            scikit-learn \
-            shap \
-            pyarrow \
-            requests
+          pip install -r requirements-monitor.txt
+
+      - name: Verify event labels, NP policy and GARCH tails
+        run: python -m pytest -q
 
       - name: Download latest on-chain data
         if: ${{ github.event.inputs.skip_data_update != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: bash update_data.sh
 
       # train_rf.py builds the exact dataset it trains on, so avoid duplicate
@@ -55,7 +57,7 @@ jobs:
           free -h
           df -h
 
-      - name: Train Random Forest and generate dashboard data
+      - name: Train early warning policy and Student-t GARCH forecasts
         env:
           OMP_NUM_THREADS: 2
           OPENBLAS_NUM_THREADS: 2
@@ -67,6 +69,13 @@ jobs:
           mkdir -p dashboard_data
           python -u train_rf.py
 
+      - name: Archive model results and protocol
+        uses: actions/upload-artifact@v4
+        with:
+          name: ammonitor-model-results
+          path: dashboard_data/rf_results.json
+          if-no-files-found: error
+
       - name: Commit and push dashboard data
         run: |
           git config user.name  "github-actions[bot]"
@@ -75,6 +84,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore: update depeg dashboard [skip ci]"
+            git commit -m "chore: update AMMonitor forecasts and alerts [skip ci]"
             git push
           fi

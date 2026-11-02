@@ -1,11 +1,12 @@
 """
-Train a Random Forest on the depeg dataset, compute SHAP explanations,
-and write dashboard_data/rf_results.json for the monitoring page.
+Train an onset-based Random Forest, calibrate a validation-only NP alert policy,
+fit Student-t GARCH forecasts, and write dashboard_data/rf_results.json.
 """
 import os
 import sys
 import json
-import warnings
+import argparse
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -13,11 +14,11 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.frozen import FrozenEstimator
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
-warnings.filterwarnings("ignore")
 
 # ─── repo root so build_dataset imports work ──────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_dataset import build_dataset
+from monitor_models import (onset_labels, hourly_prices, partition_bounds, complete_events,
+                            np_policy, garch_forecast, MIN_LEAD, RESET, HORIZON)
 
 # ─── Feature display names ────────────────────────────────────────────────────
 DISPLAY = {
@@ -76,6 +77,7 @@ NOTABLE_COLS = [
 
 def build_or_load(dataset_path, alpha, **kwargs):
     os.makedirs(dataset_path, exist_ok=True)
+    from build_dataset import build_dataset
     path = build_dataset(dataset_path=dataset_path, alpha=alpha, **kwargs)
     df = pd.read_parquet(path)
     return df
@@ -86,28 +88,45 @@ TARGET_WINDOW_HOURS = 24
 
 
 def train_and_explain(df, alpha):
-    # ── Feature / target split ────────────────────────────────────────────────
-    drop_cols = {"target", "depeg_bps"} | {c for c in df.columns if "target" in c.lower()}
-    feature_cols = [c for c in df.columns if c not in drop_cols]
-
-    df_clean = df.dropna(subset=["target"]).copy()
-    X = df_clean[feature_cols].astype("float32")
-    y = df_clean["target"].astype(int)
-
-    # Fill remaining NaN with forward-fill then column median
-    X = X.ffill().bfill()
-    X = X.fillna(X.median())
-
-    # ── Time-based train / calibration / test split ──────────────────────────
-    # Calibration must use observations later than the training period; random
-    # folds would leak temporal structure into the reported probability.
-    train_end = int(len(X) * 0.70)
-    calibration_end = int(len(X) * 0.85)
-    X_train, X_cal, X_test = X.iloc[:train_end], X.iloc[train_end:calibration_end], X.iloc[calibration_end:]
-    y_train, y_cal, y_test = y.iloc[:train_end], y.iloc[train_end:calibration_end], y.iloc[calibration_end:]
-
-    print(f"Train: {len(X_train):,} rows  Calibration: {len(X_cal):,} rows  Test: {len(X_test):,} rows")
-    print(f"Positive rate train: {y_train.mean():.2%}  calibration: {y_cal.mean():.2%}  test: {y_test.mean():.2%}")
+    # Preserve every realized hour and the latest live observation separately
+    # from the mature, uncensored rows available for supervised fitting.
+    df = df.copy()
+    df.index = pd.to_datetime(df.index, utc=True)
+    df = df.sort_index()
+    prices = hourly_prices(df['depeg_bps'])
+    df = df.reindex(prices.index)
+    drop_cols = {'target', 'depeg_bps'} | {c for c in df.columns if 'target' in c.lower()}
+    feature_cols = [c for c in df.columns if c not in drop_cols
+                    and pd.api.types.is_numeric_dtype(df[c])]
+    for lag in range(1, 8):
+        name = f'depeg_bps_lag{lag}h'
+        df[name] = prices.shift(lag)
+        if name not in feature_cols:
+            feature_cols.append(name)
+    X = df[feature_cols].replace([np.inf, -np.inf], np.nan).ffill().astype('float32')
+    bounds = partition_bounds(prices)
+    parts = {}
+    for name, (start, end) in bounds.items():
+        labels, _ = onset_labels(prices, end=end)
+        selected = labels.index[(labels.index >= start) & labels.eligible]
+        parts[name] = (X.loc[selected], labels.loc[selected, 'target'])
+        print(f'{name}: {len(selected):,} mature rows, {start} through {end}', flush=True)
+    X_train, y_train = parts['train']
+    # Imputation is learned exclusively on fit data. Never backward-fill or
+    # compute medians on calibration, validation or test observations.
+    medians = X_train.median().fillna(0)
+    X = X.fillna(medians)
+    parts = {name: (features.fillna(medians), labels)
+             for name, (features, labels) in parts.items()}
+    X_train, y_train = parts['train']
+    X_cal, y_cal = parts['calibration']
+    X_val, y_val = parts['validation']
+    X_test, y_test = parts['test']
+    if any(len(part[0]) == 0 for part in parts.values()):
+        raise ValueError('Each chronological partition needs uncensored observations')
+    if y_train.nunique() != 2 or y_cal.nunique() != 2:
+        raise ValueError('Fit and probability-calibration periods each need both target classes')
+    validation_events = complete_events(prices, *bounds['validation'])
 
     # ── Train RF ──────────────────────────────────────────────────────────────
     rf = RandomForestClassifier(
@@ -126,31 +145,26 @@ def train_and_explain(df, alpha):
     # `class_weight="balanced"` is useful for learning rare events but changes
     # the class prior, so its raw `predict_proba` output is not a calibrated risk.
     # Fit a sigmoid calibrator only on the temporally subsequent calibration set.
-    model = rf
-    calibrated = False
-    if y_cal.nunique() == 2:
-        # scikit-learn 1.7+ removed ``cv="prefit"``. Wrapping the already
-        # fitted forest in FrozenEstimator preserves the two-stage, temporal
-        # calibration design: fitting the calibrator cannot refit the forest.
-        model = CalibratedClassifierCV(
-            estimator=FrozenEstimator(rf), method="sigmoid"
-        )
-        model.fit(X_cal, y_cal)
-        calibrated = True
-    else:
-        print("Calibration skipped: calibration period contains one class only.")
+    calibrated = True
+    # scikit-learn 1.7+ removed ``cv="prefit"``. Wrapping the already
+    # fitted forest in FrozenEstimator preserves the two-stage, temporal
+    # calibration design: fitting the calibrator cannot refit the forest.
+    model = CalibratedClassifierCV(
+        estimator=FrozenEstimator(rf), method="sigmoid"
+    )
+    model.fit(X_cal, y_cal)
+
+    policy = np_policy(y_val, model.predict_proba(X_val)[:, 1],
+                       event_count=len(validation_events))
+    policy['validation_start'], policy['validation_end'] = map(str, bounds['validation'])
+    policy['validation_event_times'] = [str(t) for t in validation_events]
+    print(f"NP threshold: {policy['threshold']}; events={len(validation_events)}; "
+          f"validation FPR={policy['validation_fpr']}", flush=True)
 
     test_proba = model.predict_proba(X_test)[:, 1]
-    try:
-        auc = roc_auc_score(y_test, test_proba)
-        print(f"Test AUC: {auc:.4f}")
-    except Exception:
-        auc = None
-    try:
-        brier = brier_score_loss(y_test, test_proba)
-        print(f"Test Brier score: {brier:.4f}")
-    except Exception:
-        brier = None
+    auc = float(roc_auc_score(y_test, test_proba)) if y_test.nunique() == 2 else None
+    brier = float(brier_score_loss(y_test, test_proba))
+    print(f'Test AUC: {auc}; Brier score: {brier:.4f}', flush=True)
 
     # ── SHAP ──────────────────────────────────────────────────────────────────
     try:
@@ -215,19 +229,26 @@ def train_and_explain(df, alpha):
     # ── Latest-row prediction ─────────────────────────────────────────────────
     X_latest = X.iloc[[-1]]
     prob = float(model.predict_proba(X_latest)[0, 1])
-    print(f"Calibrated 24h probability of a ±{TARGET_THRESHOLD_BPS} bps depeg: {prob:.1%}")
+    print(f"Calibrated 2–24h probability of a ±{TARGET_THRESHOLD_BPS} bps depeg onset: {prob:.1%}")
+
+    latest_price = prices.iloc[-1]
+    full_history = len(prices) > 24 and prices.iloc[-25:-1].notna().all()
+    live_reason = ('missing_price' if not np.isfinite(latest_price) else
+                   'already_depegged' if abs(latest_price) >= TARGET_THRESHOLD_BPS else
+                   'incomplete_history' if not full_history else None)
+    live_eligible = live_reason is None
 
     # ── Notable metric values ─────────────────────────────────────────────────
-    latest_full = df_clean.iloc[-1]
+    latest_full = df.iloc[-1]
     notable = {}
     for col in NOTABLE_COLS:
-        if col in df_clean.columns:
+        if col in df.columns:
             val = latest_full[col]
             notable[col] = None if pd.isna(val) else float(val)
     notable["display_names"] = {c: _display(c) for c in notable if c != "display_names"}
 
     # ── Depeg history (last 7 days = 168 h) ──────────────────────────────────
-    hist_df = df_clean[["depeg_bps"]].iloc[-168:].copy()
+    hist_df = prices.abs().rename("depeg_bps").to_frame().iloc[-168:].copy()
     hist_df.index = hist_df.index.astype(str)
     depeg_history = [
         {"timestamp": ts, "depeg_bps": None if pd.isna(v) else float(v)}
@@ -241,7 +262,22 @@ def train_and_explain(df, alpha):
         "calibrated": calibrated,
         "target_threshold_bps": TARGET_THRESHOLD_BPS,
         "target_window_hours": TARGET_WINDOW_HOURS,
-        "timestamp": str(df_clean.index[-1]),
+        "timestamp": str(df.index[-1]),
+        "early_warning": {
+            "policy": policy,
+            "alert": bool(prob >= policy['threshold']) if live_eligible and policy['threshold'] is not None else None,
+            "status": ('active' if policy['threshold'] is not None else policy['status']) if live_eligible else 'censored',
+            "censor_reason": live_reason,
+            "min_lead_hours": MIN_LEAD, "max_lead_hours": HORIZON,
+            "event_reset_hours": RESET,
+            "split_periods": {name: {"start": str(start), "end": str(end),
+                                     "eligible_rows": len(parts[name][0])}
+                              for name, (start, end) in bounds.items()},
+            "test_events": len(complete_events(prices, *bounds['test'])),
+            "test_fpr": float((test_proba[y_test == 0] >= policy['threshold']).mean())
+                if policy['threshold'] is not None and (y_test == 0).any() else None,
+        },
+        "shap_basis": "uncalibrated_base_random_forest",
         "alpha": alpha,
         "local_shap": local_shap,
         "global_shap": global_shap,
@@ -251,48 +287,59 @@ def train_and_explain(df, alpha):
 
 
 def main():
-    ALPHA = 0.4
-    DATASET_PATH = "./preprocessed_datasets"
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--dataset-parquet', help='Use an existing feature dataset instead of rebuilding')
+    parser.add_argument('--alpha', type=float, default=.4)
+    parser.add_argument('--output', default='dashboard_data/rf_results.json')
+    parser.add_argument('--simulations', type=int, default=100_000)
+    args = parser.parse_args()
+    ALPHA = args.alpha
+    DATASET_PATH = './preprocessed_datasets'
 
-    print("Building dataset…")
-    df = build_or_load(
-        dataset_path=DATASET_PATH,
-        alpha=ALPHA,
-        aave=True,
-        aave_liq=True,
-        crv=True,
-        eth_price=True,
-        eth_indicators=False,
-        btc_price=True,
-        btc_indicators=False,
-        usd_index=True,
-        usd_indicators=False,
-        fear_greed=True,
-        gegen=True,
-        gegen_indicators=False,
-        swap_size=True,
-        liq_ownership=True,
-        target=True,
-        target_window=TARGET_WINDOW_HOURS,
-        target_threshold=TARGET_THRESHOLD_BPS,
-        depeg_side="both",
-        # The dashboard is explicitly a ±15 bps event monitor. Dynamic
-        # quantile excursions describe a different target and must not be
-        # mixed into this probability.
-        dynamic_threshold=False,
-        use_log_price=False,
-    )
+    if args.dataset_parquet:
+        df = pd.read_parquet(args.dataset_parquet)
+    else:
+        print('Building dataset…', flush=True)
+        df = build_or_load(
+            dataset_path=DATASET_PATH,
+            alpha=ALPHA,
+            aave=True,
+            aave_liq=True,
+            crv=True,
+            eth_price=True,
+            eth_indicators=False,
+            btc_price=True,
+            btc_indicators=False,
+            usd_index=True,
+            usd_indicators=False,
+            fear_greed=True,
+            gegen=True,
+            gegen_indicators=False,
+            swap_size=True,
+            liq_ownership=True,
+            target=False,  # Event-onset labels are rebuilt with partition-specific outcome caps.
+            target_window=TARGET_WINDOW_HOURS,
+            target_threshold=TARGET_THRESHOLD_BPS,
+            depeg_side="both",
+            # The dashboard is explicitly a ±15 bps event monitor. Dynamic
+            # quantile excursions describe a different target and must not be
+            # mixed into this probability.
+            dynamic_threshold=False,
+            use_log_price=False,
+        )
 
     print(f"Dataset shape: {df.shape}")
     result = train_and_explain(df, ALPHA)
 
-    out_dir = "dashboard_data"
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "rf_results.json")
-    with open(out_path, "w") as f:
-        json.dump(result, f, indent=2)
-
-    print(f"Saved → {out_path}")
+    print('Fitting Student-t GARCH and simulating 24-hour forecasts…', flush=True)
+    result['forecasting'] = garch_forecast(df['depeg_bps'], simulations=args.simulations)
+    result['schema_version'] = 2
+    out_path = Path(args.output)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = out_path.with_suffix('.tmp')
+    temporary.write_text(json.dumps(result, indent=2, allow_nan=False))
+    temporary.replace(out_path)
+    print(f'Saved → {out_path}', flush=True)
 
 
 if __name__ == "__main__":
