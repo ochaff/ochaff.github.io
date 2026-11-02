@@ -1,5 +1,5 @@
 """
-Train an onset-based Random Forest, calibrate a validation-only NP alert policy,
+Train a 24-hour monitoring Random Forest with probability risk bands,
 fit Student-t GARCH forecasts, and write dashboard_data/rf_results.json.
 """
 import os
@@ -17,8 +17,8 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 
 # ─── repo root so build_dataset imports work ──────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from monitor_models import (onset_labels, hourly_prices, partition_bounds, complete_events,
-                            np_policy, garch_forecast, MIN_LEAD, RESET, HORIZON)
+from monitor_models import (monitoring_labels, hourly_prices, monitoring_bounds,
+                            monitoring_level, feature_catalog, garch_forecast, HORIZON)
 
 # ─── Feature display names ────────────────────────────────────────────────────
 DISPLAY = {
@@ -98,16 +98,11 @@ def train_and_explain(df, alpha):
     drop_cols = {'target', 'depeg_bps'} | {c for c in df.columns if 'target' in c.lower()}
     feature_cols = [c for c in df.columns if c not in drop_cols
                     and pd.api.types.is_numeric_dtype(df[c])]
-    for lag in range(1, 8):
-        name = f'depeg_bps_lag{lag}h'
-        df[name] = prices.shift(lag)
-        if name not in feature_cols:
-            feature_cols.append(name)
     X = df[feature_cols].replace([np.inf, -np.inf], np.nan).ffill().astype('float32')
-    bounds = partition_bounds(prices)
+    bounds = monitoring_bounds(prices)
     parts = {}
     for name, (start, end) in bounds.items():
-        labels, _ = onset_labels(prices, end=end)
+        labels = monitoring_labels(prices, end=end)
         selected = labels.index[(labels.index >= start) & labels.eligible]
         parts[name] = (X.loc[selected], labels.loc[selected, 'target'])
         print(f'{name}: {len(selected):,} mature rows, {start} through {end}', flush=True)
@@ -120,13 +115,11 @@ def train_and_explain(df, alpha):
              for name, (features, labels) in parts.items()}
     X_train, y_train = parts['train']
     X_cal, y_cal = parts['calibration']
-    X_val, y_val = parts['validation']
     X_test, y_test = parts['test']
     if any(len(part[0]) == 0 for part in parts.values()):
         raise ValueError('Each chronological partition needs uncensored observations')
     if y_train.nunique() != 2 or y_cal.nunique() != 2:
         raise ValueError('Fit and probability-calibration periods each need both target classes')
-    validation_events = complete_events(prices, *bounds['validation'])
 
     # ── Train RF ──────────────────────────────────────────────────────────────
     rf = RandomForestClassifier(
@@ -154,17 +147,13 @@ def train_and_explain(df, alpha):
     )
     model.fit(X_cal, y_cal)
 
-    policy = np_policy(y_val, model.predict_proba(X_val)[:, 1],
-                       event_count=len(validation_events))
-    policy['validation_start'], policy['validation_end'] = map(str, bounds['validation'])
-    policy['validation_event_times'] = [str(t) for t in validation_events]
-    print(f"NP threshold: {policy['threshold']}; events={len(validation_events)}; "
-          f"validation FPR={policy['validation_fpr']}", flush=True)
-
     test_proba = model.predict_proba(X_test)[:, 1]
     auc = float(roc_auc_score(y_test, test_proba)) if y_test.nunique() == 2 else None
     brier = float(brier_score_loss(y_test, test_proba))
     print(f'Test AUC: {auc}; Brier score: {brier:.4f}', flush=True)
+
+    local_values, global_values = {}, {}
+    global_basis = 'mean_abs_shap'
 
     # ── SHAP ──────────────────────────────────────────────────────────────────
     try:
@@ -182,6 +171,7 @@ def train_and_explain(df, alpha):
             sv_global_cls1 = sv_global[..., 1] if sv_global.ndim == 3 else sv_global
 
         mean_abs = np.abs(sv_global_cls1).mean(axis=0)
+        global_values = {f: float(v) for f, v in zip(feature_cols, mean_abs)}
         global_shap = sorted(
             [
                 {"feature": f, "importance": float(v), "display_name": _display(f)}
@@ -199,6 +189,7 @@ def train_and_explain(df, alpha):
         else:
             sv_local_cls1 = sv_local[0, :, 1] if sv_local.ndim == 3 else sv_local[0]
 
+        local_values = {f: float(v) for f, v in zip(feature_cols, sv_local_cls1)}
         local_shap = sorted(
             [
                 {
@@ -216,6 +207,8 @@ def train_and_explain(df, alpha):
     except Exception as e:
         print(f"SHAP failed: {e}. Falling back to RF feature importance.")
         fi = rf.feature_importances_
+        global_basis = 'forest_feature_importance'
+        global_values = {f: float(v) for f, v in zip(feature_cols, fi)}
         global_shap = sorted(
             [
                 {"feature": f, "importance": float(v), "display_name": _display(f)}
@@ -229,14 +222,7 @@ def train_and_explain(df, alpha):
     # ── Latest-row prediction ─────────────────────────────────────────────────
     X_latest = X.iloc[[-1]]
     prob = float(model.predict_proba(X_latest)[0, 1])
-    print(f"Calibrated 2–24h probability of a ±{TARGET_THRESHOLD_BPS} bps depeg onset: {prob:.1%}")
-
-    latest_price = prices.iloc[-1]
-    full_history = len(prices) > 24 and prices.iloc[-25:-1].notna().all()
-    live_reason = ('missing_price' if not np.isfinite(latest_price) else
-                   'already_depegged' if abs(latest_price) >= TARGET_THRESHOLD_BPS else
-                   'incomplete_history' if not full_history else None)
-    live_eligible = live_reason is None
+    print(f"Calibrated next-24h probability of a ±{TARGET_THRESHOLD_BPS} bps breach: {prob:.1%}")
 
     # ── Notable metric values ─────────────────────────────────────────────────
     latest_full = df.iloc[-1]
@@ -263,26 +249,34 @@ def train_and_explain(df, alpha):
         "target_threshold_bps": TARGET_THRESHOLD_BPS,
         "target_window_hours": TARGET_WINDOW_HOURS,
         "timestamp": str(df.index[-1]),
-        "early_warning": {
-            "policy": policy,
-            "alert": bool(prob >= policy['threshold']) if live_eligible and policy['threshold'] is not None else None,
-            "status": ('active' if policy['threshold'] is not None else policy['status']) if live_eligible else 'censored',
-            "censor_reason": live_reason,
-            "min_lead_hours": MIN_LEAD, "max_lead_hours": HORIZON,
-            "event_reset_hours": RESET,
+        "monitoring": {
+            "mode": "probability_risk_bands",
+            "target_definition": "any_threshold_breach_in_next_24h",
+            "horizon_hours": HORIZON,
+            "risk_level": monitoring_level(prob),
+            "bands": [{"label": "Low", "min": 0, "max": .10},
+                      {"label": "Elevated", "min": .10, "max": .20},
+                      {"label": "High", "min": .20, "max": .50},
+                      {"label": "Critical", "min": .50, "max": 1}],
             "split_periods": {name: {"start": str(start), "end": str(end),
                                      "eligible_rows": len(parts[name][0])}
                               for name, (start, end) in bounds.items()},
-            "test_events": len(complete_events(prices, *bounds['test'])),
-            "test_fpr": float((test_proba[y_test == 0] >= policy['threshold']).mean())
-                if policy['threshold'] is not None and (y_test == 0).any() else None,
         },
+        "feature_catalog": [dict(item, display_name=_display(item['feature']))
+                            for item in feature_catalog(X.assign(depeg_bps=prices), local_values, global_values)],
+        "global_impact_basis": global_basis,
         "shap_basis": "uncalibrated_base_random_forest",
         "alpha": alpha,
         "local_shap": local_shap,
         "global_shap": global_shap,
         "notable_values": notable,
         "depeg_history": depeg_history,
+        "price_history": [
+            {"timestamp": str(ts),
+             "depeg_bps": float(value) if pd.notna(value) else None,
+             "price_ratio": 1 + float(value) / 10_000 if pd.notna(value) else None}
+            for ts, value in prices.iloc[-168:].items()
+        ],
     }
 
 
@@ -317,7 +311,7 @@ def main():
             gegen_indicators=False,
             swap_size=True,
             liq_ownership=True,
-            target=False,  # Event-onset labels are rebuilt with partition-specific outcome caps.
+            target=False,  # Monitoring breach labels use partition-specific outcome caps.
             target_window=TARGET_WINDOW_HOURS,
             target_threshold=TARGET_THRESHOLD_BPS,
             depeg_side="both",
@@ -333,7 +327,7 @@ def main():
 
     print('Fitting Student-t GARCH and simulating 24-hour forecasts…', flush=True)
     result['forecasting'] = garch_forecast(df['depeg_bps'], simulations=args.simulations)
-    result['schema_version'] = 2
+    result['schema_version'] = 4
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     temporary = out_path.with_suffix('.tmp')

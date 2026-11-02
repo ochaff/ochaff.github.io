@@ -41,7 +41,7 @@ jobs:
           python -m pip install -U pip
           pip install -r requirements-monitor.txt
 
-      - name: Verify event labels, NP policy and GARCH tails
+      - name: Verify monitoring labels, feature histograms and GARCH tails
         run: python -m pytest -q tests/test_monitor_models.py tests/test_training_protocol.py
 
       - name: Download latest on-chain data
@@ -57,7 +57,7 @@ jobs:
           free -h
           df -h
 
-      - name: Train early warning policy and Student-t GARCH forecasts
+      - name: Train monitoring Random Forest and Student-t GARCH forecasts
         env:
           OMP_NUM_THREADS: 2
           OPENBLAS_NUM_THREADS: 2
@@ -84,6 +84,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore: update AMMonitor forecasts and alerts [skip ci]"
+            git commit -m "chore: update AMMonitor monitoring data [skip ci]"
             git push
           fi

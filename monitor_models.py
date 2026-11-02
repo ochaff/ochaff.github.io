@@ -1,8 +1,8 @@
-"""Event-onset labels, validation-only NP policy and Student-t tail forecasts.
+"""Monitoring labels, feature distributions and Student-t tail forecasts.
 
-Reference: QuantLet/onchain-insights, Quantlet 8 (cv_results_report.py and
-threshold_selection.py). The NP bound is nominal: hourly scores are dependent,
-so the iid calibration assumption is not established by this implementation.
+Production training uses monitoring_labels and monitoring_bounds. Legacy onset
+and NP helpers remain for reproducibility of earlier research; the dashboard
+and current training workflow do not use that alert policy.
 """
 from __future__ import annotations
 
@@ -19,6 +19,85 @@ NP_FPR = 0.08
 NP_DELTA = 0.05
 MIN_VALIDATION_EVENTS = 5
 HOUR = pd.Timedelta(hours=1)
+
+
+def monitoring_labels(prices, *, end=None):
+    """Any ±15bps breach in the next 24 hours, including ongoing dislocations.
+
+    Monitoring uses neither event-onset declustering nor a minimum lead time.
+    Full future coverage is required only for retrospective supervised labels.
+    """
+    p = hourly_prices(prices)
+    if end is not None:
+        p = p.loc[:end]
+    future = pd.concat([p.shift(-h) for h in range(1, HORIZON + 1)], axis=1)
+    return pd.DataFrame({'target': future.abs().ge(THRESHOLD_BPS).any(axis=1).astype(int),
+                         'eligible': p.notna() & future.notna().all(axis=1)}, index=p.index)
+
+
+def monitoring_bounds(prices):
+    p = hourly_prices(prices)
+    if len(p) < 1000:
+        raise ValueError('At least 1,000 hourly observations are required')
+    cal, test = p.index[int(len(p) * .70)], p.index[int(len(p) * .85)]
+    return {'train': (p.index[0], cal - HOUR),
+            'calibration': (cal, test - HOUR), 'test': (test, p.index[-1])}
+
+
+def monitoring_level(probability):
+    for upper, label in [(0.10, 'Low'), (0.20, 'Elevated'), (0.50, 'High')]:
+        if probability < upper:
+            return label
+    return 'Critical'
+
+
+def feature_group(name):
+    if name.startswith(('Gegenbauer_', 'E_')) or name in {
+            'low_ratio', 'mid_ratio', 'high_ratio', 'odd_ratio', 'even_ratio',
+            'odd_to_even_ratio', 'tangent_up', 'tangent_down', 'swap_size_imbalance'}:
+        return 'curve_shape'
+    if name.startswith(('w_', 'curve_', 'gauge_')) or name in {'totalValueLockedUSD', 'hourlyVolumeUSD'}:
+        return 'curve_pool'
+    if name.startswith(('eth_', 'btc_', 'usd_', 'fx_', 'fear_', 'utilisation_', 'supplied_', 'liquidation_')) or name == 'depeg_bps':
+        return 'market'
+    return 'uniswap_pool'
+
+
+def feature_catalog(features, local_shap, global_shap, *, reference_days=90):
+    """Observed historical histograms; current observation is excluded.
+
+    Histogram edges span the 0.5th--99.5th percentiles. Outside observations
+    are grouped into the end bins; the empirical percentile uses all values.
+    This keeps heavy-tailed features readable without fabricating distributions.
+    """
+    latest = features.index[-1]
+    reference = features.loc[(features.index >= latest - pd.Timedelta(days=reference_days))
+                             & (features.index < latest)]
+    records = []
+    for name in features:
+        values = pd.to_numeric(reference[name], errors='coerce').to_numpy(dtype=float)
+        values = values[np.isfinite(values)]
+        current = features[name].iloc[-1]
+        current = float(current) if pd.notna(current) and np.isfinite(current) else None
+        histogram = None
+        if len(values):
+            low, high = np.quantile(values, [.005, .995])
+            if low == high:
+                margin = max(abs(low) * .02, .001)
+                low, high = low - margin, high + margin
+            counts, edges = np.histogram(np.clip(values, low, high), bins=28, range=(low, high))
+            histogram = {'edges': edges.tolist(), 'counts': counts.tolist(),
+                         'reference_count': len(values), 'reference_days': reference_days,
+                         'reference_start': str(reference.index[0]),
+                         'reference_end': str(reference.index[-1]),
+                         'percentile': float((values <= current).mean() * 100) if current is not None else None,
+                         'lower_tail_count': int((values < low).sum()),
+                         'upper_tail_count': int((values > high).sum()),
+                         'tail_display': 'outside_0.5_99.5_percentiles_grouped_into_edge_bins'}
+        records.append({'feature': name, 'value': current, 'group': feature_group(name),
+                        'local_shap': local_shap.get(name),
+                        'global_impact': global_shap.get(name), 'histogram': histogram})
+    return records
 
 
 def hourly_prices(series):
@@ -173,6 +252,24 @@ def tail_risk(paths):
     return results, direction
 
 
+def hourly_forecast_summary(paths, origin, means):
+    """Signed distribution summaries for plotting, without loss clipping."""
+    paths = np.asarray(paths, dtype=float)
+    ordered = np.sort(paths, axis=0)
+    count = len(ordered) * .01
+    whole, fraction = int(count), count - int(count)
+    lower_es = (ordered[:whole].sum(axis=0) + fraction * ordered[whole]) / count
+    upper_es = (ordered[-whole:].sum(axis=0) + fraction * ordered[-whole - 1]) / count
+    return [{'hour': h + 1, 'timestamp': str(origin + (h + 1) * HOUR),
+             'mean_bps': float(means[h]),
+             'median_bps': float(np.median(paths[:, h])),
+             'lower_1pct_bps': float(np.quantile(paths[:, h], .01)),
+             'upper_1pct_bps': float(np.quantile(paths[:, h], .99)),
+             'lower_es_1pct_bps': float(lower_es[h]),
+             'upper_es_1pct_bps': float(upper_es[h])}
+            for h in range(paths.shape[1])]
+
+
 def garch_forecast(prices, *, simulations=100_000, seed=42, lookback=24 * 365):
     """Fit AR(1)-GARCH(1,1)-t to signed depeg levels, simulate the next 24h."""
     from arch import arch_model
@@ -204,12 +301,7 @@ def garch_forecast(prices, *, simulations=100_000, seed=42, lookback=24 * 365):
                             rng=innovations, reindex=False)
     paths = forecast.simulations.values[-1]
     tails, direction = tail_risk(paths)
-    hourly = []
-    for h in range(HORIZON):
-        hourly.append({'hour': h + 1, 'timestamp': str(p.index[-1] + (h + 1) * HOUR),
-                       'mean_bps': float(forecast.mean.iloc[-1, h]),
-                       'lower_1pct_bps': float(np.quantile(paths[:, h], .01)),
-                       'upper_1pct_bps': float(np.quantile(paths[:, h], .99))})
+    hourly = hourly_forecast_summary(paths, p.index[-1], forecast.mean.iloc[-1].to_numpy())
     return {'status': 'ok', 'model': 'AR(1)-GARCH(1,1)', 'innovations': 'Student-t',
             'timestamp': str(p.index[-1]), 'horizon_hours': HORIZON,
             'risk_direction': direction, 'direction_rule': 'larger_1pct_var',

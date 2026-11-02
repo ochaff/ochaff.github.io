@@ -3,610 +3,114 @@ title: AMMonitor
 layout: null
 sitemap: false
 ---
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AMMonitor — USDC / USDT Pool Monitor</title>
-  <meta name="description" content="AMMonitor: USDC / USDT pool monitoring, depeg probabilities, liquidity metrics and model explanations.">
-  <link rel="icon" type="image/png" href="assets/ammonitor/ammonitor-logo.png">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <style>
-    /* ── Design tokens ──────────────────────────────────────────────────────── */
-    :root {
-      color-scheme: light;
-      --surface-0:    #f4f7fa;
-      --surface-1:    #ffffff;
-      --surface-2:    #edf3f8;
-      --border:       #d7e2ec;
-      --text-primary: #102e45;
-      --text-secondary:#526a7c;
-      --text-muted:   #607889;
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMMonitor — USDC / USDT</title>
+<meta name="description" content="USDC / USDT price monitoring, 24-hour GARCH forecasts and depeg early warnings.">
+<link rel="icon" href="assets/ammonitor/ammonitor-logo.png" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{color-scheme:light;--blue:#054476;--red:#DB3549;--ink:#17384f;--muted:#61798b;--line:#dce6ed;--wash:#f2f6f9;--white:#fff;--pale:#eaf2f8}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--wash);font-size:14px}button,select,input{font:inherit}button,select{cursor:pointer}button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--red);outline-offset:3px}button{color:inherit}a{color:var(--blue)}[hidden]{display:none!important}
+.shell{height:100vh;height:100dvh;display:grid;grid-template-rows:70px 52px minmax(0,1fr) 32px;overflow:hidden}.header{background:var(--white);border-top:3px solid var(--blue);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;gap:18px}.brand{display:flex;align-items:center;gap:9px;flex-shrink:0}.brand>img{width:55px;height:45px;object-fit:contain}.wordmark{font-size:25px;letter-spacing:-1px;font-weight:800;line-height:1.1;color:var(--blue)}.wordmark span{color:var(--red)}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:3px;letter-spacing:.02em}.header-right{display:flex;align-items:center;gap:25px}.updated{text-align:right;color:var(--muted);font-size:11px;line-height:1.6}.updated strong{display:block;color:var(--ink);font-weight:600}.partners{display:flex;align-items:center;gap:22px}.partners a{display:flex;align-items:center}.partners a+a{padding-left:22px;border-left:1px solid var(--line)}.ida{width:76px;height:37px;object-fit:contain}.msca{width:42px;height:42px;object-fit:contain}
+.navbar{display:flex;align-items:stretch;justify-content:space-between;padding:0 26px;background:var(--white);border-bottom:1px solid var(--line);gap:12px}.tabs{display:flex;gap:24px}.tab{background:none;border:0;border-bottom:3px solid transparent;padding:0 2px;color:var(--muted);font-size:12px;font-weight:600}.tab[aria-selected=true]{color:var(--blue);border-bottom-color:var(--red)}.nav-context{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}.context-dot{width:6px;height:6px;background:var(--blue);border-radius:50%}
+.workspace{min-height:0;min-width:0;padding:18px 24px 14px}.tabpanel{height:100%;min-height:0;min-width:0}.card{background:var(--white);border:1px solid var(--line);border-radius:10px;min-width:0;min-height:0}.overview{display:grid;grid-template-columns:248px minmax(0,1fr);gap:16px}.eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0}.policy-card{padding:23px 20px;display:flex;flex-direction:column;gap:18px}.policy-top{display:flex;flex-direction:column;gap:13px}.status{display:inline-flex;align-items:center;gap:6px;font-weight:650;font-size:12px;align-self:flex-start;padding:7px 10px;background:var(--pale);border-radius:5px;color:var(--blue)}.status::before{content:"";width:6px;height:6px;background:currentColor;border-radius:50%}.status.alert{color:var(--red);background:#fcecef}.probability-block{margin:auto 0 0}.probability{font-size:clamp(38px,4.2vw,62px);font-weight:750;letter-spacing:-.055em;color:var(--blue);line-height:1.04}.probability.is-alert{color:var(--red)}.prob-label{font-size:11px;margin:9px 0 0;color:var(--muted)}.prob-caption{font-size:11px;line-height:1.6;color:var(--muted);margin:10px 0 0}.threshold-block{border-top:1px solid var(--line);padding-top:18px}.threshold-label{font-size:11px;color:var(--muted);margin-bottom:3px}.cutoff{font-size:27px;font-weight:650;letter-spacing:-.04em}.policy-rail{margin:8px 0 auto;padding-top:12px}.rail{height:7px;border-radius:10px;background:var(--pale);position:relative}.rail-fill{height:100%;background:var(--blue);border-radius:10px;width:0}.rail-marker{position:absolute;top:-5px;height:17px;width:2px;background:var(--red)}.rail-labels{display:flex;justify-content:space-between;margin-top:9px;font-size:9px;color:var(--muted)}.policy-foot{border-top:1px solid var(--line);padding-top:16px;font-size:11px;color:var(--muted);line-height:1.65}.policy-foot strong{display:block;font-size:17px;color:var(--blue);font-weight:650;margin-top:4px}.policy-foot span{display:block;font-size:10px}
+.price-card{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;overflow:hidden}.chart-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 22px 12px}.chart-heading h1{font-size:21px;margin:0;letter-spacing:-.04em;color:var(--blue)}.chart-subtitle{color:var(--muted);font-size:10px;margin:4px 0 0}.quote{text-align:right;white-space:nowrap}.quote strong{font-size:23px;letter-spacing:-.03em;color:var(--blue);font-weight:700}.quote span{display:block;color:var(--muted);font-size:10px;margin-top:3px}.chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 22px 10px;font-size:10px}.selects,.checks{display:flex;align-items:center;gap:10px}.selects label{display:flex;align-items:center;gap:5px;color:var(--muted)}select{border:1px solid var(--line);border-radius:5px;background:var(--white);color:var(--ink);font-size:10px;padding:5px 6px;max-width:100%}.checks label{display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer}.checks input{accent-color:var(--blue);width:12px;height:12px;margin:0}.chart-stage{min-height:0;min-width:0;position:relative;padding:0 16px 4px}.chart-stage canvas{width:100%!important;height:100%!important}.chart-footer{border-top:1px solid var(--line);padding:11px 20px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 17px;color:var(--muted);font-size:10px}.key{display:flex;align-items:center;gap:6px;white-space:nowrap}.key i{display:block;width:18px;height:2px;background:var(--blue)}.key .median{background:var(--red)}.key .interval{height:9px;background:#0544761b;border:1px solid #05447650}.key .threshold{background:none;border-top:1px dashed var(--red)}.key .es{background:none;border-top:2px dotted var(--red)}.chart-notice{font-size:10px;color:var(--red);margin-left:auto}
+.panel-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.panel-title h2{font-size:16px;margin:0;color:var(--blue);letter-spacing:-.02em}.panel-title p{font-size:10px;color:var(--muted);margin:4px 0 0}.metrics-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px}.metrics-card,.risk-card,.driver-card,.model-card{padding:20px;overflow:hidden}.metrics-card{display:flex;flex-direction:column}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr;gap:10px;flex:1;min-height:0}.metric{background:var(--wash);border:1px solid #e8eef3;border-radius:6px;padding:12px;display:flex;flex-direction:column;justify-content:center;min-height:0;min-width:0}.metric small{color:var(--muted);font-size:9px;line-height:1.5}.metric strong{font-size:clamp(14px,1.8vw,23px);margin-top:5px;letter-spacing:-.025em;font-variant-numeric:tabular-nums}.risk-card{display:flex;flex-direction:column}.risk-title{font-size:24px;font-weight:700;letter-spacing:-.04em;color:var(--blue);margin:18px 0 6px}.caption{font-size:11px;color:var(--muted);line-height:1.6;margin:0}.risk-table{width:100%;border-collapse:collapse;font-size:12px;margin:20px 0;font-variant-numeric:tabular-nums}.risk-table th,.risk-table td{text-align:right;padding:12px 6px;border-bottom:1px solid var(--line)}.risk-table th{font-size:9px;text-transform:uppercase;color:var(--muted)}.risk-table th:first-child,.risk-table td:first-child{text-align:left}.risk-card .caption:last-child{margin-top:auto}
+.drivers-layout,.models-layout{display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px}.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-bar h2{margin:0;font-size:17px;color:var(--blue)}.panel-bar label{font-size:11px;color:var(--muted)}.driver-grid,.model-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;min-height:0}.driver-card{display:grid;grid-template-rows:auto minmax(0,1fr) auto}.driver-stage{position:relative;min-height:0;min-width:0}.driver-stage canvas{height:100%!important;width:100%!important}.driver-caption{font-size:10px;color:var(--muted);padding-top:10px;line-height:1.5}.mobile-selector{display:none}.liquidity-card{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden;padding:16px 16px 0}.liquidity-card .panel-title{margin-bottom:5px}.curve-frame{width:100%;height:100%;border:0;min-height:0;display:block}.facts{margin:16px 0;display:grid;grid-template-columns:1fr auto;font-size:11px;gap:12px 16px}.facts dt{color:var(--muted)}.facts dd{margin:0;text-align:right;font-weight:600}.model-card{display:flex;flex-direction:column}.model-card h3{font-size:15px;color:var(--blue);margin:0}.model-card p{font-size:11px;line-height:1.7;color:var(--muted);margin:10px 0 0}.model-card .model-note{border-top:1px solid var(--line);margin-top:auto;padding-top:12px;font-size:10px;line-height:1.6}.footer{padding:0 26px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:10px;gap:12px}.resources{display:flex;gap:20px;align-items:center}.resources a{display:flex;align-items:center;gap:4px;text-decoration:none}.resources a:hover{text-decoration:underline}.resources img{height:16px;width:19px;object-fit:contain}.resources .arrow{color:var(--red)}.loading{height:100%;display:grid;place-items:center;color:var(--muted)}
+@media(min-width:1700px){.workspace{padding-left:max(24px,calc((100vw - 1700px)/2));padding-right:max(24px,calc((100vw - 1700px)/2))}}
+@media(max-height:730px) and (min-width:701px){.shell{grid-template-rows:58px 44px minmax(0,1fr) 26px}.workspace{padding:10px 18px}.policy-card{padding:16px;gap:12px}.policy-top{gap:8px}.probability{font-size:43px}.prob-caption{display:none}.threshold-block{padding-top:12px}.policy-foot{padding-top:10px}.chart-heading{padding-top:14px;padding-bottom:8px}.risk-title{margin-top:8px;font-size:20px}.risk-table{margin:10px 0}.risk-table td{padding:9px 5px}.model-card p{font-size:10px;line-height:1.5}.facts{gap:9px 12px;margin:12px 0}.metric{padding:9px}}
+@media(max-width:1000px){.overview{grid-template-columns:216px minmax(0,1fr);gap:12px}.workspace{padding:14px 16px 10px}.policy-card{padding:18px 16px}.chart-toolbar{flex-wrap:wrap;gap:8px}.chart-heading{padding:16px}.chart-toolbar{padding-left:16px;padding-right:16px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:8px}.metric strong{font-size:17px}.metrics-card,.risk-card,.driver-card,.model-card{padding:16px}}
+@media(max-width:700px){.shell{grid-template-rows:58px 43px minmax(0,1fr) 27px}.header{padding:0 12px;gap:8px}.brand{gap:5px}.brand>img{width:40px;height:35px}.wordmark{font-size:19px}.brand small{display:none}.header-right{gap:8px}.updated{display:none}.partners{gap:13px}.partners a+a{padding-left:13px}.ida{width:56px;height:27px}.msca{width:30px;height:30px}.navbar{padding:0 10px;display:block}.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:0;height:100%}.tab{font-size:10px;padding:0 3px}.nav-context{display:none}.workspace{padding:9px;min-height:0}.overview{grid-template-columns:minmax(0,1fr);grid-template-rows:111px minmax(0,1fr);gap:9px}.policy-card{display:grid;grid-template-columns:1fr 1fr;gap:7px 16px;padding:12px 15px}.policy-top{grid-column:1/-1;display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:8px}.status{font-size:10px;padding:4px 6px;align-self:auto}.policy-top .eyebrow{font-size:9px}.probability-block{margin:0;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}.probability{font-size:32px}.prob-label{margin:0;font-size:9px}.prob-caption,.policy-rail,.policy-foot{display:none}.threshold-block{margin:0;border:0;padding:0;align-self:center;text-align:right}.threshold-label{font-size:9px;margin-bottom:0}.cutoff{font-size:24px}.chart-heading{padding:12px 12px 8px;gap:8px}.chart-heading h1{font-size:17px}.chart-subtitle{font-size:9px}.quote strong{font-size:18px}.quote span{font-size:9px}.chart-toolbar{padding:0 12px 8px;gap:7px;font-size:9px}.selects,.checks{gap:8px}select{font-size:9px;padding:4px}.checks input{width:11px;height:11px}.chart-stage{padding:0 6px 2px}.chart-footer{padding:7px 11px;gap:5px 11px;font-size:8px}.key{gap:4px}.key i{width:12px}.chart-notice{font-size:9px}.footer{padding:0 11px;font-size:9px}.footer-note{display:none}.resources{width:100%;justify-content:space-between;gap:10px}.resources img{height:14px;width:15px}.metrics-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:9px}.metrics-card,.risk-card,.driver-card,.model-card{padding:12px}.panel-title{margin-bottom:8px}.panel-title h2{font-size:13px}.panel-title p{font-size:9px}.metric-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.metric{padding:5px}.metric small{font-size:8px}.metric strong{font-size:13px;margin-top:2px}.risk-card .panel-title{display:none}.risk-title{font-size:17px;margin:0 0 3px}.caption{font-size:9px;line-height:1.45}.risk-table{font-size:10px;margin:6px 0}.risk-table th,.risk-table td{padding:5px}.risk-table th{font-size:8px}.risk-card .caption:last-child{font-size:8px}.panel-bar h2{font-size:14px}.panel-bar label{font-size:9px}.driver-grid,.model-grid{grid-template-columns:minmax(0,1fr)}.driver-card:not(.mobile-active),.model-card:not(.mobile-active){display:none}.mobile-selector{display:flex;gap:4px}.mobile-selector button{border:1px solid var(--line);padding:5px 9px;font-size:10px;border-radius:5px;background:var(--white);color:var(--muted)}.mobile-selector button[aria-pressed=true]{color:var(--blue);background:var(--pale);border-color:#b7cddb}.drivers-layout,.models-layout{gap:9px;grid-template-rows:auto auto minmax(0,1fr)}.facts{gap:15px 10px;font-size:11px}.model-card p{font-size:10px}.model-card .model-note{font-size:9px}.liquidity-card{padding:12px 6px 0}.liquidity-card .panel-title{padding:0 6px}}
+@media(max-height:650px) and (max-width:700px){.shell{grid-template-rows:47px 35px minmax(0,1fr) 23px}.overview{grid-template-rows:84px minmax(0,1fr);gap:7px}.workspace{padding:7px}.policy-card{padding:8px 12px;gap:3px 10px}.probability{font-size:26px}.cutoff{font-size:20px}.prob-label{font-size:8px}.chart-heading{padding-top:8px;padding-bottom:6px}.chart-heading h1{font-size:15px}.chart-subtitle{display:none}.chart-toolbar{font-size:8px;padding-bottom:5px;gap:5px}.chart-footer{padding:5px 8px;gap:4px 8px;font-size:7px}.quote strong{font-size:16px}.facts{gap:8px;font-size:10px;margin:10px 0}.model-card p{font-size:9px;line-height:1.4}.metric small{font-size:7px}.metric strong{font-size:11px}.risk-table th,.risk-table td{padding:3px}.risk-card .caption:last-child{display:none}}
 
-      --blue:    #054476;
-      --green:   #1baf7a;
-      --amber:   #eda100;
-      --red:     #DB3549;
+.status.risk-high,.status.risk-critical{color:#DB3549;background:#fcecef}.status.risk-elevated{color:#986610;background:#fff6df}.probability.risk-high{color:#DB3549}.probability.risk-critical{color:#9b2436}.probability.risk-elevated{color:#a26e10}.risk-bands{margin:8px 0 auto;display:grid;gap:7px}.risk-band{display:flex;align-items:center;gap:7px;padding:6px 7px;color:var(--muted);font-size:10px;border-radius:4px}.risk-band strong{margin-left:auto;font-size:10px;font-weight:500}.risk-band.current{color:var(--ink);background:var(--wash);font-weight:700}.risk-dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}.risk-dot.risk-elevated{background:#b18122}.risk-dot.risk-high{background:var(--red)}.risk-dot.risk-critical{background:#9b2436}.features-panel{height:100%;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;padding:18px 22px;overflow:hidden}.feature-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.feature-toolbar h2{margin:0;font-size:17px;color:var(--blue)}.feature-toolbar p{font-size:10px;color:var(--muted);margin:5px 0 0}.feature-toolbar label{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px}.feature-toolbar select{min-width:170px;font-size:11px}.feature-columns,.feature-row{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.65fr) minmax(0,1.35fr) minmax(0,.55fr);gap:22px;align-items:center}.feature-columns{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);padding:10px 0}.feature-columns span:last-child{text-align:right}.features-list{min-height:0;display:grid;grid-template-rows:repeat(var(--feature-rows,8),minmax(0,1fr));overflow:hidden}.feature-row{border-bottom:1px solid #edf2f6;min-height:0}.feature-name,.feature-current{min-width:0}.feature-name strong{font-size:12px;font-weight:600;line-height:1.4;display:block}.feature-name small{color:var(--muted);font-size:8px;display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.feature-current strong{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums}.feature-current small{font-size:9px;color:var(--muted);display:block;margin-top:3px}.feature-histogram{display:block;width:100%;max-height:54px;overflow:visible}.histogram-pending{font-size:10px;color:var(--muted)}.feature-shap{text-align:right;font-variant-numeric:tabular-nums}.feature-shap span{font-size:12px;font-weight:700;display:inline-block;padding:5px 7px;border-radius:4px;background:var(--wash)}.feature-shap small{font-size:8px;display:block;color:var(--muted);margin-top:4px}.feature-shap.positive span{color:#DB3549;background:#fcecef}.feature-shap.negative span{color:#198367;background:#eaf7f1}.feature-shap.missing span{color:var(--muted)}.feature-pagination{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:10px;color:var(--muted);padding-top:12px}.feature-pagination button{border:1px solid var(--line);border-radius:4px;padding:4px 10px;background:var(--white);color:var(--blue);margin-left:4px}.feature-pagination button:disabled{opacity:.3;cursor:default}.liquidity-layout{display:grid;grid-template-rows:minmax(0,1fr)}.liquidity-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;min-height:0}.liquidity-grid .liquidity-card{min-height:0}.feature-row .histogram-cell{min-width:0}
+@media(max-width:1000px){.feature-columns,.feature-row{gap:12px}.feature-name strong{font-size:11px}.features-panel{padding:15px}.feature-current strong{font-size:13px}.feature-shap span{font-size:11px;padding:4px}.distribution-note{font-size:8px}}
+@media(max-width:700px){.risk-bands{display:none}.policy-card .policy-top{grid-column:1/-1}.policy-card .probability-block{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline}.policy-card .prob-label{font-size:10px}.features-panel{padding:12px;grid-template-rows:auto minmax(0,1fr) auto}.feature-toolbar{display:block;margin-bottom:7px}.feature-toolbar h2{font-size:14px}.feature-toolbar p{display:none}.feature-toolbar label{margin-top:8px;justify-content:space-between}.feature-toolbar select{min-width:0;width:190px;font-size:10px}.feature-columns{display:none}.feature-row{grid-template-columns:minmax(0,1.15fr) auto auto;grid-template-rows:auto minmax(0,1fr);gap:3px 9px;padding:8px 0}.feature-name strong{font-size:10px}.feature-name small{display:none}.feature-current{text-align:right}.feature-current strong{font-size:11px}.feature-current small{font-size:8px}.feature-shap{grid-column:3;grid-row:1}.feature-shap span{font-size:9px;padding:3px}.feature-shap small{display:none}.histogram-cell{grid-column:1/-1;grid-row:2;height:100%;min-height:0}.feature-histogram{height:100%;max-height:43px}.feature-pagination{font-size:9px;gap:5px;padding-top:8px}.distribution-note{display:none}.liquidity-layout{grid-template-rows:auto minmax(0,1fr);gap:9px}.liquidity-grid{grid-template-columns:minmax(0,1fr)}.liquidity-card:not(.venue-active){display:none}.liquidity-switch{display:flex}}
+@media(max-height:650px) and (max-width:700px){.features-panel{padding:9px}.feature-toolbar{margin-bottom:5px}.feature-toolbar label{margin-top:6px}.feature-row{padding:5px 0}.feature-name strong{font-size:9px}.feature-histogram{max-height:35px}.feature-pagination{padding-top:5px}.model-card .facts{gap:6px}}
 
-      --status-low:  #1baf7a;
-      --status-mid:  #eda100;
-      --status-high: #DB3549;
-
-      --shap-pos: #DB3549;
-      --shap-neg: #054476;
-
-      --radius: 10px;
-      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 0 0 1px var(--border);
-    }
-    /* ── Reset / base ──────────────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--surface-0);
-      color: var(--text-primary);
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
-    /* ── AMMonitor identity ──────────────────────────────────────────────── */
-    .dashboard-header { background:var(--surface-1); border-top:4px solid var(--blue); border-bottom:1px solid var(--border); }
-    .header-inner { max-width:1100px; margin:0 auto; padding:22px 24px; display:flex; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap; }
-    .brand { display:flex; align-items:center; gap:12px; }
-    .brand-logo { width:74px; height:60px; object-fit:contain; }
-    .brand-name { color:var(--blue); font-size:1.75rem; font-weight:800; letter-spacing:-.04em; line-height:1.1; }
-    .brand-name span { color:var(--red); }
-    .brand-caption { color:var(--text-secondary); font-size:.8rem; margin-top:4px; }
-    .partners { display:flex; align-items:center; gap:24px; }
-    .partner { display:flex; align-items:center; gap:10px; }
-    .partner img { display:block; object-fit:contain; }
-    .ida-logo { width:88px; height:44px; }
-    .msca-logo { width:48px; height:48px; }
-    .partner:focus-visible { outline:3px solid var(--red); outline-offset:6px; border-radius:4px; }
-    .partner + .partner { border-left:1px solid var(--border); padding-left:24px; }
-    .resources { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
-    .resource-link { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; padding:8px 14px; color:var(--blue); background:var(--surface-1); border:1px solid var(--border); border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; }
-    .resource-link:hover { border-color:var(--blue); background:var(--surface-2); }
-    .resource-link:focus-visible { outline:3px solid var(--red); outline-offset:3px; }
-    .resource-link img { width:24px; height:24px; object-fit:contain; }
-    .resource-link .arrow { color:var(--red); }
-    @media (max-width:600px) {
-      .header-inner { padding:18px 20px; gap:20px; }
-      .partners { width:100%; gap:18px; }
-      .partner + .partner { padding-left:18px; }
-      .brand-name { font-size:1.6rem; }
-      .legend-row { flex-wrap:wrap; gap:8px 16px; }
-      .risk-card { padding:24px 16px; }
-    }
-
-    /* ── Page layout ──────────────────────────────────────────────────────── */
-    .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
-    .page-header { margin-bottom: 28px; }
-    .page-title { color:var(--blue); font-size: 1.5rem; font-weight: 700; }
-    .page-subtitle { color: var(--text-secondary); font-size: .9rem; margin-top: 4px; }
-    #last-updated { color: var(--text-muted); font-size: .82rem; margin-top: 6px; }
-
-    /* ── Cards ────────────────────────────────────────────────────────────── */
-    .card {
-      min-width: 0;
-      background: var(--surface-1);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px 22px;
-    }
-    .card-title {
-      font-size: .78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--text-secondary);
-      margin-bottom: 14px;
-    }
-
-    /* ── Top row ──────────────────────────────────────────────────────────── */
-    .top-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    @media (max-width: 700px) {
-      .top-row { grid-template-columns: 1fr; }
-    }
-
-    /* ── Probability gauge ────────────────────────────────────────────────── */
-    .gauge-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 20px;
-    }
-    .gauge-wrap { position: relative; width: 180px; height: 110px; }
-    .gauge-label {
-      position: absolute;
-      bottom: 0; left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-    }
-    .gauge-pct {
-      font-size: 2rem;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -.02em;
-    }
-    .gauge-caption {
-      font-size: .78rem;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-    .gauge-band {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      margin-top: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: .8rem;
-      font-weight: 600;
-    }
-    .band-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-    /* ── Stat tiles ───────────────────────────────────────────────────────── */
-    .tiles-card { padding: 16px 20px; }
-    .tiles-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 10px;
-    }
-    .tile {
-      background: var(--surface-2);
-      border-radius: 8px;
-      padding: 12px 14px;
-    }
-    .tile-label {
-      font-size: .72rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      margin-bottom: 4px;
-    }
-    .tile-value {
-      font-size: 1.25rem;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    /* ── History chart ────────────────────────────────────────────────────── */
-    .history-card { margin-bottom: 16px; }
-    .history-card canvas { max-height: 180px; }
-
-    /* ── SHAP row ─────────────────────────────────────────────────────────── */
-    .shap-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 700px) {
-      .shap-row { grid-template-columns: 1fr; }
-    }
-
-    /* ── Legend row ───────────────────────────────────────────────────────── */
-    .legend-row {
-      display: flex;
-      gap: 16px;
-      margin-top: 10px;
-      font-size: .78rem;
-      color: var(--text-secondary);
-    }
-    .legend-swatch {
-      display: inline-block;
-      width: 12px; height: 12px;
-      border-radius: 2px;
-      vertical-align: middle;
-      margin-right: 4px;
-    }
-
-    /* ── AUC badge ────────────────────────────────────────────────────────── */
-    .auc-badge {
-      display: inline-block;
-      background: var(--surface-2);
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-size: .75rem;
-      color: var(--text-secondary);
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-
-    /* ── Loading / error ──────────────────────────────────────────────────── */
-    .loading-msg {
-      text-align: center;
-      padding: 80px 24px;
-      color: var(--text-secondary);
-    }
-    .error-msg {
-      background: #fff0f0;
-      border: 1px solid #f9c7c7;
-      border-radius: 8px;
-      padding: 16px 20px;
-      color: #b91c1c;
-      font-size: .9rem;
-    }
-    .risk-card { display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center; text-align:center; min-height:238px; }
-    .risk-ring { --risk:0deg; width:166px; aspect-ratio:1; padding:12px; border-radius:50%; background:conic-gradient(var(--red) var(--risk),var(--surface-2) 0); transform:rotate(-135deg); }
-    .risk-ring-inner { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:50%; background:var(--surface-1); transform:rotate(135deg); }
-    .risk-value { color:var(--text-primary); font-size:2.3rem; font-weight:800; letter-spacing:-.06em; line-height:1; }
-    .risk-detail { color:var(--text-secondary); font-size:.72rem; margin-top:5px; }
-    .metric-sections { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-    .alert-state { padding:6px 12px; border-radius:6px; font-size:.9rem; font-weight:700; background:var(--surface-2); color:var(--blue); }
-    .alert-state.is-alert { background:#fcebef; color:var(--red); }
-    .policy-detail { color:var(--text-secondary); font-size:.76rem; max-width:42em; line-height:1.6; }
-    .forecast-direction { color:var(--blue); font-size:1.3rem; font-weight:750; margin-bottom:6px; }
-    .forecast-note { font-size:.77rem; color:var(--text-secondary); margin:8px 0; }
-    .risk-table { width:100%; border-collapse:collapse; margin-top:16px; font-size:.82rem; font-variant-numeric:tabular-nums; }
-    .risk-table th { color:var(--text-secondary); font-size:.7rem; text-transform:uppercase; letter-spacing:.03em; text-align:right; padding:8px 6px; border-bottom:2px solid var(--border); }
-    .risk-table td { padding:9px 6px; text-align:right; border-bottom:1px solid var(--border); }
-    .risk-table th:first-child, .risk-table td:first-child { text-align:left; }
-    .policy-notes { margin-top:12px; font-size:.75rem; color:var(--text-secondary); }
-    .policy-notes summary { cursor:pointer; color:var(--blue); font-weight:600; }
-    .policy-notes p { margin-top:8px; }
-    .curve-card { margin-top:16px; overflow:hidden; }
-    .curve-frame { display:block; width:100%; height:800px; border:0; background:var(--surface-1); }
-    @media (max-width:600px) { .page { padding:24px 16px 40px; } }
-    @media (max-width:700px) { .metric-sections { grid-template-columns:1fr; } }
-  </style>
+</style>
 </head>
 <body>
-
-<header class="dashboard-header">
-  <div class="header-inner">
-    <div class="brand" aria-label="AMMonitor">
-      <img class="brand-logo" src="assets/ammonitor/ammonitor-logo.png" alt="AMMonitor logo" width="74" height="60">
-      <div>
-        <div class="brand-name">AM<span>Monitor</span></div>
-        <div class="brand-caption">Stablecoin pool monitoring</div>
-      </div>
-    </div>
-    <div class="partners" aria-label="Research teams">
-      <a class="partner" href="https://www.theida.net/" target="_blank" rel="noopener noreferrer" aria-label="IDA website">
-        <img class="ida-logo" src="assets/ammonitor/ida-logo.png" alt="IDA" width="88" height="44">
-      </a>
-      <a class="partner" href="https://www.digital-finance-msca.com/" target="_blank" rel="noopener noreferrer" aria-label="MSCA Digital Finance website">
-        <img class="msca-logo" src="assets/ammonitor/msca-logo.png" alt="MSCA Digital Finance" width="48" height="48">
-      </a>
-    </div>
-  </div>
+<div class="shell">
+<header class="header">
+  <div class="brand" aria-label="AMMonitor"><img src="assets/ammonitor/ammonitor-logo.png" width="55" height="45" alt="AMMonitor logo"><div><div class="wordmark">AM<span>Monitor</span></div><small>Stablecoin market intelligence</small></div></div>
+  <div class="header-right"><div class="updated">Latest observation<strong id="updated">Loading…</strong></div><div class="partners"><a href="https://www.theida.net/" target="_blank" rel="noopener noreferrer" aria-label="IDA website"><img class="ida" src="assets/ammonitor/ida-logo.png" width="76" height="37" alt="IDA"></a><a href="https://www.digital-finance-msca.com/" target="_blank" rel="noopener noreferrer" aria-label="MSCA Digital Finance website"><img class="msca" src="assets/ammonitor/msca-logo.png" width="42" height="42" alt="MSCA Digital Finance"></a></div></div>
 </header>
-
-<main class="page">
-  <div class="page-header">
-    <h1 class="page-title">USDC / USDT v3 pool monitor <span id="model-auc"></span></h1>
-    <p class="page-subtitle" id="monitor-description">24-hour depeg probability · Uniswap Ethereum 0.01% pool</p>
-    <nav class="resources" aria-label="Dashboard resources">
-      <a class="resource-link" href="https://app.uniswap.org/explore/pools/ethereum/0x3416cF6C708Da44DB2624D63ea0AAef7113527C6" target="_blank" rel="noopener noreferrer">Open pool in Uniswap <span class="arrow" aria-hidden="true">↗</span></a>
-      <a class="resource-link" href="https://github.com/MSCA-DN-Digital-Finance/stablecoin-onchain-data" target="_blank" rel="noopener noreferrer">Dataset <span class="arrow" aria-hidden="true">↗</span></a>
-      <a class="resource-link" href="https://github.com/QuantLet/onchain-insights" target="_blank" rel="noopener noreferrer"><img src="assets/ammonitor/quantlet-logo.png" alt="QuantLet logo" width="24" height="24">Models on QuantLet <span class="arrow" aria-hidden="true">↗</span></a>
-    </nav>
-    <div id="last-updated" role="status">Loading latest observation…</div>
-  </div>
-  <div id="app" aria-busy="true">
-    <div class="loading-msg" role="status">Loading dashboard…</div>
-  </div>
-</main>
-
+<div class="navbar"><nav class="tabs" role="tablist" aria-label="Dashboard views"><button class="tab" id="tab-overview" role="tab" aria-selected="true" aria-controls="overview" tabindex="0" data-tab="overview">Monitor</button><button class="tab" id="tab-metrics" role="tab" aria-selected="false" aria-controls="metrics" tabindex="-1" data-tab="metrics">Metrics</button><button class="tab" id="tab-drivers" role="tab" aria-selected="false" aria-controls="drivers" tabindex="-1" data-tab="drivers">Drivers</button><button class="tab" id="tab-liquidity" role="tab" aria-selected="false" aria-controls="liquidity" tabindex="-1" data-tab="liquidity">Liquidity</button><button class="tab" id="tab-models" role="tab" aria-selected="false" aria-controls="models" tabindex="-1" data-tab="models">Models</button></nav><div class="nav-context"><i class="context-dot" aria-hidden="true"></i>Ethereum · Uniswap v3 · 0.01%</div></div>
+<main class="workspace" id="app" aria-busy="true"><div class="loading" role="status">Loading monitoring data…</div></main>
+<footer class="footer"><span class="footer-note">USDT per USDC · Hourly observations · All times UTC</span><nav class="resources" aria-label="Research resources"><a href="https://app.uniswap.org/explore/pools/ethereum/0x3416cF6C708Da44DB2624D63ea0AAef7113527C6" target="_blank" rel="noopener noreferrer">Uniswap pool <span class="arrow" aria-hidden="true">↗</span></a><a href="https://github.com/MSCA-DN-Digital-Finance/stablecoin-onchain-data" target="_blank" rel="noopener noreferrer">Dataset <span class="arrow" aria-hidden="true">↗</span></a><a href="https://github.com/QuantLet/onchain-insights" target="_blank" rel="noopener noreferrer"><img src="assets/ammonitor/quantlet-logo.png" alt="QuantLet logo" width="19" height="16">Models on QuantLet <span class="arrow" aria-hidden="true">↗</span></a></nav></footer>
+</div>
 <script>
-/* ── Palette helpers ─────────────────────────────────────────────────────── */
-function css(prop) {
-  return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+const BLUE='#054476', RED='#DB3549', MUTED='#61798b', LINE='#dce6ed';
+let result, priceChart, driverCharts=[], liquidityFrame, featurePage=0, activeTab='overview';
+const pct=v=>Number.isFinite(v)?(v*100).toFixed(2)+'%':'—';
+const number=(v,d=2)=>Number.isFinite(v)?v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
+const stamp=v=>new Date(v).getTime();
+const time=v=>new Date(v).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
+const shortTime=v=>new Date(v).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'UTC'});
+const signed=v=>(v>0?'+':'')+number(v);
+const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const panel=(id,content,cls='')=>`<section class="tabpanel ${cls}" id="${id}" role="tabpanel" aria-labelledby="tab-${id}" ${id==='overview'?'':'hidden'}>${content}</section>`;
+function riskLevel(p){return p<.10?'Low':p<.20?'Elevated':p<.50?'High':'Critical'}
+function policyMarkup(){
+ const level=Number.isFinite(result.probability)?riskLevel(result.probability):'Unavailable', cls=level.toLowerCase();
+ const bands=[['Low','<10%'],['Elevated','10–20%'],['High','20–50%'],['Critical','≥50%']];
+ return `<aside class="card policy-card" aria-label="Depeg risk monitoring"><div class="policy-top"><h2 class="eyebrow">Depeg risk monitor</h2><div class="status risk-${cls}" role="status">${level} risk</div></div><div class="probability-block"><div class="probability risk-${cls}">${pct(result.probability)}</div><p class="prob-label">Predicted probability</p><p class="prob-caption">A ±15 bps breach at any point<br>in the next 24 hours.</p></div><div class="risk-bands" aria-label="Monitoring risk levels">${bands.map(([name,range])=>`<div class="risk-band ${name===level?'current':''}"><i class="risk-dot risk-${name.toLowerCase()}"></i><span>${name}</span><strong>${range}</strong></div>`).join('')}</div><div class="policy-foot">Token at risk<strong>${escapeHtml(result.forecasting?.risk_direction||'Awaiting forecast')}</strong><span>Based on the larger 1% VaR</span></div></aside>`;
 }
-function probColor(p) {
-  if (p < 0.25) return css('--status-low');
-  if (p < 0.55) return css('--status-mid');
-  return css('--status-high');
+function overviewMarkup(){
+ const d=result.notable_values?.depeg_bps;
+ return panel('overview',policyMarkup()+`<div class="card price-card"><div class="chart-heading"><div><h1>USDC / USDT</h1><p class="chart-subtitle">Observed price + 24-hour GARCH forecast · UTC</p></div><div class="quote"><strong>${Number.isFinite(d)?number(1+d/10000,6):'—'}</strong><span>${signed(d)} bps from peg</span></div></div><div class="chart-toolbar"><div class="selects"><label>History <select id="history-window" aria-label="Price history window"><option value="24">24 hours</option><option value="72" selected>72 hours</option><option value="168">7 days</option></select></label><label>View <select id="chart-unit" aria-label="Chart units"><option value="price">Price</option><option value="bps">Deviation (bps)</option></select></label></div><div class="checks"><label><input type="checkbox" id="show-interval" checked>1–99% interval</label><label><input type="checkbox" id="show-es">1% / 99% ES</label></div></div><div class="chart-stage"><canvas id="price-chart" role="img" aria-label="USDC USDT price history and 24-hour forecast median, first and ninety-ninth percentiles, optional expected shortfall, and plus or minus fifteen basis-point thresholds"></canvas></div><div class="chart-footer"><span class="key"><i></i>Observed</span><span class="key"><i class="median"></i>Forecast median</span><span class="key"><i class="interval"></i>1–99%</span><span class="key"><i class="threshold"></i>±15 bps</span><span class="key" id="es-key" hidden><i class="es"></i>Tail ES</span><span class="chart-notice" id="chart-notice" role="status"></span></div></div>`,'overview');
 }
-function probBand(p) {
-  if (p < 0.25) return { text: 'Low risk',  bg: '#e7f9f2', key: 'low' };
-  if (p < 0.55) return { text: 'Elevated',  bg: '#fff8e6', key: 'mid' };
-  return             { text: 'High risk', bg: '#fef0f0', key: 'high' };
+const METRICS=[['depeg_bps','Current deviation','bps'],['fear_greed_index','Fear & greed','index'],['utilisation_rate_usdc','AAVE · USDC','pct'],['utilisation_rate_usdt','AAVE · USDT','pct'],['tvlUSD_100','Pool TVL','usd'],['net_amountUSD_100','Net swap flow','usd'],['swap_count_100','Hourly swaps','count'],['hhi_24h_rolling_mean','LP ownership HHI','decimal'],['tick_width_24h_rolling_median','Position width','ticks'],['Gegenbauer_0.4_deg1','Liquidity asymmetry','decimal'],['Gegenbauer_0.4_deg2','Liquidity shape','decimal'],['curve_entropy','Curve entropy','decimal']];
+function metricValue(v,type){if(!Number.isFinite(v))return '—';if(type==='pct')return pct(v);if(type==='usd')return (v<0?'−':'')+'$'+number(Math.abs(v),0);if(type==='count')return number(v,0);if(type==='index')return number(v,0)+'/100';if(type==='ticks')return number(v,0)+' ticks';if(type==='bps')return signed(v)+' bps';return number(v,3)}
+function metricsMarkup(){
+ return panel('metrics',`<div class="card features-panel"><div class="feature-toolbar"><div><h2>Feature monitor</h2><p>Historical distribution + current value + local SHAP</p></div><label>Show <select id="feature-view" aria-label="Feature selection"><option value="local">Local SHAP impact</option><option value="global">Global SHAP impact</option><option value="curve_shape">Uniswap curve shape</option><option value="market">Market metrics</option><option value="curve_pool">Curve pool metrics</option><option value="uniswap_pool">Uniswap pool metrics</option><option value="all">All features</option></select></label></div><div class="feature-columns" aria-hidden="true"><span>Feature</span><span>Current value</span><span>90-day distribution · marker = current</span><span>Local SHAP</span></div><div class="features-list" id="features-list"></div><div class="feature-pagination"><span id="feature-page-info" role="status"></span><span class="distribution-note">90-day reference · tails grouped at edges</span><div><button id="features-prev" aria-label="Previous feature page">←</button><button id="features-next" aria-label="Next feature page">→</button></div></div></div>`);
 }
-
-/* ── SVG arc gauge ───────────────────────────────────────────────────────── */
-function gaugeSVG(prob, color) {
-  const cx = 90, cy = 100, r = 72;
-  function pt(a) { return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) }; }
-  const s = pt(Math.PI), e = pt(2 * Math.PI), p = pt(Math.PI + prob * Math.PI);
-  const track = `M ${s.x} ${s.y} A ${r} ${r} 0 0 1 ${e.x} ${e.y}`;
-  const arc   = `M ${s.x} ${s.y} A ${r} ${r} 0 ${prob > 0.5 ? 1 : 0} 1 ${p.x} ${p.y}`;
-  return `<svg viewBox="0 0 180 110" width="180" height="110">
-    <path d="${track}" fill="none" stroke="${css('--surface-2')}" stroke-width="14" stroke-linecap="round"/>
-    <path d="${arc}"   fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round"/>
-  </svg>`;
+function formatFeature(item){const k=item.feature,v=item.value;if(!Number.isFinite(v))return '—';if(k.startsWith('w_')||k.includes('utilisation'))return pct(v);if(k==='depeg_bps')return signed(v)+' bps';if(k.includes('fear_greed'))return number(v,0)+'/100';if(k.includes('tick_width'))return number(v,0)+' ticks';if(k.endsWith('_hours'))return number(v,1)+' h';if(k.includes('USD')||k.includes('price_usd'))return (v<0?'−':'')+'$'+new Intl.NumberFormat('en-US',{notation:Math.abs(v)>=1e6?'compact':'standard',maximumFractionDigits:2}).format(Math.abs(v));if(Math.abs(v)>=10000)return new Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);return number(v,Math.abs(v)<1?4:2)}
+function histogramSVG(item){const h=item.histogram;if(!h?.counts?.length)return '<span class="histogram-pending">Distribution awaits model refresh</span>';const w=260,pad=5,plotWidth=w-2*pad,height=43,top=5,max=Math.max(...h.counts,1),bar=plotWidth/h.counts.length,lo=h.edges[0],hi=h.edges.at(-1),raw=(item.value-lo)/(hi-lo),x=pad+Math.max(0,Math.min(1,raw))*plotWidth;
+ const info=`Current ${formatFeature(item)}; percentile ${number(h.percentile,1)}. ${h.reference_count} observed hourly values; ${time(h.reference_start)} to ${time(h.reference_end)}. Outside 0.5th–99.5th percentiles grouped at edges.`;
+ return `<svg class="feature-histogram" viewBox="0 0 ${w} 56" role="img" aria-label="${escapeHtml(info)}"><title>${escapeHtml(info)}</title>${h.counts.map((v,i)=>{const bh=v/max*(height-top);return `<rect x="${pad+i*bar}" y="${height-bh}" width="${Math.max(.5,bar-1)}" height="${bh}" rx="1" fill="#05447655"><title>${number(h.edges[i],4)} to ${number(h.edges[i+1],4)}: ${v} hours</title></rect>`}).join('')}<line x1="${x}" x2="${x}" y1="2" y2="${height+2}" stroke="#17384f" stroke-width="1.6"/><path d="M ${x-3} 0 L ${x+3} 0 L ${x} 5 Z" fill="#17384f"/><text x="${pad}" y="55" font-size="7" fill="#61798b">${number(lo,Math.abs(lo)<1?3:0)}</text><text x="${w-pad}" y="55" text-anchor="end" font-size="7" fill="#61798b">${number(hi,Math.abs(hi)<1?3:0)}</text>${raw<0||raw>1?`<text x="${Math.min(w-6,Math.max(6,x))}" y="11" text-anchor="${raw<0?'start':'end'}" font-size="8" fill="#17384f">${raw<0?'←':'→'}</text>`:''}</svg>`;
 }
-
-/* ── Tile formatting ─────────────────────────────────────────────────────── */
-const TILE_LABELS = {
-  tvlUSD_100: 'Pool TVL (USD)', net_amountUSD_100: 'Net swap flow (USD)', swap_count_100: 'Swap count (hour)',
-  w_USDC: 'Curve USDC wt.',  w_USDT: 'Curve USDT wt.',  w_DAI: 'Curve DAI wt.',
-  curve_entropy: 'Pool entropy',
-  'Gegenbauer_0.4_deg1': 'Liq. asymmetry (deg 1)',
-  'Gegenbauer_0.4_deg2': 'Liq. shape (deg 2)',
-  hhi_24h_rolling_mean: 'LP ownership HHI',
-  tick_width_24h_rolling_median: 'Avg position width',
-  utilisation_rate_usdt: 'AAVE USDT util.',
-  utilisation_rate_usdc: 'AAVE USDC util.',
-  fear_greed_index: 'Fear & greed',
-  depeg_bps: 'Current depeg',
-};
-const TILE_ORDER = [
-  'depeg_bps','w_USDC','w_USDT','w_DAI','curve_entropy',
-  'Gegenbauer_0.4_deg1','hhi_24h_rolling_mean',
-  'tick_width_24h_rolling_median','utilisation_rate_usdt',
-  'utilisation_rate_usdc','fear_greed_index',
-];
-const MARKET_ORDER = ['depeg_bps','fear_greed_index','utilisation_rate_usdc','utilisation_rate_usdt'];
-const POOL_ORDER = ['tvlUSD_100','net_amountUSD_100','swap_count_100','hhi_24h_rolling_mean','tick_width_24h_rolling_median','Gegenbauer_0.4_deg1','Gegenbauer_0.4_deg2'];
-function fmtVal(k, v) {
-  if (v === null || v === undefined) return '—';
-  if (k.startsWith('w_') || k.includes('utilisation')) return (v*100).toFixed(1)+'%';
-  if (k === 'depeg_bps') return v.toFixed(2)+' bps';
-  if (k === 'curve_entropy') return v.toFixed(3);
-  if (k === 'tvlUSD_100' || k === 'net_amountUSD_100') return '$' + Math.abs(v).toLocaleString('en-US', {maximumFractionDigits:0});
-  if (k === 'swap_count_100') return Math.round(v).toLocaleString('en-US');
-  if (k.includes('hhi')) return v.toFixed(3);
-  if (k.includes('tick_width')) return v.toFixed(0)+' ticks';
-  if (k.includes('fear_greed')) return Math.round(v)+'/100';
-  if (k.includes('Gegenbauer')) return v.toFixed(4);
-  return v.toFixed(3);
+function featureRows(){let rows=(result.feature_catalog||[]).slice();if(!rows.length){const local=new Map((result.local_shap||[]).map(x=>[x.feature,x]));rows=[...new Set([...(result.local_shap||[]).map(x=>x.feature),...Object.keys(result.notable_values||{}).filter(k=>k!=='display_names')])].map(feature=>({feature,display_name:local.get(feature)?.display_name||feature,value:local.get(feature)?.feature_value??result.notable_values?.[feature],local_shap:local.get(feature)?.shap_value??null,global_impact:result.global_shap?.find(x=>x.feature===feature)?.importance??null}))}
+ const view=document.getElementById('feature-view').value;if(view==='local')rows=rows.filter(r=>Number.isFinite(r.local_shap));else if(view==='global')rows=rows.filter(r=>Number.isFinite(r.global_impact));else if(view!=='all')rows=rows.filter(r=>r.group===view);const score=r=>view==='global'?(r.global_impact??-1):Number.isFinite(r.local_shap)?Math.abs(r.local_shap):-1;return rows.sort((a,b)=>score(b)-score(a)||a.feature.localeCompare(b.feature));}
+function drawFeatures(){const list=document.getElementById('features-list');if(!list||document.getElementById('metrics').hidden)return;const rows=featureRows(),size=Math.max(2,Math.min(window.innerWidth<=700?5:8,Math.floor(list.clientHeight/(window.innerWidth<=700?95:72)))),pages=Math.max(1,Math.ceil(rows.length/size));featurePage=Math.min(Math.max(0,featurePage),pages-1);const selected=rows.slice(featurePage*size,(featurePage+1)*size);list.style.setProperty('--feature-rows',Math.max(1,selected.length));list.innerHTML=selected.map(item=>{const shap=item.local_shap,cls=!Number.isFinite(shap)?'missing':shap>0?'positive':shap<0?'negative':'neutral';return `<article class="feature-row"><div class="feature-name"><strong>${escapeHtml(item.display_name||item.feature)}</strong><small>${escapeHtml(item.feature)}${document.getElementById('feature-view').value==='global'&&Number.isFinite(item.global_impact)?' · Global '+number(item.global_impact,4):''}</small></div><div class="feature-current"><strong>${escapeHtml(formatFeature(item))}</strong><small>${Number.isFinite(item.histogram?.percentile)?'P'+number(item.histogram.percentile,1):''}</small></div><div class="histogram-cell">${histogramSVG(item)}</div><div class="feature-shap ${cls}" title="Local SHAP contribution to the base forest score"><span>${Number.isFinite(shap)?(shap>0?'+':'')+number(shap,4):'—'}</span><small>${Number.isFinite(shap)?shap>0?'Increases risk':shap<0?'Decreases risk':'Neutral':'Not attributed'}</small></div></article>`}).join('')||'<div class="loading">No features in this group.</div>';document.getElementById('feature-page-info').textContent=rows.length?`${featurePage*size+1}–${Math.min((featurePage+1)*size,rows.length)} of ${rows.length} features`:'No features';document.getElementById('features-prev').disabled=featurePage===0;document.getElementById('features-next').disabled=featurePage>=pages-1;}
+function driversMarkup(){return panel('drivers',`<div class="panel-bar"><h2>What drives the model?</h2><label>Features <select id="feature-count" aria-label="Number of SHAP features"><option value="8" selected>Top 8</option><option value="12">Top 12</option><option value="20">Top 20</option></select></label></div><div class="mobile-selector" aria-label="Explanation view"><button data-driver="local" aria-pressed="true">This observation</button><button data-driver="global" aria-pressed="false">Global importance</button></div><div class="driver-grid"><div class="card driver-card mobile-active" data-driver-card="local"><div class="panel-title"><div><h2>This observation</h2><p>Local SHAP contributions</p></div></div><div class="driver-stage"><canvas id="local-chart" role="img" aria-label="Local SHAP contributions"></canvas></div><div class="driver-caption">Red increases the base forest score; green decreases it.<br>SHAP explains the forest before probability calibration.</div></div><div class="card driver-card" data-driver-card="global"><div class="panel-title"><div><h2>Across the test set</h2><p>Mean absolute SHAP importance</p></div></div><div class="driver-stage"><canvas id="global-chart" role="img" aria-label="Global SHAP feature importance"></canvas></div><div class="driver-caption">Larger bars indicate greater average influence on the base forest score.</div></div></div>`,'drivers-layout')}
+function facts(items){return `<dl class="facts">${items.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`}
+function modelsMarkup(){const f=result.forecasting;
+ return panel('models',`<div class="panel-bar"><h2>Models & calibration</h2></div><div class="mobile-selector" aria-label="Model details"><button data-model="policy" aria-pressed="true">Monitoring model</button><button data-model="forecast" aria-pressed="false">Forecasting</button></div><div class="model-grid"><div class="card model-card mobile-active" data-model-card="policy"><h3>Monitoring Random Forest</h3>${facts([['Prediction target','Any breach · next 24h'],['Depeg threshold','±15 bps'],['Train / calibration / test','70% / 15% / 15%'],['Low risk','<10%'],['Elevated risk','10–20%'],['High risk','20–50%'],['Critical risk','≥50%'],['Test AUC',number(result.auc,3)],['Test Brier score',number(result.brier_score,4)]])}<p>Calibrated probability of any threshold breach in the next 24 hours, including ongoing dislocations. Risk bands describe monitoring severity.</p><p class="model-note">The forest and probability calibrator use separate chronological periods. Complete outcome windows and causal imputation prevent future observations from entering model fitting. SHAP explains the base forest score.</p></div><div class="card model-card" data-model-card="forecast"><h3>24-hour distribution forecast</h3>${facts([['Model',escapeHtml(f?.model||'—')],['Innovations','Student-t'],['Training observations',number(f?.fit_rows,0)],['Simulated paths',number(f?.simulations,0)],['Degrees of freedom',number(f?.parameters?.nu,2)],['Quote convention','USDT per USDC'],['Forecast origin',time(f?.timestamp||result.timestamp)]])}<p>The price chart shows the simulated median and 1st–99th percentile interval at each of the next 24 hours. Optional ES curves show the mean of the lowest and highest 1% of signed price outcomes.</p><p class="model-note">Forecast hover values use basis points from peg. The token at risk follows the larger 1% VaR at hour 24. Price-chart tail means retain their sign even if the whole tail lies above peg.</p></div></div>`,'models-layout');}
+function switchTab(name,focus=false){activeTab=name;document.querySelectorAll('[role=tab]').forEach(b=>{const chosen=b.dataset.tab===name;b.setAttribute('aria-selected',String(chosen));b.tabIndex=chosen?0:-1;if(chosen&&focus)b.focus()});document.querySelectorAll('[role=tabpanel]').forEach(p=>p.hidden=p.id!==name);requestAnimationFrame(()=>{if(name==='overview')priceChart?.resize();if(name==='drivers')drawDrivers();if(name==='metrics')drawFeatures();if(name==='liquidity'){document.querySelectorAll('.curve-frame').forEach(frame=>{if(!frame.getAttribute('src'))frame.src=frame.dataset.source+'?v='+encodeURIComponent(result.timestamp)+'&schema='+encodeURIComponent(result.schema_version||1)});fitLiquidity()}})}
+function drawPrice(){
+ priceChart?.destroy();const forecast=result.forecasting?.hourly||[],history=result.price_history||[],origin=stamp(result.forecasting?.timestamp||result.timestamp),hours=Number(document.getElementById('history-window').value),from=origin-hours*3600000;
+ const observed=history.filter(p=>stamp(p.timestamp)>=from).map(p=>({x:stamp(p.timestamp),y:p.depeg_bps}));
+ const last=observed.at(-1),anchor=last||{x:origin,y:result.notable_values?.depeg_bps??null};
+ const field=k=>[{...anchor},...forecast.map(p=>({x:stamp(p.timestamp),y:p[k]??null}))];
+ const hasMedian=forecast.length&&forecast.every(p=>Number.isFinite(p.median_bps)),hasES=forecast.length&&forecast.every(p=>Number.isFinite(p.lower_es_1pct_bps)&&Number.isFinite(p.upper_es_1pct_bps));
+ const esToggle=document.getElementById('show-es');esToggle.disabled=!hasES;esToggle.title=hasES?'Mean of the lowest and highest 1% of price outcomes':'Hourly ES is available after the next model refresh';
+ const showES=esToggle.checked&&hasES,interval=document.getElementById('show-interval').checked;document.getElementById('es-key').hidden=!showES;
+ document.getElementById('chart-notice').textContent=!history.length?'Signed history awaits refresh':!hasMedian?'Forecast median awaits refresh':'';
+ const end=origin+24*3600000,earliest=observed[0]?.x??origin,threshold=result.target_threshold_bps||15,unit=document.getElementById('chart-unit').value;
+ const base={pointRadius:0,borderWidth:1.6,tension:0,spanGaps:false};
+ const datasets=[{...base,label:'Observed price',data:observed,borderColor:BLUE,borderWidth:2,pointHitRadius:8},
+ {...base,label:'1% VaR (lower)',data:field('lower_1pct_bps'),borderColor:'#05447655',borderWidth:1,hidden:!interval},
+ {...base,label:'99% VaR (upper)',data:field('upper_1pct_bps'),borderColor:'#05447655',borderWidth:1,backgroundColor:'#05447614',fill:'-1',hidden:!interval},
+ {...base,label:'Forecast median',data:hasMedian?field('median_bps'):[],borderColor:RED,borderWidth:2,borderDash:[5,3]},
+ {...base,label:'1% ES (lower)',data:hasES?field('lower_es_1pct_bps'):[],borderColor:RED,borderDash:[2,4],hidden:!showES},
+ {...base,label:'99% ES (upper)',data:hasES?field('upper_es_1pct_bps'):[],borderColor:RED,borderDash:[2,4],hidden:!showES},
+ ...[-threshold,threshold].map(t=>({...base,label:(t>0?'+':'')+t+' bps threshold',data:[{x:earliest,y:t},{x:end,y:t}],borderColor:'#DB354999',borderWidth:1,borderDash:[6,5],pointHitRadius:0})),
+ {...base,label:'Peg',data:[{x:earliest,y:0},{x:end,y:0}],borderColor:'#b7c8d4',borderWidth:1,pointHitRadius:0}];
+ const originMarker={id:'forecastOrigin',beforeDatasetsDraw(chart){const {ctx,chartArea:a,scales:{x}}=chart,px=x.getPixelForValue(origin);ctx.save();ctx.fillStyle='#05447604';ctx.fillRect(px,a.top,a.right-px,a.bottom-a.top);ctx.strokeStyle='#9cafbe';ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(px,a.top);ctx.lineTo(px,a.bottom);ctx.stroke();ctx.setLineDash([]);ctx.font='10px -apple-system, sans-serif';ctx.fillStyle=MUTED;ctx.fillText('24h forecast →',Math.min(px+8,a.right-90),a.top+12);ctx.restore()},afterDraw(chart){const {ctx,chartArea:a,scales:{y}}=chart;ctx.save();ctx.font='9px -apple-system, sans-serif';ctx.fillStyle=RED;for(const value of [-threshold,threshold]){const py=y.getPixelForValue(value);if(py>a.top+10&&py<a.bottom)ctx.fillText((value>0?'+':'')+value+' bps',a.left+5,py-5)}ctx.restore()}};
+ priceChart=new Chart(document.getElementById('price-chart'),{type:'line',data:{datasets},plugins:[originMarker],options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,normalized:true,interaction:{mode:'nearest',axis:'x',intersect:false},layout:{padding:{top:8,right:5}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#ffffff',titleColor:BLUE,bodyColor:BLUE,borderColor:LINE,borderWidth:1,filter:c=>c.datasetIndex<6,callbacks:{title:items=>items.length?time(items[0].parsed.x):'',label:c=>c.dataset.label+': '+(c.datasetIndex===0&&unit==='price'?number(1+c.parsed.y/10000,6)+' ('+signed(c.parsed.y)+' bps)':signed(c.parsed.y)+' bps')}}},scales:{x:{type:'linear',min:earliest,max:end,border:{display:false},grid:{color:'#edf2f6'},ticks:{color:MUTED,maxTicksLimit:window.innerWidth<701?4:7,stepSize:(hours<=24?12:hours<=72?24:48)*3600000,font:{size:10},callback:v=>shortTime(v)}},y:{suggestedMin:-threshold-2,suggestedMax:threshold+2,border:{display:false},grid:{color:'#edf2f6'},title:{display:window.innerWidth>700,text:unit==='price'?'USDT per USDC':'Deviation from peg (bps)',color:MUTED,font:{size:10}},ticks:{color:MUTED,maxTicksLimit:7,font:{size:10},callback:v=>unit==='price'?(1+v/10000).toFixed(4):(v>0?'+':'')+v}},yBps:{position:'right',display:unit==='price'&&window.innerWidth>700,border:{display:false},grid:{display:false},ticks:{color:MUTED,font:{size:9},maxTicksLimit:7,callback:v=>(v>0?'+':'')+v+' bps'},afterDataLimits(axis){const y=axis.chart.scales.y;axis.min=y.min;axis.max=y.max}}}}});
 }
-
-/* ── Chart builders ──────────────────────────────────────────────────────── */
-function historyChart(id, history, threshold) {
-  const ctx = document.getElementById(id).getContext('2d');
-  return new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: history.map(d => {
-        const dt = new Date(d.timestamp);
-        return dt.toLocaleDateString('en-GB', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-      }),
-      datasets: [{
-        data: history.map(d => d.depeg_bps),
-        borderColor: css('--blue'),
-        backgroundColor: css('--blue') + '22',
-        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
-        fill: true, tension: 0.3,
-      }, {
-        label: `±${threshold} bps threshold`,
-        data: history.map(() => threshold),
-        borderColor: css('--red'), borderWidth: 1.5, borderDash: [6, 5],
-        pointRadius: 0, fill: false,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: css('--surface-1'), titleColor: css('--text-secondary'),
-          bodyColor: css('--text-primary'), borderColor: css('--border'), borderWidth: 1,
-          callbacks: { label: c => (c.parsed.y != null ? c.parsed.y.toFixed(3) : '—') + ' bps' }
-        }
-      },
-      scales: {
-        x: { ticks: { color: css('--text-muted'), maxTicksLimit: 8, font:{size:11} }, grid: { color: css('--border')+'55' } },
-        y: { ticks: { color: css('--text-muted'), font:{size:11} }, grid: { color: css('--border')+'55' },
-             title: { display:true, text:'bps', color:css('--text-muted'), font:{size:11} } }
-      }
-    }
-  });
-}
-
-function shapChart(id, items, colorFn) {
-  const labels = items.map(d => d.display_name || d.feature).reverse();
-  const values = items.map(d => d.shap_value !== undefined ? d.shap_value : d.importance).reverse();
-  const ctx = document.getElementById(id).getContext('2d');
-  return new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: values.map(colorFn),
-        borderRadius: 4, borderSkipped: false,
-      }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: css('--surface-1'), titleColor: css('--text-secondary'),
-          bodyColor: css('--text-primary'), borderColor: css('--border'), borderWidth: 1,
-          callbacks: { label: c => c.parsed.x.toFixed(4) }
-        }
-      },
-      scales: {
-        x: { ticks: { color: css('--text-muted'), font:{size:11} }, grid: { color: css('--border')+'55' } },
-        y: { ticks: { color: css('--text-primary'), font:{size:11} }, grid: { display:false } }
-      }
-    }
-  });
-}
-
-function forecastMarkup(forecast) {
-  if (forecast?.status !== 'ok') {
-    return `<div class="card-title">24-hour Student-t GARCH forecast</div>
-      <div class="forecast-direction">Awaiting model refresh</div>
-      <p class="page-subtitle">Directional risk, 1% and 0.5% VaR and expected shortfall will appear after the forecasting workflow completes.</p>`;
-  }
-  const bps = v => Number.isFinite(v) ? v.toFixed(2) : '—';
-  const direction = forecast.risk_direction === 'Balanced' ? 'Balanced tail risk'
-    : `${forecast.risk_direction} at greater risk`;
-  const rows = ['USDC', 'USDT'].flatMap(token => ['0.01', '0.005'].map(level => {
-    const risk = forecast.tails[token][level];
-    return `<tr><td>${token}</td><td>${Number(level) * 100}%</td><td>${bps(risk.var_bps)}</td><td>${bps(risk.es_bps)}</td></tr>`;
-  })).join('');
-  return `<div class="card-title">24-hour Student-t GARCH forecast</div>
-    <div class="forecast-direction">${direction}</div>
-    <p class="forecast-note">Direction follows the larger 1% VaR. Expected deviation at hour 24: <strong>${bps(forecast.hourly?.[23]?.mean_bps)} bps</strong>.</p>
-    <table class="risk-table"><caption class="forecast-note">Adverse deviation from peg at hour 24 · basis points</caption>
-      <thead><tr><th scope="col">Token</th><th scope="col">Tail</th><th scope="col">VaR (bps)</th><th scope="col">ES (bps)</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <p class="forecast-note">USDT per USDC quote: the lower tail signals USDC weakness; the upper tail signals USDT weakness. ES averages the worst outcomes in each tail.</p>
-    <details class="policy-notes"><summary>Forecast method</summary><p>${forecast.model} with Student-t innovations; ${forecast.simulations.toLocaleString('en-US')} simulated 24-hour paths. Fitted to ${forecast.fit_rows.toLocaleString('en-US')} observed hourly deviations. Values measure relative peg risk, not USD portfolio losses.</p></details>`;
-}
-
-// Match the embedded plot's full height, including its slider and controls.
-// The exported document uses 100% body height and browser margins by default;
-// clear those so the measured content height does not grow with the iframe.
-function fitLiquidityFrame(frame) {
-  const doc = frame.contentDocument;
-  if (!doc?.body) return;
-  doc.documentElement.style.height = 'auto';
-  doc.body.style.height = 'auto';
-  doc.body.style.margin = '0';
-  const resize = () => {
-    frame.style.height = Math.ceil(doc.body.scrollHeight) + 'px';
-  };
-  new ResizeObserver(resize).observe(doc.body);
-  resize();
-}
-
-/* ── Main render ─────────────────────────────────────────────────────────── */
-async function render() {
-  const app = document.getElementById('app');
-  let data;
-  try {
-    const r = await fetch('dashboard_data/rf_results.json?v=' + Date.now());
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    data = await r.json();
-  } catch(e) {
-    app.innerHTML = `<div class="error-msg">
-      <strong>Dashboard data not available.</strong><br>
-      Please try again later. The dataset and models are available through the links above.
-    </div>`;
-    app.setAttribute('aria-busy', 'false');
-    document.getElementById('last-updated').textContent = 'Data unavailable';
-    return;
-  }
-
-  const prob  = data.probability;
-  const threshold = Number(data.target_threshold_bps || 15);
-  const color = data.early_warning ? css(data.early_warning.alert === true ? '--red' : '--blue') : probColor(prob);
-  const band  = probBand(prob);
-  const ts    = data.timestamp
-    ? new Date(data.timestamp).toLocaleString('en-GB', {
-        year:'numeric', month:'short', day:'numeric',
-        hour:'2-digit', minute:'2-digit', timeZoneName:'short'
-      })
-    : '—';
-  const aucBadge = data.auc != null
-    ? `<span class="auc-badge">AUC ${data.auc.toFixed(3)}</span>` : '';
-  const calibrationMeta = data.calibrated
-    ? `Calibrated probability · Brier ${data.brier_score != null ? data.brier_score.toFixed(3) : '—'}`
-    : 'Legacy uncalibrated estimate — run the updated training workflow';
-  const probabilityText = data.calibrated && data.early_warning?.status !== 'censored' ? `${(prob*100).toFixed(1)}%` : '—';
-  const warning = data.early_warning;
-  const policy = warning?.policy;
-  const riskText = warning ? `${warning.min_lead_hours}–${warning.max_lead_hours} h onset score`
-    : 'Legacy 24-hour score';
-  const riskAngle = data.calibrated && warning?.status !== 'censored' ? prob * 360 : 0;
-  const alertText = !warning ? 'Policy awaiting model refresh'
-    : warning.status === 'censored' ? (warning.censor_reason === 'already_depegged'
-      ? 'Already depegged · warning paused' : 'Warning unavailable · incomplete data')
-    : warning.alert === true ? 'Depeg alert'
-    : warning.alert === false ? 'No depeg alert' : 'Policy unavailable';
-  const policyDetail = policy ? `NP cutoff ${policy.threshold != null ? (policy.threshold * 100).toFixed(2) + '%' : 'unavailable'} · target hourly FPR ${(policy.target_fpr * 100).toFixed(0)}%<br>Validation: ${policy.validation_events} events · observed FPR ${policy.validation_fpr != null ? (policy.validation_fpr * 100).toFixed(2) + '%' : '—'}`
-    : 'The next model update will calibrate the alert cutoff on a held-out validation period.';
-
-
-  const nv = data.notable_values || {};
-  const tilesFor = keys => keys
-    .filter(k => nv[k] !== undefined)
-    .map(k => `<div class="tile">
-      <div class="tile-label">${TILE_LABELS[k] || k}</div>
-      <div class="tile-value">${fmtVal(k, nv[k])}</div>
-    </div>`).join('');
-  const marketTiles = tilesFor(MARKET_ORDER);
-  const poolTiles = tilesFor(POOL_ORDER);
-
-  const nLocal  = Math.min(20, (data.local_shap  || []).length);
-  const nGlobal = Math.min(20, (data.global_shap || []).length);
-
-  document.getElementById('model-auc').innerHTML = aucBadge;
-  document.getElementById('monitor-description').textContent = warning
-    ? `Early warning of a ±${threshold} bps depeg onset in 2–24 hours · Uniswap Ethereum 0.01% pool`
-    : `24-hour depeg probability · Uniswap Ethereum 0.01% pool`;
-  document.getElementById('last-updated').textContent = `Data as of ${ts}`;
-  app.setAttribute('aria-busy', 'false');
-
-  app.innerHTML = `
-    <div class="top-row">
-      <div class="card risk-card">
-        <div class="card-title">Early warning · ±${threshold} bps</div>
-        <div class="alert-state ${warning?.alert === true ? 'is-alert' : ''}" role="status">${alertText}</div>
-        <div class="risk-ring" style="--risk:${riskAngle}deg; --red:${color}"><div class="risk-ring-inner"><div class="risk-value" style="color:${color}">${probabilityText}</div><div class="risk-detail">${riskText}</div></div></div>
-        <div class="policy-detail">${policyDetail}</div>
-        <div class="policy-detail">${calibrationMeta}</div>
-        ${policy ? `<details class="policy-notes"><summary>Alert policy</summary><p>Minimum lead: 2 hours; horizon: 24 hours. New depeg events require 24 consecutive observed hours within ±${threshold} bps. Already depegged observations and incomplete history/outcome windows are censored during training and validation. An alert is active when an eligible current score meets the validation-only NP cutoff.</p><p>NP violation tolerance: ${(policy.delta * 100).toFixed(0)}%. The bound assumes independent calibration scores; hourly dependence and distribution changes can affect future FPR. FPR measures hourly negatives, not alert episodes.</p></details>` : ''}
-      </div>
-      <div class="card forecast-card">${forecastMarkup(data.forecasting)}</div>
-    </div>
-
-    <div class="metric-sections">
-      <div class="card tiles-card"><div class="card-title">Market metrics</div><div class="tiles-grid">${marketTiles || '<span class="page-subtitle">No current market metrics available.</span>'}</div></div>
-      <div class="card tiles-card"><div class="card-title">USDC / USDT v3 pool metrics</div><div class="tiles-grid">${poolTiles || '<span class="page-subtitle">Pool metrics will appear after the next model refresh.</span>'}</div></div>
-    </div>
-
-    <div class="card history-card">
-      <div class="card-title">Absolute depeg history — last 7 days (bps) · dashed line marks ${threshold} bps</div>
-      <canvas id="history-chart" role="img" aria-label="Absolute USDC / USDT depeg history in basis points"></canvas>
-    </div>
-
-    <div class="shap-row" style="margin-top:16px">
-      <div class="card">
-        <div class="card-title">Local SHAP — base forest score</div>
-        <div style="height:${nLocal * 26 + 40}px">
-          <canvas id="local-shap-chart" role="img" aria-label="Local SHAP feature contributions to the base forest score"></canvas>
-        </div>
-        <div class="legend-row">
-          <span><span class="legend-swatch" style="background:${css('--shap-pos')}"></span>Increases forest score</span>
-          <span><span class="legend-swatch" style="background:${css('--shap-neg')}"></span>Decreases forest score</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Global SHAP — mean |SHAP| over test set</div>
-        <div style="height:${nGlobal * 26 + 40}px">
-          <canvas id="global-shap-chart" role="img" aria-label="Global SHAP feature importance over the test set"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="card curve-card">
-      <div class="card-title">Liquidity curve composition</div>
-      <div class="page-subtitle">Interactive hourly composition of the USDC / USDT liquidity curve.</div>
-      <iframe class="curve-frame" src="figures/uni_liquidity.html" title="Interactive Uniswap USDC USDT liquidity curve composition" loading="lazy"></iframe>
-    </div>
-  `;
-
-  const liquidityFrame = app.querySelector('.curve-frame');
-  liquidityFrame.addEventListener('load', () => fitLiquidityFrame(liquidityFrame));
-
-  if (data.depeg_history?.length) {
-    historyChart('history-chart', data.depeg_history, threshold);
-  }
-  if (data.local_shap?.length) {
-    shapChart('local-shap-chart', data.local_shap, v => v >= 0 ? css('--shap-pos') : css('--shap-neg'));
-  }
-  if (data.global_shap?.length) {
-    shapChart('global-shap-chart', data.global_shap, () => css('--blue'));
-  }
-}
-
-render();
+function drawDrivers(){driverCharts.forEach(c=>c.destroy());driverCharts=[];const count=Number(document.getElementById('feature-count').value);for(const [kind,id] of [['local','local-chart'],['global','global-chart']]){const items=(result[kind+'_shap']||[]).slice(0,count).reverse(),vals=items.map(i=>i.shap_value??i.importance);driverCharts.push(new Chart(document.getElementById(id),{type:'bar',data:{labels:items.map(i=>i.display_name||i.feature),datasets:[{data:vals,backgroundColor:vals.map(v=>kind==='local'?(v>0?RED:v<0?'#198367':MUTED):BLUE),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,animation:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#edf2f6'},ticks:{color:MUTED,font:{size:9}}},y:{grid:{display:false},ticks:{color:BLUE,font:{size:window.innerWidth<701?9:11}}}}}}));}}
+function fitLiquidity(){document.querySelectorAll('.curve-frame').forEach(frame=>{const doc=frame.contentDocument;if(!doc?.body||frame.clientWidth<50||frame.clientHeight<50)return;doc.documentElement.style.cssText='height:100%;margin:0;overflow:hidden';doc.body.style.cssText='height:100%;margin:0;overflow:hidden';const controls=doc.querySelector('[data-liquidity-controls]'),wrapper=doc.body.querySelector(':scope > div'),plot=doc.querySelector('.plotly-graph-div'),height=frame.clientHeight-(controls?.getBoundingClientRect().height||0);if(wrapper)wrapper.style.cssText='width:100%;height:'+height+'px;';if(plot&&!plot._fullLayout){if(!frame.dataset.waiting){frame.dataset.waiting='1';frame.contentWindow.requestAnimationFrame(()=>{delete frame.dataset.waiting;fitLiquidity()})}return}if(plot&&frame.contentWindow.Plotly){plot.style.width='100%';plot.style.height='100%';const curve=frame.dataset.kind==='curve';frame.contentWindow.Plotly.relayout(plot,{height,width:frame.clientWidth,autosize:true,margin:{l:window.innerWidth<701?44:54,r:12,t:curve?40:50,b:curve?35:controls?35:80},legend:{orientation:'h',yanchor:'bottom',y:1.02,xanchor:'center',x:.5,traceorder:'normal',font:{size:10}}})}})}
+async function init(){try{const response=await fetch('dashboard_data/rf_results.json?v='+Date.now());if(!response.ok)throw new Error('Data unavailable');result=await response.json();document.getElementById('updated').textContent=time(result.timestamp);const app=document.getElementById('app');app.innerHTML=overviewMarkup()+metricsMarkup()+driversMarkup()+panel('liquidity',`<div class="liquidity-switch mobile-selector" aria-label="Liquidity venue"><button data-venue="uniswap" aria-pressed="true">Uniswap</button><button data-venue="curve" aria-pressed="false">Curve</button></div><div class="liquidity-grid"><div class="card liquidity-card venue-active" data-venue-card="uniswap"><div class="panel-title"><div><h2>Uniswap · USDC / USDT</h2><p>Liquidity distribution by price</p></div></div><iframe class="curve-frame" data-kind="uniswap" data-source="figures/uni_liquidity.html" title="Uniswap liquidity curve composition"></iframe></div><div class="card liquidity-card" data-venue-card="curve"><div class="panel-title"><div><h2>Curve · 3pool</h2><p>Reserve composition over time</p></div></div><iframe class="curve-frame" data-kind="curve" data-source="figures/crv_balance.html" title="Curve 3pool reserve composition"></iframe></div></div>`,'liquidity-layout')+modelsMarkup();app.setAttribute('aria-busy','false');liquidityFrame=document.querySelector('.curve-frame');document.querySelectorAll('.curve-frame').forEach(frame=>{frame.addEventListener('load',fitLiquidity);new ResizeObserver(()=>{if(activeTab==='liquidity')fitLiquidity()}).observe(frame)});document.querySelectorAll('[data-venue]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-venue]').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));document.querySelectorAll('[data-venue-card]').forEach(c=>c.classList.toggle('venue-active',c.dataset.venueCard===b.dataset.venue));fitLiquidity()}));document.getElementById('feature-view').addEventListener('change',()=>{featurePage=0;drawFeatures()});document.getElementById('features-prev').addEventListener('click',()=>{featurePage--;drawFeatures()});document.getElementById('features-next').addEventListener('click',()=>{featurePage++;drawFeatures()});new ResizeObserver(()=>drawFeatures()).observe(document.getElementById('features-list'));['history-window','chart-unit','show-interval','show-es'].forEach(id=>document.getElementById(id).addEventListener('change',drawPrice));document.getElementById('feature-count').addEventListener('change',drawDrivers);document.querySelectorAll('[data-driver]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-driver]').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));document.querySelectorAll('[data-driver-card]').forEach(c=>c.classList.toggle('mobile-active',c.dataset.driverCard===b.dataset.driver));drawDrivers()}));document.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-model]').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));document.querySelectorAll('[data-model-card]').forEach(c=>c.classList.toggle('mobile-active',c.dataset.modelCard===b.dataset.model))}));drawPrice();}catch(error){document.getElementById('app').innerHTML='<div class="loading" role="alert">Dashboard data is unavailable. Please try again later.</div>';document.getElementById('app').setAttribute('aria-busy','false');console.error(error)}}
+document.querySelectorAll('[role=tab]').forEach((button,index,buttons)=>{button.addEventListener('click',()=>{if(result)switchTab(button.dataset.tab)});button.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight')next=(index+1)%buttons.length;if(event.key==='ArrowLeft')next=(index+buttons.length-1)%buttons.length;if(event.key==='Home')next=0;if(event.key==='End')next=buttons.length-1;if(next!==undefined&&result){event.preventDefault();switchTab(buttons[next].dataset.tab,true)}})});
+window.addEventListener('resize',()=>{if(activeTab==='liquidity')fitLiquidity();if(activeTab==='metrics')drawFeatures()});
+init();
 </script>
 </body>
 </html>

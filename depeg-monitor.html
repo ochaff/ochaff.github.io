@@ -257,14 +257,16 @@ function css(prop) {
   return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
 }
 function probColor(p) {
-  if (p < 0.25) return css('--status-low');
-  if (p < 0.55) return css('--status-mid');
-  return css('--status-high');
+  if (p < 0.10) return css('--status-low');
+  if (p < 0.20) return css('--status-mid');
+  if (p < 0.50) return css('--status-high');
+  return '#9b2436';
 }
 function probBand(p) {
-  if (p < 0.25) return { text: 'Low risk',  bg: '#e7f9f2', key: 'low' };
-  if (p < 0.55) return { text: 'Elevated',  bg: '#fff8e6', key: 'mid' };
-  return             { text: 'High risk', bg: '#fef0f0', key: 'high' };
+  if (p < 0.10) return { text: 'Low risk', bg: '#e7f9f2', key: 'low' };
+  if (p < 0.20) return { text: 'Elevated', bg: '#fff8e6', key: 'mid' };
+  if (p < 0.50) return { text: 'High risk', bg: '#fef0f0', key: 'high' };
+  return { text: 'Critical', bg: '#fcecef', key: 'critical' };
 }
 
 /* ── SVG arc gauge ───────────────────────────────────────────────────────── */

@@ -4,8 +4,9 @@ import pytest
 from scipy.stats import binom
 
 from monitor_models import (HOUR, complete_events, event_onsets, garch_forecast,
-                            hourly_prices, np_policy, onset_labels, partition_bounds,
-                            tail_risk)
+                            hourly_prices, hourly_forecast_summary, np_policy, onset_labels, partition_bounds,
+                            tail_risk, monitoring_labels, monitoring_bounds,
+                            monitoring_level, feature_catalog)
 
 
 def prices(n=200):
@@ -100,3 +101,51 @@ def test_student_t_garch_forecast_has_24_hours_and_finite_tail_risk():
     assert result['simulations'] == 20_000
     for token in result['tails'].values():
         assert token['0.005']['es_bps'] >= token['0.005']['var_bps'] >= 0
+    for hour in result['hourly']:
+        assert hour['lower_es_1pct_bps'] <= hour['lower_1pct_bps'] <= hour['median_bps']
+        assert hour['median_bps'] <= hour['upper_1pct_bps'] <= hour['upper_es_1pct_bps']
+
+
+def test_forecast_median_and_signed_tail_means_are_not_loss_clipped():
+    paths = np.arange(1000, dtype=float)[:, None] + np.array([1, 2])[None, :]
+    summary = hourly_forecast_summary(paths, prices().index[0], paths.mean(axis=0))
+    assert summary[0]['median_bps'] == 500.5
+    assert summary[0]['lower_es_1pct_bps'] == np.arange(1, 11).mean()
+    assert summary[0]['upper_es_1pct_bps'] == np.arange(991, 1001).mean()
+    # A positive lower ES must remain positive on a signed price chart.
+    assert summary[0]['lower_es_1pct_bps'] > 0
+
+
+def test_monitoring_uses_any_future_breach_without_onset_or_current_breach_censoring():
+    p = prices()
+    p.iloc[70:80] = 16
+    labels = monitoring_labels(p)
+    assert labels.target.iloc[46] == 1  # 24 hours before the first breach
+    assert labels.target.iloc[69] == 1  # no minimum lead time
+    assert labels.eligible.iloc[70]     # monitoring includes ongoing dislocations
+    assert labels.target.iloc[70] == 1
+    assert labels.target.iloc[79] == 0  # the current hour alone is not a future breach
+    assert not labels.eligible.iloc[-24:].any()
+    end = p.index[60]
+    original = monitoring_labels(p, end=end)
+    p.loc[p.index > end] = 100
+    pd.testing.assert_frame_equal(original, monitoring_labels(p, end=end))
+    assert set(monitoring_bounds(prices(2000))) == {'train', 'calibration', 'test'}
+
+
+def test_monitoring_band_boundaries():
+    assert [monitoring_level(p) for p in [0, .0999, .10, .1999, .20, .4999, .50, 1]] == [
+        'Low', 'Low', 'Elevated', 'Elevated', 'High', 'High', 'Critical', 'Critical']
+
+
+def test_histograms_use_real_reference_values_excluding_current_and_keep_outliers():
+    index = pd.date_range('2026-01-01', periods=1000, freq='h', tz='UTC')
+    df = pd.DataFrame({'signal': np.arange(1000.), 'constant': 3.}, index=index)
+    rows = feature_catalog(df, {'signal': -.1}, {'signal': .2})
+    row = rows[0]
+    assert row['value'] == 999 and row['local_shap'] == -.1
+    assert row['histogram']['reference_count'] == 999
+    assert sum(row['histogram']['counts']) == 999
+    assert row['histogram']['percentile'] == 100
+    assert rows[1]['local_shap'] is None
+    assert np.diff(rows[1]['histogram']['edges']).min() > 0
