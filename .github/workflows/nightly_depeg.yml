@@ -3,9 +3,16 @@ name: AMMonitor Model Update
 on:
   # The data repository should send this event after publishing a release.
   repository_dispatch:
-    types: [data-release]
+    types: [data-release, model-release]
+  schedule:
+    - cron: '30 10 * * *'
   workflow_dispatch:
     inputs:
+      model_release:
+        description: 'Optional model release tag for rollback; blank uses newest published ANGEL bundle'
+        required: false
+        default: ''
+        type: string
       skip_data_update:
         description: 'Skip the data download step (use existing data)'
         required: false
@@ -40,9 +47,11 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -r requirements-monitor.txt
+          pip install "torch>=2.6,<3" --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements-angel.txt
 
       - name: Verify monitoring labels, ALE intervals, feature definitions and GARCH tails
-        run: python -m pytest -q tests/test_monitor_models.py tests/test_training_protocol.py tests/test_ale.py tests/test_dataset_rf.py
+        run: python -m pytest -q tests/test_monitor_models.py tests/test_training_protocol.py tests/test_ale.py tests/test_dataset_rf.py tests/test_angel_forecast.py tests/test_prediction_history.py
 
       - name: Download latest on-chain data
         if: ${{ github.event.inputs.skip_data_update != 'true' }}
@@ -57,7 +66,20 @@ jobs:
           free -h
           df -h
 
-      - name: Train monitoring Random Forest and Student-t GARCH forecasts
+      - name: Run newest published ANGEL bundle on CPU
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ANGEL_RELEASE: ${{ inputs.model_release }}
+          OMP_NUM_THREADS: 2
+          OPENBLAS_NUM_THREADS: 2
+          ANGEL_CPU_THREADS: 2
+        run: |
+          mkdir -p .angel-cache dashboard_data
+          release_args=()
+          if [ -n "$ANGEL_RELEASE" ]; then release_args+=(--tag "$ANGEL_RELEASE"); fi
+          python -u angel_forecast.py "${release_args[@]}" --output dashboard_data/angel_forecast.json
+
+      - name: Train monitoring Random Forest and ALE; attach ANGEL forecast
         env:
           OMP_NUM_THREADS: 2
           OPENBLAS_NUM_THREADS: 2
@@ -67,7 +89,7 @@ jobs:
           PYTHONUNBUFFERED: '1'
         run: |
           mkdir -p dashboard_data
-          python -u train_rf.py --alpha 0.1
+          python -u train_rf.py --alpha 0.1 --forecast-json dashboard_data/angel_forecast.json
 
       - name: Archive model results and protocol
         uses: actions/upload-artifact@v4
@@ -77,13 +99,15 @@ jobs:
             dashboard_data/rf_results.json
             dashboard_data/feature_dictionary.json
             dashboard_data/ale_results.json
+            dashboard_data/angel_forecast.json
+            dashboard_data/rf_prediction_history.json
           if-no-files-found: error
 
       - name: Commit and push dashboard data
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add dashboard_data/rf_results.json dashboard_data/feature_dictionary.json dashboard_data/ale_results.json
+          git add dashboard_data/rf_results.json dashboard_data/feature_dictionary.json dashboard_data/ale_results.json dashboard_data/angel_forecast.json dashboard_data/rf_prediction_history.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else

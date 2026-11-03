@@ -139,51 +139,18 @@ global probability effects from causal effects, local SHAP and individual
 predictions. Escape, the close button or a backdrop click closes the dialog
 and restores focus. A timestamp mismatch does not display stale ALE data.
 
-## GARCH forecast and price chart
+## ANGEL forecast and price chart
 
-Constant-mean GARCH(1,1) with standardized Student-t innovations is fitted to
-signed hourly depeg levels in basis points, with `rescale=False` and no input
-scaling. The full expanding history is used, requiring at least 720 nonconstant
-hours. Internal historical price gaps are forward-filled causally for this fit
-only; a missing forecast-origin observation is rejected. Missing realized
-prices remain missing for Random Forest labels and the observed price chart.
-The export records the number of historical filled hours and the fitting dates.
+Forecasting now uses the newest published ANGEL bundle from QuantLet Releases,
+with frozen preprocessing, verified hashes and reference fixtures, and CPU-only
+inference. See [ANGEL_DEPLOYMENT.md](ANGEL_DEPLOYMENT.md) for the release contract,
+selection policy, implementation, tail-risk definitions and runtime checks.
+The former GARCH implementation is retained for historical reproducibility.
 
-This matches the model and analytical marginal forecast in QuantLet's
-[probabilistic-forecast benchmark](https://github.com/QuantLet/onchain-insights/blob/303c6399357a00e11897aa30e598bc6f23b6fb45/12.%20Evaluation%20of%20Probabilistic%20Forecasts/benchmark_scripts/GARCH_forecast.py).
-The live job refits at every update. The reference is a retrospective rolling
-benchmark that reuses fixed parameters between refits; its current invocation
-sets `refit_every=20000` despite an adjacent daily-refit comment. That test-loop
-cadence is not copied into the live monitor.
-
-Forecast 24 hourly expected conditional variances analytically. For horizon h,
-`Q_h(u) = mu + sigma_h × sqrt((nu−2)/nu) × t_nu.ppf(u)`, with the reference's
-`nu >= 2.05` guard. The median is the constant fitted mean. The signed lower and
-upper 1% ES curves use analytical Student-t tail integrals. These multi-step
-Student-t marginals **approximate** the predictive variance mixture; they are
-not exact recursive-path distribution quantiles. No Monte Carlo sampling,
-random seed, artificial smoothing, or monotonicity constraint is used.
-
-Terminal token VaR/ES use nonnegative adverse quote-deviation losses at hour
-24: `USDC = max(−depeg_bps, 0)`, `USDT = max(depeg_bps, 0)`. The token with the
-larger 1% VaR is the **Token at risk**. These are relative quote deviations,
-not USD portfolio P&L. ES integrates positive losses over the worst alpha mass,
-including zero losses where appropriate; clipping a signed tail mean alone
-would be incorrect when VaR is zero but rare adverse outcomes remain possible.
-Both 1% and 0.5% terminal levels are exported.
-
-Each hourly record includes `variance_bps2` and `sigma_bps`. The export includes
-parameters, variance persistence `alpha + beta`, the forecast method and a
-near-integrated flag when persistence is at least 0.999. The 2 November 2026 fit
-is near-integrated; its sigma rises from 9.46 to 9.52 bps over 24 hours. Model
-alignment does not establish out-of-sample interval coverage. See
-[GARCH_AUDIT.md](GARCH_AUDIT.md) for the old forecast diagnosis and current fit.
-
-The price chart uses signed `price_history` and
-`price_ratio = 1 + depeg_bps / 10000`. `depeg_history` remains absolute for the
-original page. The chart provides 24-hour, 72-hour and seven-day history
-windows, price/bps axes, interval and ES toggles, and ±15 bps reference lines.
-Forecast hover values always use bps from peg.
+The chart shows signed price history, ANGEL median and 1st–99th percentiles,
+optional signed ES, and ±15 bps thresholds. Forecast hover values always use
+basis points from peg. The Models tab shows the checkpoint release and training
+cutoff. The RF probability remains a separate calibrated monitoring model.
 
 ## Audited feature definitions
 
@@ -215,3 +182,28 @@ phones. Both embeds resize to their available viewport. A Uniswap export can
 use a native hourly scrubber marked `data-liquidity-controls`; the parent
 reserves that control height when resizing the Plotly canvas. Figure URLs
 include the observation timestamp to avoid stale cached plots after updates.
+
+## Saved RF prediction timeline
+
+`rf_prediction_history.json` archives actual saved monitoring outputs; no past
+probabilities are recomputed with a later fit. Each training run preserves the
+previous published output and appends its new score, with observation time,
+first-recorded time, risk band, alpha, protocol and model/run reference. Exact
+reruns deduplicate; changed scores at the same origin remain separate revisions.
+The full archive is retained and the latest seven days by observation time are
+embedded in `rf_results.json` as `prediction_history`. The workflow commits and
+archives the history file alongside the model outputs.
+
+The initial archive recovers committed results from repository commits. Legacy
+monitoring outputs are marked explicitly; onset/NP-policy results are excluded.
+Historical model versions and calibration protocols may differ. Risk-band colors
+apply today's descriptive thresholds to each saved probability. The archive never interpolates missing hours.
+
+The monitor's scatter plot uses `hourly_prediction_history`: 168 hourly scores
+from the current calibrated model applied to the last seven days of feature rows,
+including the latest prediction. These are retrospective current-model scores,
+not predictions issued by historical model versions. They are recomputed on every
+training run and kept separate from the immutable saved-run archive. The caption
+and hover identify this basis. Missing feature values use the same causal forward
+fill and train-only medians as the live prediction. Until hourly scores are
+available, the plot falls back to saved run outputs with their original labels.

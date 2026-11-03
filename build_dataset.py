@@ -14,9 +14,9 @@ def add_swap_size_metrics():
 def add_liq_ownership_features():
     """Compute liquidity ownership features from Uniswap positions and Curve gauge data."""
     # --- 1) 3CRV gauge share ---
-    crv_lp = pd.read_parquet('./data/Curve/3CRV_lpevents.parquet')
-    threep = pd.read_parquet('./data/Curve/curve_3pool_hourly.parquet')
-    hourly_blocks = pd.read_parquet('./data/ETH_blocks/hourly_blocks.parquet')
+    crv_lp = pd.read_parquet('./data/Curve/3CRV_lpevents.parquet', columns=['block_number','from_address','to_address','lp_amount'])
+    threep = pd.read_parquet('./data/Curve/curve_3pool_hourly.parquet', columns=['totalValueLockedUSD'])
+    hourly_blocks = pd.read_parquet('./data/ETH_blocks/hourly_blocks.parquet', columns=['hour_utc','block_number'])
 
     GAUGE = "0xbfcf63294ad7105dea65aa58f8ae5be2d9d0952a"
     gauge_mask = (crv_lp["from_address"] == GAUGE) | (crv_lp["to_address"] == GAUGE)
@@ -52,8 +52,8 @@ def add_liq_ownership_features():
     gauge_feature = hourly_gauge[["gauge_share_3crv"]]
 
     # --- 2) Uniswap position concentration metrics ---
-    pos = pd.read_parquet('./data/Uniswap/hourly_positions_full.parquet')
-    pool = pd.read_parquet('./data/Uniswap/hourly_pool_state_full.parquet')
+    pos = pd.read_parquet('./data/Uniswap/hourly_positions_full.parquet', columns=['id','hour_utc','liquidity','tickLower','tickUpper','owner'])
+    pool = pd.read_parquet('./data/Uniswap/hourly_pool_state_full.parquet', columns=['hour','poolTick'])
 
     pos["hour_utc"] = pd.to_datetime(pos["hour_utc"], utc=True)
     pool["hour"] = pd.to_datetime(pool["hour"], utc=True)
@@ -324,12 +324,12 @@ def btc_price_oracle():
     return df
 
 def fear_greed_index():
-    r = requests.get(url = 'https://api.alternative.me/fng/', params = {'limit': 0, 'date_format': ''})
+    r = requests.get(url = 'https://api.alternative.me/fng/', params = {'limit': 0, 'date_format': ''}, timeout=45)
     r = r.json()['data']
     dfG = pd.DataFrame(r)
     dfG =dfG.iloc[::-1]
 
-    dfG.index = [datetime.datetime.fromtimestamp(int(x)) for x in dfG.timestamp]
+    dfG.index = [datetime.datetime.fromtimestamp(int(x), datetime.timezone.utc).replace(tzinfo=None) for x in dfG.timestamp]
     dfG['value'] = dfG['value'].astype(float)
     dfG = dfG.resample('1h')['value'].mean().ffill()
     dfG.index = dfG.index.tz_localize('UTC')

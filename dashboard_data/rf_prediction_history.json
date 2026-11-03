@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "basis": "saved_run_outputs",
+  "records": [
+    {
+      "timestamp": "2026-10-27T07:00:00+00:00",
+      "probability": 0.2446423883559295,
+      "risk_level": "High",
+      "protocol": "legacy_monitoring",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-10-27T08:11:44+00:00",
+      "model_reference": "ea6ae1780ef7f8040527823a2c43ea0bef194e79",
+      "workflow_run_id": null,
+      "id": "df348371862cf1d2faeb2a54"
+    },
+    {
+      "timestamp": "2026-10-28T07:00:00+00:00",
+      "probability": 0.21088271141051673,
+      "risk_level": "High",
+      "protocol": "legacy_monitoring",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-10-28T08:50:21+00:00",
+      "model_reference": "47d791d4568beae42b9db6ce7b78d96b198839ee",
+      "workflow_run_id": null,
+      "id": "33fc7870d7b7c03e46191982"
+    },
+    {
+      "timestamp": "2026-10-29T07:00:00+00:00",
+      "probability": 0.27947568719403104,
+      "risk_level": "High",
+      "protocol": "legacy_monitoring",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-10-29T08:46:09+00:00",
+      "model_reference": "b8f848d3dec4df8a3b4f2ae5743168f26c5248bc",
+      "workflow_run_id": null,
+      "id": "c4dbda2ece67ad43d273f6b5"
+    },
+    {
+      "timestamp": "2026-10-30T07:00:00+00:00",
+      "probability": 0.41476942045415344,
+      "risk_level": "High",
+      "protocol": "legacy_monitoring",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-10-30T08:57:10+00:00",
+      "model_reference": "6520d5fed040e7030da74989fac868f072bfd501",
+      "workflow_run_id": null,
+      "id": "6ac385623d88c52b8054f7f0"
+    },
+    {
+      "timestamp": "2026-10-31T07:00:00+00:00",
+      "probability": 0.23699524605401062,
+      "risk_level": "High",
+      "protocol": "legacy_monitoring",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-10-31T08:39:10+00:00",
+      "model_reference": "f064ba8f659b5784ca5bc4ee6fdcd24d704d5afa",
+      "workflow_run_id": null,
+      "id": "0ddba5bce518c85a60b3f3a9"
+    },
+    {
+      "timestamp": "2026-11-01T08:00:00+00:00",
+      "probability": 0.3738116534782707,
+      "risk_level": "High",
+      "protocol": "legacy_monitoring",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-11-01T09:31:47+00:00",
+      "model_reference": "f958d13ae4f179740df1ca2f808ead41b46dce34",
+      "workflow_run_id": null,
+      "id": "de33affa28a6f92012baf131"
+    },
+    {
+      "timestamp": "2026-11-02T08:00:00+00:00",
+      "probability": 0.20378655961065073,
+      "risk_level": "High",
+      "protocol": "legacy_monitoring",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-11-02T09:45:24+00:00",
+      "model_reference": "39fc3993dd97584c36345776a516cc2285dd3e7d",
+      "workflow_run_id": null,
+      "id": "e0120f603844ae4b820785e6"
+    },
+    {
+      "timestamp": "2026-11-02T08:00:00+00:00",
+      "probability": 0.1580827073160811,
+      "risk_level": "Elevated",
+      "protocol": "monitoring_any_breach_v2",
+      "alpha": 0.4,
+      "calibrated": true,
+      "source": "git_history",
+      "recorded_at": "2026-11-02T17:58:18+01:00",
+      "model_reference": "a8422954fbfb38c482fd638a32313bf1f1365989",
+      "workflow_run_id": null,
+      "id": "f41bccdb629f0d54ac559013"
+    }
+  ]
+}

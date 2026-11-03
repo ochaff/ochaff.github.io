@@ -1,6 +1,6 @@
 """
 Train a 24-hour monitoring Random Forest with probability risk bands,
-fit Student-t GARCH forecasts, and write dashboard_data/rf_results.json.
+run released ANGEL forecasts, and write dashboard_data/rf_results.json.
 """
 import os
 import sys
@@ -18,9 +18,10 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 # ─── repo root so build_dataset imports work ──────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from monitor_models import (monitoring_labels, hourly_prices, monitoring_bounds,
-                            monitoring_level, feature_catalog, garch_forecast, HORIZON)
+                            monitoring_level, feature_catalog, HORIZON)
 from feature_dictionary import feature_dictionary
 from ale import accumulated_local_effects
+from prediction_history import prediction_record, merge_history, recent_history, hourly_scores
 
 
 def _display(col):
@@ -201,6 +202,8 @@ def train_and_explain(df, alpha, *, ale_bins=30, ale_bootstraps=300, ale_block_h
     # ── Latest-row prediction ─────────────────────────────────────────────────
     X_latest = X.iloc[[-1]]
     prob = float(model.predict_proba(X_latest)[0, 1])
+    hourly_history = hourly_scores(model, X, alpha=alpha,
+                                   calibration_end=bounds['calibration'][1])
     print(f"Calibrated next-24h probability of a ±{TARGET_THRESHOLD_BPS} bps breach: {prob:.1%}")
 
     # ── Notable metric values ─────────────────────────────────────────────────
@@ -229,6 +232,7 @@ def train_and_explain(df, alpha, *, ale_bins=30, ale_bootstraps=300, ale_block_h
 
     return {
         "probability": prob,
+        "hourly_prediction_history": hourly_history,
         "auc": auc,
         "brier_score": brier,
         "calibrated": calibrated,
@@ -276,7 +280,16 @@ def main():
     parser.add_argument('--ale-bins', type=int, default=30)
     parser.add_argument('--ale-bootstraps', type=int, default=300)
     parser.add_argument('--ale-block-hours', type=int, default=168)
+    parser.add_argument('--forecast-json', help='Use a validated ANGEL forecast prepared by angel_forecast.py')
+    parser.add_argument('--angel-release', help='Optional pinned model release; defaults to newest published bundle')
     args = parser.parse_args()
+    if args.forecast_json:
+        forecasting = json.loads(Path(args.forecast_json).read_text())
+    else:
+        from angel_forecast import forecast
+        forecasting = forecast(tag=args.angel_release)
+    if forecasting.get('model') != 'ANGEL' or forecasting.get('status') != 'ok':
+        raise ValueError('A successful validated ANGEL forecast is required')
     ALPHA = args.alpha
     DATASET_PATH = './preprocessed_datasets'
 
@@ -316,15 +329,30 @@ def main():
     missing_coefficients = expected_coefficients - set(df.columns)
     if missing_coefficients:
         raise ValueError(f'Alpha-{ALPHA} dataset is missing Gegenbauer features: {sorted(missing_coefficients)}')
+    if pd.Timestamp(forecasting['timestamp']) != pd.Timestamp(df.index[-1]):
+        raise ValueError('RF and ANGEL observation timestamps differ; rebuild both from the same data release')
     print(f"Dataset shape: {df.shape}")
     result = train_and_explain(df, ALPHA, ale_bins=args.ale_bins,
                              ale_bootstraps=args.ale_bootstraps, ale_block_hours=args.ale_block_hours)
 
-    print('Fitting QuantLet-aligned Student-t GARCH analytical forecasts…', flush=True)
-    result['forecasting'] = garch_forecast(df['depeg_bps'])
-    result['schema_version'] = 6
+    result['forecasting'] = forecasting
+    result['schema_version'] = 8
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    history_path = out_path.parent / 'rf_prediction_history.json'
+    archive = json.loads(history_path.read_text()) if history_path.exists() else {'records':[]}
+    # Preserve the previously published output even on the first archive run.
+    if out_path.exists():
+        previous = json.loads(out_path.read_text())
+        if (not previous.get('early_warning') and previous.get('target_threshold_bps') == 15
+                and previous.get('target_window_hours') == 24):
+            archive = merge_history(archive, prediction_record(previous, source='previous_published_output'))
+    record = prediction_record(result)
+    archive = merge_history(archive, record)
+    result['prediction_history'] = recent_history(archive, result['timestamp'], record['id'])
+    temporary_history = history_path.with_suffix('.tmp')
+    temporary_history.write_text(json.dumps(archive, indent=2, allow_nan=False))
+    temporary_history.replace(history_path)
     temporary = out_path.with_suffix('.tmp')
     temporary.write_text(json.dumps(result, indent=2, allow_nan=False))
     temporary.replace(out_path)

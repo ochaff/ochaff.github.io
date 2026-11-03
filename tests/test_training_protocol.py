@@ -33,6 +33,15 @@ def test_monitoring_export_and_test_data_do_not_change_the_fitted_forest(monkeyp
     assert first['ale']['timestamp'] == str(index[-1])
     assert first['ale']['features']['tvlUSD_100']['effective_bins'] == 30
     assert len(first['price_history']) == 168
+    hourly = first['hourly_prediction_history']
+    assert hourly['basis'] == 'retrospective_current_model'
+    assert len(hourly['records']) == 168
+    times = pd.DatetimeIndex([r['timestamp'] for r in hourly['records']])
+    assert times.equals(index[-168:])
+    assert hourly['records'][-1]['probability'] == first['probability']
+    assert hourly['records'][-1]['risk_level'] == first['monitoring']['risk_level']
+    assert pd.Timestamp(hourly['calibration_end']) < times[0]
+    assert all(0 <= r['probability'] <= 1 for r in hourly['records'])
     assert any(point['depeg_bps'] < 0 for point in first['price_history'])
     for point in first['price_history']:
         assert point['price_ratio'] == 1 + point['depeg_bps'] / 10_000

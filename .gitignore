@@ -1,3 +1,5 @@
 ﻿_site
 __pycache__/
 .pytest_cache/
+
+.angel-cache/

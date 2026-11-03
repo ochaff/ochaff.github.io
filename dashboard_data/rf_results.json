@@ -5861,34 +5861,36 @@
   ],
   "forecasting": {
     "status": "ok",
-    "model": "Constant-mean GARCH(1,1)",
-    "innovations": "Student-t",
+    "model": "ANGEL",
+    "forecast_method": "neural_quantile_spline_with_GPD_tails",
     "timestamp": "2026-11-02 08:00:00+00:00",
     "horizon_hours": 24,
-    "risk_direction": "USDC",
-    "direction_rule": "larger_1pct_var",
+    "sequence_length": 168,
+    "input_features": 98,
     "quote": "USDT per USDC",
-    "risk_basis": "adverse_deviation_from_peg_at_hour_24",
     "unit": "quote_deviation_bps",
+    "risk_basis": "adverse_deviation_from_peg_at_hour_24",
+    "risk_direction": "USDT",
+    "direction_rule": "larger_1pct_var",
     "tails": {
       "USDC": {
         "0.01": {
-          "var_bps": 22.774959650855095,
-          "es_bps": 26.060614632273033
+          "var_bps": 0.0,
+          "es_bps": 6.676228467073458
         },
         "0.005": {
-          "var_bps": 25.186339698104444,
-          "es_bps": 28.2631904968324
+          "var_bps": 1.423170566558838,
+          "es_bps": 13.148834977784642
         }
       },
       "USDT": {
         "0.01": {
-          "var_bps": 21.626241390267857,
-          "es_bps": 24.91189637168579
+          "var_bps": 18.110862731933594,
+          "es_bps": 23.98429841706355
         },
         "0.005": {
-          "var_bps": 24.037621437517206,
-          "es_bps": 27.114472236245156
+          "var_bps": 20.772010803222656,
+          "es_bps": 28.74660000874608
         }
       }
     },
@@ -5896,319 +5898,253 @@
       {
         "hour": 1,
         "timestamp": "2026-11-02 09:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.45199998266538,
-        "sigma_bps": 9.45790674423603,
-        "lower_1pct_bps": -22.63045321169273,
-        "upper_1pct_bps": 21.48173495110549,
-        "lower_es_1pct_bps": -25.89472146074543,
-        "upper_es_1pct_bps": 24.746003200158192
+        "median_bps": 9.01915168762207,
+        "lower_1pct_bps": 7.607646942138672,
+        "upper_1pct_bps": 10.27088737487793,
+        "lower_es_1pct_bps": 6.743904585680287,
+        "upper_es_1pct_bps": 10.75284855988576
       },
       {
         "hour": 2,
         "timestamp": "2026-11-02 10:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.50312944473934,
-        "sigma_bps": 9.4606093590603,
-        "lower_1pct_bps": -22.63675578248792,
-        "upper_1pct_bps": 21.488037521900683,
-        "lower_es_1pct_bps": -25.901956802395617,
-        "upper_es_1pct_bps": 24.75323854180838
+        "median_bps": 9.177347183227539,
+        "lower_1pct_bps": 6.134369850158691,
+        "upper_1pct_bps": 11.953612327575684,
+        "lower_es_1pct_bps": 4.285972670801768,
+        "upper_es_1pct_bps": 13.010061342592245
       },
       {
         "hour": 3,
         "timestamp": "2026-11-02 11:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.55425890636837,
-        "sigma_bps": 9.463311202024816,
-        "lower_1pct_bps": -22.64305655328531,
-        "upper_1pct_bps": 21.49433829269807,
-        "lower_es_1pct_bps": -25.90919007765107,
-        "upper_es_1pct_bps": 24.76047181706383
+        "median_bps": 9.212139129638672,
+        "lower_1pct_bps": 5.223589897155762,
+        "upper_1pct_bps": 12.760174751281738,
+        "lower_es_1pct_bps": 2.859559301319288,
+        "upper_es_1pct_bps": 14.04814814610172
       },
       {
         "hour": 4,
         "timestamp": "2026-11-02 12:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.6053883675525,
-        "sigma_bps": 9.466012273790506,
-        "lower_1pct_bps": -22.6493555256262,
-        "upper_1pct_bps": 21.50063726503896,
-        "lower_es_1pct_bps": -25.916421288281214,
-        "upper_es_1pct_bps": 24.767703027693976
+        "median_bps": 9.35445499420166,
+        "lower_1pct_bps": 4.717119216918945,
+        "upper_1pct_bps": 13.428913116455078,
+        "lower_es_1pct_bps": 1.3803154810312352,
+        "upper_es_1pct_bps": 15.111471054617704
       },
       {
         "hour": 5,
         "timestamp": "2026-11-02 13:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.65651782829173,
-        "sigma_bps": 9.468712575017351,
-        "lower_1pct_bps": -22.655652701049686,
-        "upper_1pct_bps": 21.506934440462448,
-        "lower_es_1pct_bps": -25.923650436052917,
-        "upper_es_1pct_bps": 24.77493217546568
+        "median_bps": 9.352115631103516,
+        "lower_1pct_bps": 4.761913776397705,
+        "upper_1pct_bps": 13.740731239318848,
+        "lower_es_1pct_bps": 1.6717772331740837,
+        "upper_es_1pct_bps": 15.768113857817015
       },
       {
         "hour": 6,
         "timestamp": "2026-11-02 14:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.707647288586,
-        "sigma_bps": 9.471412106364394,
-        "lower_1pct_bps": -22.661948081092667,
-        "upper_1pct_bps": 21.51322982050543,
-        "lower_es_1pct_bps": -25.93087752273055,
-        "upper_es_1pct_bps": 24.782159262143313
+        "median_bps": 9.499486923217773,
+        "lower_1pct_bps": 4.5463104248046875,
+        "upper_1pct_bps": 13.970609664916992,
+        "lower_es_1pct_bps": 0.3174459892946224,
+        "upper_es_1pct_bps": 16.326312030754153
       },
       {
         "hour": 7,
         "timestamp": "2026-11-02 15:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.75877674843538,
-        "sigma_bps": 9.474110868489738,
-        "lower_1pct_bps": -22.668241667289866,
-        "upper_1pct_bps": 21.51952340670263,
-        "lower_es_1pct_bps": -25.938102550075953,
-        "upper_es_1pct_bps": 24.789384289488716
+        "median_bps": 9.669084548950195,
+        "lower_1pct_bps": 3.8039135932922363,
+        "upper_1pct_bps": 14.659696578979492,
+        "lower_es_1pct_bps": -1.3039236656122464,
+        "upper_es_1pct_bps": 17.03688578720262
       },
       {
         "hour": 8,
         "timestamp": "2026-11-02 16:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.80990620783984,
-        "sigma_bps": 9.47680886205055,
-        "lower_1pct_bps": -22.67453346117381,
-        "upper_1pct_bps": 21.52581520058657,
-        "lower_es_1pct_bps": -25.945325519848485,
-        "upper_es_1pct_bps": 24.796607259261247
+        "median_bps": 9.727185249328613,
+        "lower_1pct_bps": 4.006608009338379,
+        "upper_1pct_bps": 14.960891723632812,
+        "lower_es_1pct_bps": -0.022409549229572612,
+        "upper_es_1pct_bps": 17.659199417648285
       },
       {
         "hour": 9,
         "timestamp": "2026-11-02 17:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.86103566679938,
-        "sigma_bps": 9.47950608770306,
-        "lower_1pct_bps": -22.680823464274845,
-        "upper_1pct_bps": 21.532105203687607,
-        "lower_es_1pct_bps": -25.95254643380497,
-        "upper_es_1pct_bps": 24.80382817321773
+        "median_bps": 9.73631477355957,
+        "lower_1pct_bps": 4.541022300720215,
+        "upper_1pct_bps": 14.701983451843262,
+        "lower_es_1pct_bps": 0.7584510458071545,
+        "upper_es_1pct_bps": 17.92995144311428
       },
       {
         "hour": 10,
         "timestamp": "2026-11-02 18:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.91216512531399,
-        "sigma_bps": 9.482202546102567,
-        "lower_1pct_bps": -22.68711167812114,
-        "upper_1pct_bps": 21.538393417533904,
-        "lower_es_1pct_bps": -25.95976529369974,
-        "upper_es_1pct_bps": 24.8110470331125
+        "median_bps": 9.766072273254395,
+        "lower_1pct_bps": 3.972219944000244,
+        "upper_1pct_bps": 15.237788200378418,
+        "lower_es_1pct_bps": -0.29390986646193884,
+        "upper_es_1pct_bps": 18.133916348453315
       },
       {
         "hour": 11,
         "timestamp": "2026-11-02 19:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 89.96329458338373,
-        "sigma_bps": 9.484898237903437,
-        "lower_1pct_bps": -22.693398104238703,
-        "upper_1pct_bps": 21.544679843651465,
-        "lower_es_1pct_bps": -25.96698210128466,
-        "upper_es_1pct_bps": 24.818263840697423
+        "median_bps": 9.740987777709961,
+        "lower_1pct_bps": 2.9391746520996094,
+        "upper_1pct_bps": 15.674601554870605,
+        "lower_es_1pct_bps": -3.8287253686982643,
+        "upper_es_1pct_bps": 19.696825364847893
       },
       {
         "hour": 12,
         "timestamp": "2026-11-02 20:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.01442404100851,
-        "sigma_bps": 9.487593163759106,
-        "lower_1pct_bps": -22.69968274415136,
-        "upper_1pct_bps": 21.550964483564123,
-        "lower_es_1pct_bps": -25.974196858309067,
-        "upper_es_1pct_bps": 24.82547859772183
+        "median_bps": 10.058185577392578,
+        "lower_1pct_bps": 2.4998745918273926,
+        "upper_1pct_bps": 16.545745849609375,
+        "lower_es_1pct_bps": -5.003354553298395,
+        "upper_es_1pct_bps": 20.80388359828686
       },
       {
         "hour": 13,
         "timestamp": "2026-11-02 21:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.06555349818841,
-        "sigma_bps": 9.490287324322082,
-        "lower_1pct_bps": -22.705965599380786,
-        "upper_1pct_bps": 21.557247338793548,
-        "lower_es_1pct_bps": -25.98140956651986,
-        "upper_es_1pct_bps": 24.832691305932624
+        "median_bps": 10.00045108795166,
+        "lower_1pct_bps": 3.0241541862487793,
+        "upper_1pct_bps": 16.086441040039062,
+        "lower_es_1pct_bps": -3.222255304304407,
+        "upper_es_1pct_bps": 19.94099110466771
       },
       {
         "hour": 14,
         "timestamp": "2026-11-02 22:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.11668295492336,
-        "sigma_bps": 9.492980720243951,
-        "lower_1pct_bps": -22.71224667144648,
-        "upper_1pct_bps": 21.56352841085924,
-        "lower_es_1pct_bps": -25.98862022766141,
-        "upper_es_1pct_bps": 24.839901967074173
+        "median_bps": 10.170141220092773,
+        "lower_1pct_bps": 3.427534580230713,
+        "upper_1pct_bps": 16.254234313964844,
+        "lower_es_1pct_bps": -2.8972643387333985,
+        "upper_es_1pct_bps": 20.60125997285595
       },
       {
         "hour": 15,
         "timestamp": "2026-11-02 23:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.1678124112134,
-        "sigma_bps": 9.495673352175368,
-        "lower_1pct_bps": -22.718525961865804,
-        "upper_1pct_bps": 21.569807701278567,
-        "lower_es_1pct_bps": -25.995828843475646,
-        "upper_es_1pct_bps": 24.84711058288841
+        "median_bps": 10.099491119384766,
+        "lower_1pct_bps": 2.7580857276916504,
+        "upper_1pct_bps": 16.367279052734375,
+        "lower_es_1pct_bps": -4.343940540977604,
+        "upper_es_1pct_bps": 20.64465931366452
       },
       {
         "hour": 16,
         "timestamp": "2026-11-03 00:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.21894186705852,
-        "sigma_bps": 9.498365220766072,
-        "lower_1pct_bps": -22.72480347215396,
-        "upper_1pct_bps": 21.57608521156672,
-        "lower_es_1pct_bps": -26.00303541570201,
-        "upper_es_1pct_bps": 24.85431715511477
+        "median_bps": 10.085858345031738,
+        "lower_1pct_bps": 1.8473615646362305,
+        "upper_1pct_bps": 16.89809226989746,
+        "lower_es_1pct_bps": -4.893625391625566,
+        "upper_es_1pct_bps": 20.88730931808018
       },
       {
         "hour": 17,
         "timestamp": "2026-11-03 01:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.27007132245872,
-        "sigma_bps": 9.501056326664878,
-        "lower_1pct_bps": -22.731079203823995,
-        "upper_1pct_bps": 21.582360943236758,
-        "lower_es_1pct_bps": -26.010239946077498,
-        "upper_es_1pct_bps": 24.86152168549026
+        "median_bps": 10.140291213989258,
+        "lower_1pct_bps": 2.2840709686279297,
+        "upper_1pct_bps": 17.466289520263672,
+        "lower_es_1pct_bps": -5.296656125448587,
+        "upper_es_1pct_bps": 23.233968251083702
       },
       {
         "hour": 18,
         "timestamp": "2026-11-03 02:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.32120077741402,
-        "sigma_bps": 9.503746670519686,
-        "lower_1pct_bps": -22.73735315838684,
-        "upper_1pct_bps": 21.5886348977996,
-        "lower_es_1pct_bps": -26.01744243633664,
-        "upper_es_1pct_bps": 24.868724175749403
+        "median_bps": 10.04206657409668,
+        "lower_1pct_bps": 1.5961651802062988,
+        "upper_1pct_bps": 17.264802932739258,
+        "lower_es_1pct_bps": -7.597435503675234,
+        "upper_es_1pct_bps": 22.037353123623745
       },
       {
         "hour": 19,
         "timestamp": "2026-11-03 03:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.3723302319244,
-        "sigma_bps": 9.506436252977474,
-        "lower_1pct_bps": -22.74362533735126,
-        "upper_1pct_bps": 21.594907076764024,
-        "lower_es_1pct_bps": -26.024642888211503,
-        "upper_es_1pct_bps": 24.875924627624265
+        "median_bps": 9.965438842773438,
+        "lower_1pct_bps": 2.2882680892944336,
+        "upper_1pct_bps": 16.985641479492188,
+        "lower_es_1pct_bps": -4.928297890421513,
+        "upper_es_1pct_bps": 21.73230217893277
       },
       {
         "hour": 20,
         "timestamp": "2026-11-03 04:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.42345968598988,
-        "sigma_bps": 9.50912507468431,
-        "lower_1pct_bps": -22.749895742223902,
-        "upper_1pct_bps": 21.601177481636665,
-        "lower_es_1pct_bps": -26.031841303431715,
-        "upper_es_1pct_bps": 24.883123042844478
+        "median_bps": 10.079700469970703,
+        "lower_1pct_bps": 2.409921646118164,
+        "upper_1pct_bps": 17.2303466796875,
+        "lower_es_1pct_bps": -4.987911149194598,
+        "upper_es_1pct_bps": 22.892805442848132
       },
       {
         "hour": 21,
         "timestamp": "2026-11-03 05:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.47458913961042,
-        "sigma_bps": 9.511813136285344,
-        "lower_1pct_bps": -22.75616437450928,
-        "upper_1pct_bps": 21.60744611392204,
-        "lower_es_1pct_bps": -26.039037683724448,
-        "upper_es_1pct_bps": 24.89031942313721
+        "median_bps": 10.116986274719238,
+        "lower_1pct_bps": 2.4273324012756348,
+        "upper_1pct_bps": 17.625205993652344,
+        "lower_es_1pct_bps": -4.267927914884977,
+        "upper_es_1pct_bps": 23.77038335132935
       },
       {
         "hour": 22,
         "timestamp": "2026-11-03 06:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.52571859278605,
-        "sigma_bps": 9.514500438424818,
-        "lower_1pct_bps": -22.76243123570978,
-        "upper_1pct_bps": 21.613712975122542,
-        "lower_es_1pct_bps": -26.046232030814448,
-        "upper_es_1pct_bps": 24.89751377022721
+        "median_bps": 10.198007583618164,
+        "lower_1pct_bps": 1.2585511207580566,
+        "upper_1pct_bps": 18.48977279663086,
+        "lower_es_1pct_bps": -7.255673258987576,
+        "upper_es_1pct_bps": 24.6378423764998
       },
       {
         "hour": 23,
         "timestamp": "2026-11-03 07:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.57684804551677,
-        "sigma_bps": 9.517186981746065,
-        "lower_1pct_bps": -22.76869632732567,
-        "upper_1pct_bps": 21.619978066738433,
-        "lower_es_1pct_bps": -26.05342434642402,
-        "upper_es_1pct_bps": 24.904706085836782
+        "median_bps": 10.272663116455078,
+        "lower_1pct_bps": 1.9693603515625,
+        "upper_1pct_bps": 18.10112762451172,
+        "lower_es_1pct_bps": -6.269091183321638,
+        "upper_es_1pct_bps": 24.7269993758558
       },
       {
         "hour": 24,
         "timestamp": "2026-11-03 08:00:00+00:00",
-        "mean_bps": -0.5743591302936205,
-        "median_bps": -0.5743591302936205,
-        "variance_bps2": 90.62797749780256,
-        "sigma_bps": 9.519872766891508,
-        "lower_1pct_bps": -22.774959650855095,
-        "upper_1pct_bps": 21.626241390267857,
-        "lower_es_1pct_bps": -26.06061463227303,
-        "upper_es_1pct_bps": 24.911896371685792
+        "median_bps": 10.32799243927002,
+        "lower_1pct_bps": 1.895608901977539,
+        "upper_1pct_bps": 18.110862731933594,
+        "lower_es_1pct_bps": -6.312593636827474,
+        "upper_es_1pct_bps": 23.98429841706355
       }
     ],
-    "fit_rows": 42393,
-    "fit_start": "2022-01-01 00:00:00+00:00",
-    "fit_end": "2026-11-02 08:00:00+00:00",
-    "historical_imputed_hours": 5,
-    "missing_price_policy": "historical_forward_fill_reject_missing_origin",
-    "mean_type": "Constant",
-    "fit_window": "expanding",
-    "rescale": false,
-    "forecast_method": "analytic_variance_standardized_student_t_marginals",
-    "forecast_caveat": "Multi-step Student-t marginals approximate the predictive variance mixture.",
-    "refit_policy": "once_per_live_workflow_run",
-    "persistence": 0.9999999912982291,
-    "persistence_status": "near_integrated",
-    "quantile_degrees_of_freedom": 247.5786200652077,
-    "reference": {
-      "commit": "303c6399357a00e11897aa30e598bc6f23b6fb45",
-      "url": "https://github.com/QuantLet/onchain-insights/blob/303c6399357a00e11897aa30e598bc6f23b6fb45/12.%20Evaluation%20of%20Probabilistic%20Forecasts/benchmark_scripts/GARCH_forecast.py"
+    "tail_method": "analytical_GPD_tail_means_including_clipped_positive_losses",
+    "training_data_end": "2026-11-02T08:00:00Z",
+    "preprocessing_fitting_cutoff": "2025-05-21T10:00:00+00:00",
+    "release": {
+      "repository": "QuantLet/onchain-insights",
+      "tag": "amm-angel-20261103T093459Z",
+      "url": "https://github.com/QuantLet/onchain-insights/releases/tag/amm-angel-20261103T093459Z",
+      "published_at": "2026-11-03T10:00:33Z",
+      "release_id": 432522900,
+      "checkpoint_sha256": "55c9d424a35513a36e2689c6f5c2f55571b93a45779675404f11b56b3f31150b",
+      "preprocessing_sha256": "4514e7af6234edcb8f0143f4dc520000a0f6400d6176aee291876876f948bb8b",
+      "manifest_sha256": "591f0014c8d4aba32917dd0a9caa9ffe1d5de38911bc7cc7b6bf9d777def1dd1"
     },
-    "parameters": {
-      "mu": -0.5743591302936205,
-      "omega": 0.0511302404647791,
-      "alpha[1]": 0.8499337387414866,
-      "beta[1]": 0.15006625255674255,
-      "nu": 247.5786200652077
+    "cpu_reference_validation": {
+      "max_absolute_difference": 1.9073486328125e-06,
+      "rtol": 1e-05,
+      "atol": 1e-05,
+      "torch_version": "2.15.0",
+      "runtime_source_revision": "303c6399357a00e11897aa30e598bc6f23b6fb45"
+    },
+    "source_git_commit": "1ea16d1e14c4d133b0cfc32fad30f506bef88bf3",
+    "feature_reference_validated": true,
+    "feature_reference_validation": {
+      "passed": true,
+      "rtol": 1e-05,
+      "atol": 0.0001,
+      "input_shape": [
+        168,
+        98
+      ]
     }
   },
-  "schema_version": 6,
+  "schema_version": 8,
   "feature_dictionary": {
     "tvlUSD_100": {
       "feature": "tvlUSD_100",
@@ -21510,5 +21446,967 @@
         }
       }
     }
+  },
+  "prediction_history": {
+    "basis": "saved_run_outputs",
+    "time_basis": "observation_timestamp",
+    "window_hours": 168,
+    "start": "2026-10-26T08:00:00+00:00",
+    "end": "2026-11-02T08:00:00+00:00",
+    "current_id": "f41bccdb629f0d54ac559013",
+    "records": [
+      {
+        "timestamp": "2026-10-27T07:00:00+00:00",
+        "probability": 0.2446423883559295,
+        "risk_level": "High",
+        "protocol": "legacy_monitoring",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-10-27T08:11:44+00:00",
+        "model_reference": "ea6ae1780ef7f8040527823a2c43ea0bef194e79",
+        "workflow_run_id": null,
+        "id": "df348371862cf1d2faeb2a54"
+      },
+      {
+        "timestamp": "2026-10-28T07:00:00+00:00",
+        "probability": 0.21088271141051673,
+        "risk_level": "High",
+        "protocol": "legacy_monitoring",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-10-28T08:50:21+00:00",
+        "model_reference": "47d791d4568beae42b9db6ce7b78d96b198839ee",
+        "workflow_run_id": null,
+        "id": "33fc7870d7b7c03e46191982"
+      },
+      {
+        "timestamp": "2026-10-29T07:00:00+00:00",
+        "probability": 0.27947568719403104,
+        "risk_level": "High",
+        "protocol": "legacy_monitoring",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-10-29T08:46:09+00:00",
+        "model_reference": "b8f848d3dec4df8a3b4f2ae5743168f26c5248bc",
+        "workflow_run_id": null,
+        "id": "c4dbda2ece67ad43d273f6b5"
+      },
+      {
+        "timestamp": "2026-10-30T07:00:00+00:00",
+        "probability": 0.41476942045415344,
+        "risk_level": "High",
+        "protocol": "legacy_monitoring",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-10-30T08:57:10+00:00",
+        "model_reference": "6520d5fed040e7030da74989fac868f072bfd501",
+        "workflow_run_id": null,
+        "id": "6ac385623d88c52b8054f7f0"
+      },
+      {
+        "timestamp": "2026-10-31T07:00:00+00:00",
+        "probability": 0.23699524605401062,
+        "risk_level": "High",
+        "protocol": "legacy_monitoring",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-10-31T08:39:10+00:00",
+        "model_reference": "f064ba8f659b5784ca5bc4ee6fdcd24d704d5afa",
+        "workflow_run_id": null,
+        "id": "0ddba5bce518c85a60b3f3a9"
+      },
+      {
+        "timestamp": "2026-11-01T08:00:00+00:00",
+        "probability": 0.3738116534782707,
+        "risk_level": "High",
+        "protocol": "legacy_monitoring",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-11-01T09:31:47+00:00",
+        "model_reference": "f958d13ae4f179740df1ca2f808ead41b46dce34",
+        "workflow_run_id": null,
+        "id": "de33affa28a6f92012baf131"
+      },
+      {
+        "timestamp": "2026-11-02T08:00:00+00:00",
+        "probability": 0.20378655961065073,
+        "risk_level": "High",
+        "protocol": "legacy_monitoring",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-11-02T09:45:24+00:00",
+        "model_reference": "39fc3993dd97584c36345776a516cc2285dd3e7d",
+        "workflow_run_id": null,
+        "id": "e0120f603844ae4b820785e6"
+      },
+      {
+        "timestamp": "2026-11-02T08:00:00+00:00",
+        "probability": 0.1580827073160811,
+        "risk_level": "Elevated",
+        "protocol": "monitoring_any_breach_v2",
+        "alpha": 0.4,
+        "calibrated": true,
+        "source": "git_history",
+        "recorded_at": "2026-11-02T17:58:18+01:00",
+        "model_reference": "a8422954fbfb38c482fd638a32313bf1f1365989",
+        "workflow_run_id": null,
+        "id": "f41bccdb629f0d54ac559013"
+      }
+    ]
+  },
+  "hourly_prediction_history": {
+    "basis": "retrospective_current_model",
+    "alpha": 0.4,
+    "calibration_end": "2026-02-10 09:00:00+00:00",
+    "timestamp": "2026-11-02 08:00:00+00:00",
+    "records": [
+      {
+        "timestamp": "2026-10-26 09:00:00+00:00",
+        "probability": 0.22932756767723889,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 10:00:00+00:00",
+        "probability": 0.2529461630676702,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 11:00:00+00:00",
+        "probability": 0.23071697468582578,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 12:00:00+00:00",
+        "probability": 0.3164467408132717,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 13:00:00+00:00",
+        "probability": 0.2341153845964353,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 14:00:00+00:00",
+        "probability": 0.23052523317235096,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 15:00:00+00:00",
+        "probability": 0.29350998900851194,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 16:00:00+00:00",
+        "probability": 0.2849237272943721,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 17:00:00+00:00",
+        "probability": 0.2823682567003553,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 18:00:00+00:00",
+        "probability": 0.202780428911493,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 19:00:00+00:00",
+        "probability": 0.23342714539448453,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 20:00:00+00:00",
+        "probability": 0.2508845435476704,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 21:00:00+00:00",
+        "probability": 0.22085015538064703,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-26 22:00:00+00:00",
+        "probability": 0.17247899998903413,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-26 23:00:00+00:00",
+        "probability": 0.1622495548780138,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 00:00:00+00:00",
+        "probability": 0.28933354302920505,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 01:00:00+00:00",
+        "probability": 0.1874552500424097,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 02:00:00+00:00",
+        "probability": 0.22321748092073754,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 03:00:00+00:00",
+        "probability": 0.1871411926979699,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 04:00:00+00:00",
+        "probability": 0.18114300518610382,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 05:00:00+00:00",
+        "probability": 0.20100628090726938,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 06:00:00+00:00",
+        "probability": 0.23295751261200745,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 07:00:00+00:00",
+        "probability": 0.19912533946004377,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 08:00:00+00:00",
+        "probability": 0.2365135885242109,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 09:00:00+00:00",
+        "probability": 0.2598322556626709,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 10:00:00+00:00",
+        "probability": 0.24770978722938078,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 11:00:00+00:00",
+        "probability": 0.24028220540785142,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 12:00:00+00:00",
+        "probability": 0.17972205922187692,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 13:00:00+00:00",
+        "probability": 0.1799939867666868,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 14:00:00+00:00",
+        "probability": 0.1834297209483841,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 15:00:00+00:00",
+        "probability": 0.25758089315774,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-27 16:00:00+00:00",
+        "probability": 0.1852897721671149,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 17:00:00+00:00",
+        "probability": 0.1919117834584788,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 18:00:00+00:00",
+        "probability": 0.19590899518408053,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 19:00:00+00:00",
+        "probability": 0.17707734808945044,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 20:00:00+00:00",
+        "probability": 0.19465003543689915,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 21:00:00+00:00",
+        "probability": 0.17402132826871214,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 22:00:00+00:00",
+        "probability": 0.18172734431165355,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-27 23:00:00+00:00",
+        "probability": 0.1724228286116914,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-28 00:00:00+00:00",
+        "probability": 0.2837697187378309,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 01:00:00+00:00",
+        "probability": 0.17242300911280395,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-28 02:00:00+00:00",
+        "probability": 0.20756361447468677,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 03:00:00+00:00",
+        "probability": 0.2594507132939302,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 04:00:00+00:00",
+        "probability": 0.26362090486956696,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 05:00:00+00:00",
+        "probability": 0.1851475590844559,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-28 06:00:00+00:00",
+        "probability": 0.20397824704648287,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 07:00:00+00:00",
+        "probability": 0.20843452411741067,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 08:00:00+00:00",
+        "probability": 0.2428696612165804,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 09:00:00+00:00",
+        "probability": 0.2338507391516437,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 10:00:00+00:00",
+        "probability": 0.2428112390176448,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 11:00:00+00:00",
+        "probability": 0.24402782477051937,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 12:00:00+00:00",
+        "probability": 0.23058767198337454,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 13:00:00+00:00",
+        "probability": 0.3007152044218896,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 14:00:00+00:00",
+        "probability": 0.23579434237787428,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 15:00:00+00:00",
+        "probability": 0.3025508134257486,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 16:00:00+00:00",
+        "probability": 0.2304788637430536,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 17:00:00+00:00",
+        "probability": 0.21650271557850503,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 18:00:00+00:00",
+        "probability": 0.21786045474503624,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-28 19:00:00+00:00",
+        "probability": 0.16477011390445798,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-28 20:00:00+00:00",
+        "probability": 0.08177822802812276,
+        "risk_level": "Low"
+      },
+      {
+        "timestamp": "2026-10-28 21:00:00+00:00",
+        "probability": 0.0792064178455074,
+        "risk_level": "Low"
+      },
+      {
+        "timestamp": "2026-10-28 22:00:00+00:00",
+        "probability": 0.12860047829549553,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-28 23:00:00+00:00",
+        "probability": 0.1642623131956573,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-29 00:00:00+00:00",
+        "probability": 0.17696865927949704,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-29 01:00:00+00:00",
+        "probability": 0.23252261751826953,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 02:00:00+00:00",
+        "probability": 0.21538873137206396,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 03:00:00+00:00",
+        "probability": 0.2740365889242409,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 04:00:00+00:00",
+        "probability": 0.25880927760297806,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 05:00:00+00:00",
+        "probability": 0.25731477005004944,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 06:00:00+00:00",
+        "probability": 0.23565943319983976,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 07:00:00+00:00",
+        "probability": 0.24828268919240754,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 08:00:00+00:00",
+        "probability": 0.33937304896583587,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 09:00:00+00:00",
+        "probability": 0.24368964846429939,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 10:00:00+00:00",
+        "probability": 0.3104845172809418,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 11:00:00+00:00",
+        "probability": 0.23172519012586618,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 12:00:00+00:00",
+        "probability": 0.31827450619144415,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 13:00:00+00:00",
+        "probability": 0.2123310258747062,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 14:00:00+00:00",
+        "probability": 0.22637069936818446,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 15:00:00+00:00",
+        "probability": 0.22530927930468378,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 16:00:00+00:00",
+        "probability": 0.22704155506894722,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 17:00:00+00:00",
+        "probability": 0.17695384721818028,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-29 18:00:00+00:00",
+        "probability": 0.2383332695699092,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 19:00:00+00:00",
+        "probability": 0.243914086643581,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 20:00:00+00:00",
+        "probability": 0.26548269040688877,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 21:00:00+00:00",
+        "probability": 0.4021141684774147,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 22:00:00+00:00",
+        "probability": 0.30109687370159594,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-29 23:00:00+00:00",
+        "probability": 0.3872126951759918,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 00:00:00+00:00",
+        "probability": 0.50099571392615,
+        "risk_level": "Critical"
+      },
+      {
+        "timestamp": "2026-10-30 01:00:00+00:00",
+        "probability": 0.4896470847657867,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 02:00:00+00:00",
+        "probability": 0.4128605861803538,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 03:00:00+00:00",
+        "probability": 0.4548706742739445,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 04:00:00+00:00",
+        "probability": 0.43709833357864736,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 05:00:00+00:00",
+        "probability": 0.3370064538811198,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 06:00:00+00:00",
+        "probability": 0.415456873357293,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 07:00:00+00:00",
+        "probability": 0.38179996549476686,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 08:00:00+00:00",
+        "probability": 0.39477980830722265,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 09:00:00+00:00",
+        "probability": 0.36533455259813113,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 10:00:00+00:00",
+        "probability": 0.30986044207758084,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 11:00:00+00:00",
+        "probability": 0.3052307019754759,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 12:00:00+00:00",
+        "probability": 0.2978684121097552,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 13:00:00+00:00",
+        "probability": 0.29041909610964034,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 14:00:00+00:00",
+        "probability": 0.300931752685648,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 15:00:00+00:00",
+        "probability": 0.2734304448711164,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 16:00:00+00:00",
+        "probability": 0.2783524107524631,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 17:00:00+00:00",
+        "probability": 0.30482431613215655,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 18:00:00+00:00",
+        "probability": 0.30295485522182997,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 19:00:00+00:00",
+        "probability": 0.28460764179102355,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 20:00:00+00:00",
+        "probability": 0.25235581212665514,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 21:00:00+00:00",
+        "probability": 0.32593168858512866,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 22:00:00+00:00",
+        "probability": 0.2543408054512759,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-30 23:00:00+00:00",
+        "probability": 0.2873447246156284,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 00:00:00+00:00",
+        "probability": 0.25907167996466124,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 01:00:00+00:00",
+        "probability": 0.3637417133489483,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 02:00:00+00:00",
+        "probability": 0.218459621661062,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 03:00:00+00:00",
+        "probability": 0.23339612518194572,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 04:00:00+00:00",
+        "probability": 0.20972835360233671,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 05:00:00+00:00",
+        "probability": 0.21780078813509152,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 06:00:00+00:00",
+        "probability": 0.2720064721567207,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 07:00:00+00:00",
+        "probability": 0.32553449312818256,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 08:00:00+00:00",
+        "probability": 0.25759410499438,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 09:00:00+00:00",
+        "probability": 0.20656208963625458,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 10:00:00+00:00",
+        "probability": 0.19470632900510332,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 11:00:00+00:00",
+        "probability": 0.19681359546190252,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 12:00:00+00:00",
+        "probability": 0.18599910368177242,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 13:00:00+00:00",
+        "probability": 0.17698870696234964,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 14:00:00+00:00",
+        "probability": 0.1891797212359287,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 15:00:00+00:00",
+        "probability": 0.18142775181460505,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 16:00:00+00:00",
+        "probability": 0.17858379720012763,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 17:00:00+00:00",
+        "probability": 0.1803714060273524,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 18:00:00+00:00",
+        "probability": 0.17947609248259142,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 19:00:00+00:00",
+        "probability": 0.22418986955608536,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 20:00:00+00:00",
+        "probability": 0.2212428461118011,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 21:00:00+00:00",
+        "probability": 0.22009767421825546,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-10-31 22:00:00+00:00",
+        "probability": 0.17759061955621983,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-10-31 23:00:00+00:00",
+        "probability": 0.2302224166195601,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 00:00:00+00:00",
+        "probability": 0.2241796988598249,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 01:00:00+00:00",
+        "probability": 0.20379230596204423,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 02:00:00+00:00",
+        "probability": 0.20697512848312047,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 03:00:00+00:00",
+        "probability": 0.2029064960354655,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 04:00:00+00:00",
+        "probability": 0.21753408732478752,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 05:00:00+00:00",
+        "probability": 0.2517911013447428,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 06:00:00+00:00",
+        "probability": 0.21650250555639453,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 07:00:00+00:00",
+        "probability": 0.21753408732478752,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 08:00:00+00:00",
+        "probability": 0.23816302885831017,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 09:00:00+00:00",
+        "probability": 0.2129461972217508,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 10:00:00+00:00",
+        "probability": 0.20935940129324493,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 11:00:00+00:00",
+        "probability": 0.23939329383070665,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 12:00:00+00:00",
+        "probability": 0.2718047075146015,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 13:00:00+00:00",
+        "probability": 0.22738530960738743,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 14:00:00+00:00",
+        "probability": 0.2429897951103112,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 15:00:00+00:00",
+        "probability": 0.22613388725887337,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 16:00:00+00:00",
+        "probability": 0.24024889255742227,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 17:00:00+00:00",
+        "probability": 0.22944109972695476,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 18:00:00+00:00",
+        "probability": 0.22838921448619828,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 19:00:00+00:00",
+        "probability": 0.2260853725329328,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 20:00:00+00:00",
+        "probability": 0.2211110739999862,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 21:00:00+00:00",
+        "probability": 0.2200678356355641,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 22:00:00+00:00",
+        "probability": 0.22714937670450125,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-01 23:00:00+00:00",
+        "probability": 0.2195967556198548,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-02 00:00:00+00:00",
+        "probability": 0.31258486497481897,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-02 01:00:00+00:00",
+        "probability": 0.21460945716272398,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-02 02:00:00+00:00",
+        "probability": 0.2536674068908524,
+        "risk_level": "High"
+      },
+      {
+        "timestamp": "2026-11-02 03:00:00+00:00",
+        "probability": 0.18362191856965132,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-11-02 04:00:00+00:00",
+        "probability": 0.16422161268853175,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-11-02 05:00:00+00:00",
+        "probability": 0.15489525657376144,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-11-02 06:00:00+00:00",
+        "probability": 0.16329913310063857,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-11-02 07:00:00+00:00",
+        "probability": 0.16520803213729154,
+        "risk_level": "Elevated"
+      },
+      {
+        "timestamp": "2026-11-02 08:00:00+00:00",
+        "probability": 0.1580827073160811,
+        "risk_level": "Elevated"
+      }
+    ]
   }
 }

@@ -1,0 +1,285 @@
+{
+  "status": "ok",
+  "model": "ANGEL",
+  "forecast_method": "neural_quantile_spline_with_GPD_tails",
+  "timestamp": "2026-11-02 08:00:00+00:00",
+  "horizon_hours": 24,
+  "sequence_length": 168,
+  "input_features": 98,
+  "quote": "USDT per USDC",
+  "unit": "quote_deviation_bps",
+  "risk_basis": "adverse_deviation_from_peg_at_hour_24",
+  "risk_direction": "USDT",
+  "direction_rule": "larger_1pct_var",
+  "tails": {
+    "USDC": {
+      "0.01": {
+        "var_bps": 0.0,
+        "es_bps": 6.676228467073458
+      },
+      "0.005": {
+        "var_bps": 1.423170566558838,
+        "es_bps": 13.148834977784642
+      }
+    },
+    "USDT": {
+      "0.01": {
+        "var_bps": 18.110862731933594,
+        "es_bps": 23.98429841706355
+      },
+      "0.005": {
+        "var_bps": 20.772010803222656,
+        "es_bps": 28.74660000874608
+      }
+    }
+  },
+  "hourly": [
+    {
+      "hour": 1,
+      "timestamp": "2026-11-02 09:00:00+00:00",
+      "median_bps": 9.01915168762207,
+      "lower_1pct_bps": 7.607646942138672,
+      "upper_1pct_bps": 10.27088737487793,
+      "lower_es_1pct_bps": 6.743904585680287,
+      "upper_es_1pct_bps": 10.75284855988576
+    },
+    {
+      "hour": 2,
+      "timestamp": "2026-11-02 10:00:00+00:00",
+      "median_bps": 9.177347183227539,
+      "lower_1pct_bps": 6.134369850158691,
+      "upper_1pct_bps": 11.953612327575684,
+      "lower_es_1pct_bps": 4.285972670801768,
+      "upper_es_1pct_bps": 13.010061342592245
+    },
+    {
+      "hour": 3,
+      "timestamp": "2026-11-02 11:00:00+00:00",
+      "median_bps": 9.212139129638672,
+      "lower_1pct_bps": 5.223589897155762,
+      "upper_1pct_bps": 12.760174751281738,
+      "lower_es_1pct_bps": 2.859559301319288,
+      "upper_es_1pct_bps": 14.04814814610172
+    },
+    {
+      "hour": 4,
+      "timestamp": "2026-11-02 12:00:00+00:00",
+      "median_bps": 9.35445499420166,
+      "lower_1pct_bps": 4.717119216918945,
+      "upper_1pct_bps": 13.428913116455078,
+      "lower_es_1pct_bps": 1.3803154810312352,
+      "upper_es_1pct_bps": 15.111471054617704
+    },
+    {
+      "hour": 5,
+      "timestamp": "2026-11-02 13:00:00+00:00",
+      "median_bps": 9.352115631103516,
+      "lower_1pct_bps": 4.761913776397705,
+      "upper_1pct_bps": 13.740731239318848,
+      "lower_es_1pct_bps": 1.6717772331740837,
+      "upper_es_1pct_bps": 15.768113857817015
+    },
+    {
+      "hour": 6,
+      "timestamp": "2026-11-02 14:00:00+00:00",
+      "median_bps": 9.499486923217773,
+      "lower_1pct_bps": 4.5463104248046875,
+      "upper_1pct_bps": 13.970609664916992,
+      "lower_es_1pct_bps": 0.3174459892946224,
+      "upper_es_1pct_bps": 16.326312030754153
+    },
+    {
+      "hour": 7,
+      "timestamp": "2026-11-02 15:00:00+00:00",
+      "median_bps": 9.669084548950195,
+      "lower_1pct_bps": 3.8039135932922363,
+      "upper_1pct_bps": 14.659696578979492,
+      "lower_es_1pct_bps": -1.3039236656122464,
+      "upper_es_1pct_bps": 17.03688578720262
+    },
+    {
+      "hour": 8,
+      "timestamp": "2026-11-02 16:00:00+00:00",
+      "median_bps": 9.727185249328613,
+      "lower_1pct_bps": 4.006608009338379,
+      "upper_1pct_bps": 14.960891723632812,
+      "lower_es_1pct_bps": -0.022409549229572612,
+      "upper_es_1pct_bps": 17.659199417648285
+    },
+    {
+      "hour": 9,
+      "timestamp": "2026-11-02 17:00:00+00:00",
+      "median_bps": 9.73631477355957,
+      "lower_1pct_bps": 4.541022300720215,
+      "upper_1pct_bps": 14.701983451843262,
+      "lower_es_1pct_bps": 0.7584510458071545,
+      "upper_es_1pct_bps": 17.92995144311428
+    },
+    {
+      "hour": 10,
+      "timestamp": "2026-11-02 18:00:00+00:00",
+      "median_bps": 9.766072273254395,
+      "lower_1pct_bps": 3.972219944000244,
+      "upper_1pct_bps": 15.237788200378418,
+      "lower_es_1pct_bps": -0.29390986646193884,
+      "upper_es_1pct_bps": 18.133916348453315
+    },
+    {
+      "hour": 11,
+      "timestamp": "2026-11-02 19:00:00+00:00",
+      "median_bps": 9.740987777709961,
+      "lower_1pct_bps": 2.9391746520996094,
+      "upper_1pct_bps": 15.674601554870605,
+      "lower_es_1pct_bps": -3.8287253686982643,
+      "upper_es_1pct_bps": 19.696825364847893
+    },
+    {
+      "hour": 12,
+      "timestamp": "2026-11-02 20:00:00+00:00",
+      "median_bps": 10.058185577392578,
+      "lower_1pct_bps": 2.4998745918273926,
+      "upper_1pct_bps": 16.545745849609375,
+      "lower_es_1pct_bps": -5.003354553298395,
+      "upper_es_1pct_bps": 20.80388359828686
+    },
+    {
+      "hour": 13,
+      "timestamp": "2026-11-02 21:00:00+00:00",
+      "median_bps": 10.00045108795166,
+      "lower_1pct_bps": 3.0241541862487793,
+      "upper_1pct_bps": 16.086441040039062,
+      "lower_es_1pct_bps": -3.222255304304407,
+      "upper_es_1pct_bps": 19.94099110466771
+    },
+    {
+      "hour": 14,
+      "timestamp": "2026-11-02 22:00:00+00:00",
+      "median_bps": 10.170141220092773,
+      "lower_1pct_bps": 3.427534580230713,
+      "upper_1pct_bps": 16.254234313964844,
+      "lower_es_1pct_bps": -2.8972643387333985,
+      "upper_es_1pct_bps": 20.60125997285595
+    },
+    {
+      "hour": 15,
+      "timestamp": "2026-11-02 23:00:00+00:00",
+      "median_bps": 10.099491119384766,
+      "lower_1pct_bps": 2.7580857276916504,
+      "upper_1pct_bps": 16.367279052734375,
+      "lower_es_1pct_bps": -4.343940540977604,
+      "upper_es_1pct_bps": 20.64465931366452
+    },
+    {
+      "hour": 16,
+      "timestamp": "2026-11-03 00:00:00+00:00",
+      "median_bps": 10.085858345031738,
+      "lower_1pct_bps": 1.8473615646362305,
+      "upper_1pct_bps": 16.89809226989746,
+      "lower_es_1pct_bps": -4.893625391625566,
+      "upper_es_1pct_bps": 20.88730931808018
+    },
+    {
+      "hour": 17,
+      "timestamp": "2026-11-03 01:00:00+00:00",
+      "median_bps": 10.140291213989258,
+      "lower_1pct_bps": 2.2840709686279297,
+      "upper_1pct_bps": 17.466289520263672,
+      "lower_es_1pct_bps": -5.296656125448587,
+      "upper_es_1pct_bps": 23.233968251083702
+    },
+    {
+      "hour": 18,
+      "timestamp": "2026-11-03 02:00:00+00:00",
+      "median_bps": 10.04206657409668,
+      "lower_1pct_bps": 1.5961651802062988,
+      "upper_1pct_bps": 17.264802932739258,
+      "lower_es_1pct_bps": -7.597435503675234,
+      "upper_es_1pct_bps": 22.037353123623745
+    },
+    {
+      "hour": 19,
+      "timestamp": "2026-11-03 03:00:00+00:00",
+      "median_bps": 9.965438842773438,
+      "lower_1pct_bps": 2.2882680892944336,
+      "upper_1pct_bps": 16.985641479492188,
+      "lower_es_1pct_bps": -4.928297890421513,
+      "upper_es_1pct_bps": 21.73230217893277
+    },
+    {
+      "hour": 20,
+      "timestamp": "2026-11-03 04:00:00+00:00",
+      "median_bps": 10.079700469970703,
+      "lower_1pct_bps": 2.409921646118164,
+      "upper_1pct_bps": 17.2303466796875,
+      "lower_es_1pct_bps": -4.987911149194598,
+      "upper_es_1pct_bps": 22.892805442848132
+    },
+    {
+      "hour": 21,
+      "timestamp": "2026-11-03 05:00:00+00:00",
+      "median_bps": 10.116986274719238,
+      "lower_1pct_bps": 2.4273324012756348,
+      "upper_1pct_bps": 17.625205993652344,
+      "lower_es_1pct_bps": -4.267927914884977,
+      "upper_es_1pct_bps": 23.77038335132935
+    },
+    {
+      "hour": 22,
+      "timestamp": "2026-11-03 06:00:00+00:00",
+      "median_bps": 10.198007583618164,
+      "lower_1pct_bps": 1.2585511207580566,
+      "upper_1pct_bps": 18.48977279663086,
+      "lower_es_1pct_bps": -7.255673258987576,
+      "upper_es_1pct_bps": 24.6378423764998
+    },
+    {
+      "hour": 23,
+      "timestamp": "2026-11-03 07:00:00+00:00",
+      "median_bps": 10.272663116455078,
+      "lower_1pct_bps": 1.9693603515625,
+      "upper_1pct_bps": 18.10112762451172,
+      "lower_es_1pct_bps": -6.269091183321638,
+      "upper_es_1pct_bps": 24.7269993758558
+    },
+    {
+      "hour": 24,
+      "timestamp": "2026-11-03 08:00:00+00:00",
+      "median_bps": 10.32799243927002,
+      "lower_1pct_bps": 1.895608901977539,
+      "upper_1pct_bps": 18.110862731933594,
+      "lower_es_1pct_bps": -6.312593636827474,
+      "upper_es_1pct_bps": 23.98429841706355
+    }
+  ],
+  "tail_method": "analytical_GPD_tail_means_including_clipped_positive_losses",
+  "training_data_end": "2026-11-02T08:00:00Z",
+  "preprocessing_fitting_cutoff": "2025-05-21T10:00:00+00:00",
+  "release": {
+    "repository": "QuantLet/onchain-insights",
+    "tag": "amm-angel-20261103T093459Z",
+    "url": "https://github.com/QuantLet/onchain-insights/releases/tag/amm-angel-20261103T093459Z",
+    "published_at": "2026-11-03T10:00:33Z",
+    "release_id": 432522900,
+    "checkpoint_sha256": "55c9d424a35513a36e2689c6f5c2f55571b93a45779675404f11b56b3f31150b",
+    "preprocessing_sha256": "4514e7af6234edcb8f0143f4dc520000a0f6400d6176aee291876876f948bb8b",
+    "manifest_sha256": "591f0014c8d4aba32917dd0a9caa9ffe1d5de38911bc7cc7b6bf9d777def1dd1"
+  },
+  "cpu_reference_validation": {
+    "max_absolute_difference": 1.9073486328125e-06,
+    "rtol": 1e-05,
+    "atol": 1e-05,
+    "torch_version": "2.15.0",
+    "runtime_source_revision": "303c6399357a00e11897aa30e598bc6f23b6fb45"
+  },
+  "source_git_commit": "1ea16d1e14c4d133b0cfc32fad30f506bef88bf3",
+  "feature_reference_validated": true,
+  "feature_reference_validation": {
+    "passed": true,
+    "rtol": 1e-05,
+    "atol": 0.0001,
+    "input_shape": [
+      168,
+      98
+    ]
+  }
+}
