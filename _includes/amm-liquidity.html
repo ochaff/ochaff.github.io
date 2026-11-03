@@ -1,0 +1,12 @@
+<figure class="amm-explorer amm-liquidity" data-liquidity-explorer aria-labelledby="liquidity-positions-title">
+  <figcaption id="liquidity-positions-title"><span class="amm-number">04</span><strong>From LP positions to a liquidity curve</strong><span class="amm-tag">Interactive example</span></figcaption>
+  <p class="liquidity-instructions">Each color represents one LP's position. Toggle positions to see their contribution to the total, then move the price marker to see which positions are active.</p>
+  <fieldset class="liquidity-positions"><legend>Positions included in the pool</legend></fieldset>
+  <div class="amm-controls"><label class="amm-trade" for="liquidity-price">Hypothetical price <output for="liquidity-price">1.000000 · 0 bps</output><input id="liquidity-price" type="range" min="-100" max="100" step="1" value="0"></label><label for="liquidity-window">Price window<select id="liquidity-window"><option value="110">Full range</option><option value="30">Near peg · ±30 bps</option></select></label></div>
+  <div class="liquidity-total-key"><i aria-hidden="true"></i>Total active liquidity = sum of the colored positions</div>
+  <div class="amm-plot" role="img" aria-label="Stacked liquidity from five illustrative LP positions and their aggregate liquidity across prices"><p class="amm-loading">Loading interactive chart…</p></div>
+  <dl class="amm-readout liquidity-readout" aria-live="polite" aria-atomic="true"></dl>
+  <p class="amm-status liquidity-active-names"></p>
+  <p class="amm-assumptions">Illustrative positions, not market data. Each bar spans a 1 bp price bin (not an exact protocol tick). Height is active liquidity L in arbitrary units, not token reserves or dollar value. Price is USDT per USDC, shown as basis points from 1. A position contributes its L only inside its range; this example uses lower-inclusive, upper-exclusive bounds. Moving the marker inspects a price; it does not simulate a swap through a liquidity gap.</p>
+  <noscript><p>At parity, User A, User C and User D contribute 1.5 + 4 + 6 = 11.5 liquidity units. User B and User E cover prices further from the peg.</p></noscript>
+</figure>

@@ -1,0 +1,22 @@
+<figure class="shape-explorer" data-shape="polynomial" aria-labelledby="polynomial-title">
+  <figcaption><span class="shape-number">03 / Compress the shape</span><strong id="polynomial-title">Five scores. A family of liquidity curves.</strong><span class="shape-tag">Gegenbauer · λ = 0.4</span></figcaption>
+  <div class="shape-selects">
+    <label for="poly-preset">Starting shape<select id="poly-preset"><option value="peak">Concentrated at peg</option><option value="tilt">Tilted toward higher USDC prices</option><option value="shoulder">Asymmetric shoulder</option><option value="flat">Flat baseline</option></select></label>
+    <label for="poly-degree">Reconstruction degree<select id="poly-degree"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option></select></label>
+    <button type="button" id="poly-reset">Reset shape</button>
+  </div>
+  <div class="shape-polynomial-grid">
+    <fieldset class="shape-scores"><legend>Log-liquidity scores</legend>
+      <label for="poly-1"><span>a₁ · broad tilt</span><output for="poly-1"></output><input id="poly-1" data-degree="1" type="range" min="-0.5" max="0.5" step="0.01" value="0"></label>
+      <label for="poly-2"><span>a₂ · center versus wings</span><output for="poly-2"></output><input id="poly-2" data-degree="2" type="range" min="-0.5" max="0.5" step="0.01" value="-0.5"></label>
+      <label for="poly-3"><span>a₃ · asymmetric bend</span><output for="poly-3"></output><input id="poly-3" data-degree="3" type="range" min="-0.5" max="0.5" step="0.01" value="0"></label>
+      <label for="poly-4"><span>a₄ · symmetric shoulders</span><output for="poly-4"></output><input id="poly-4" data-degree="4" type="range" min="-0.5" max="0.5" step="0.01" value="0.15"></label>
+      <label for="poly-5"><span>a₅ · finer asymmetric shape</span><output for="poly-5"></output><input id="poly-5" data-degree="5" type="range" min="-0.5" max="0.5" step="0.01" value="0"></label>
+    </fieldset>
+    <div class="shape-plot" role="img" aria-label="Liquidity reconstructed from five adjustable Gegenbauer coefficients, compared with a flat baseline"><p>Loading interactive chart…</p></div>
+  </div>
+  <dl class="shape-readout" aria-live="polite" aria-atomic="true"></dl>
+  <p class="shape-status">Odd degrees change left–right structure; even degrees change symmetric concentration. Higher degrees add more bends, not separate price forecasts.</p>
+  <p class="shape-note">Synthetic reconstruction on u = bps / 100. Bₙ(u) = Cₙ⁽⁰·⁴⁾(u) / Cₙ⁽⁰·⁴⁾(1); g(u) = 3 + ΣaₙBₙ(u); L(u) = Lref[exp(g(u)) − 1], with Lref = 100 million / [exp(3) − 1]. The fixed baseline and bounded scores keep L positive. These endpoint-normalized demonstration scores are not interchangeable with coefficients fitted using other normalizations or windows. A smooth approximation cannot preserve every tick-level gap.</p>
+  <noscript><p>Degree one tilts the log-liquidity curve. Degree two changes center-versus-wings concentration; odd degrees three and five add asymmetric detail, and degree four adds symmetric detail.</p></noscript>
+</figure>

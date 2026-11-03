@@ -1,0 +1,13 @@
+<figure class="shape-explorer" data-shape="fees" aria-labelledby="fee-title">
+  <figcaption><span class="shape-number">01 / LP incentives</span><strong id="fee-title">Coverage or concentration?</strong><span class="shape-tag">Illustrative positions</span></figcaption>
+  <p class="shape-intro">Your starting capital stays at 100,000 USDC + 100,000 USDT. Narrow your range, then move the price outside it.</p>
+  <div class="shape-controls">
+    <label for="fee-width">Upper range bound from peg <output for="fee-width"></output><input id="fee-width" type="range" min="5" max="100" step="1" value="30"></label>
+    <label for="fee-price">Price from peg <output for="fee-price"></output><input id="fee-price" type="range" min="-100" max="100" step="1" value="0"></label>
+  </div>
+  <div class="shape-plot" role="img" aria-label="Your LP position stacked on other LP positions across USDC prices"><p>Loading interactive chart…</p></div>
+  <dl class="shape-readout" aria-live="polite" aria-atomic="true"></dl>
+  <p class="shape-status"></p>
+  <p class="shape-note">Other LPs supply a fixed L = 100 million across the displayed window. Bounds use continuous prices rather than exact protocol ticks, and are reciprocal around 1; the lower bound is slightly closer to parity. The fee example allocates a hypothetical 100-token LP fee pot at the selected price, after any protocol allocation. It assumes the price stays in this segment, and excludes rebalancing costs and inventory losses. L is liquidity, not dollars.</p>
+  <noscript><p>Narrower ranges give more active liquidity for the same starting capital. Outside your range, your active share and fee allocation are zero.</p></noscript>
+</figure>

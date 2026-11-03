@@ -147,8 +147,10 @@ The simplest system one can use is 3 AR(0) time series.
 
 The trajectory does not reveal any structure as expected, showing the trajectory of a 3D-random walk. Given enough time, the trajectory would explore every possible positions.
 
-<iframe src="https://ochaff.github.io/figures/3d_random_walk.html"
-        width="100%" height="700" frameborder="0"></iframe>
+{% include phase-figure.html
+   id="random-walk-phase" number="01" file="3d_random_walk.html"
+   title="Unconstrained random walk"
+   caption="Three independent signals explore three-dimensional space." %}
 
 ---
 ## Hierarchical time series
@@ -177,8 +179,10 @@ $$
 
 While nothing special appears when looking at the time series, the 3D trajectory quickly reveals the structure. 
 
-<iframe src="https://ochaff.github.io/figures/hierarchical_ts.html"
-        width="100%" height="700" frameborder="0"></iframe>
+{% include phase-figure.html
+   id="hierarchy-phase" number="02" file="hierarchical_ts.html"
+   title="A hierarchy in phase space"
+   caption="Rotate the trajectory to see how it lies on the plane z = x + y." %}
 
 The hierarchy constrains the trajectory to the plane $z=x+y$ thus the system as whole only lives in **2 dimensions**. 
 
@@ -191,8 +195,11 @@ In order to visualize the necessity for hierarchical reconciliation, let us firs
 
 At first glance the forecast looks good, which is to be expected given the simple data we generated. However looking again at the trajectory, one can immediately view the incoherence. The ARIMA forecast is made of values the system **cannot be in**. Thus appears the reason why forecast reconciliation is useful, and often results in **improvement in performance**. 
 
-<iframe src="https://ochaff.github.io/figures/forecast_reconciliation.html"
-        width="100%" height="700" frameborder="0"></iframe>
+{% include phase-figure.html
+   id="reconciliation-phase" number="03" file="forecast_reconciliation.html"
+   title="Bringing forecasts back into coherence"
+   caption="Compare the base forecast with Bottom-Up and GTOP reconciliation. Click a legend entry to toggle a series."
+   reconciliation=true %}
 
 This interactive plot visually shows two common hierarchical reconciliation methods namely **Bottom-Up** and **GTOP** or projection based reconciliation.
 

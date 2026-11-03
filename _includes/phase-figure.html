@@ -1,0 +1,17 @@
+{% assign figure_url = '/figures/' | append: include.file | relative_url %}
+<figure class="phase-figure" id="{{ include.id }}" aria-labelledby="{{ include.id }}-title">
+  <div class="phase-figure-header">
+    <div>
+      <span class="phase-figure-kicker">{{ include.number }} / Interactive phase space</span>
+      <strong id="{{ include.id }}-title">{{ include.title }}</strong>
+    </div>
+    <a href="{{ figure_url }}" target="_blank" rel="noopener" aria-label="Open {{ include.title | escape }} in a new tab">Open plot <span aria-hidden="true">↗</span></a>
+  </div>
+  <iframe class="phase-figure-frame{% if include.reconciliation %} phase-figure-frame-comparison{% endif %}"
+          src="{{ figure_url }}" title="{{ include.title | escape }} — interactive 3D plot"
+          loading="lazy" aria-describedby="{{ include.id }}-caption"></iframe>
+  <figcaption id="{{ include.id }}-caption">
+    <span>{{ include.caption }}</span>
+    <span class="phase-figure-hint">Drag to rotate · Toolbar to zoom</span>
+  </figcaption>
+</figure>

@@ -1,0 +1,87 @@
+.post-content mjx-container[display="true"] { max-width:100%; overflow-x:auto; overflow-y:hidden; padding-block:8px; }
+.shape-explorer { margin:38px 0; padding:26px; border:1px solid var(--line); border-radius:12px; background:var(--paper); min-width:0; }
+.shape-explorer figcaption { display:flex; align-items:baseline; gap:9px 18px; flex-wrap:wrap; margin-bottom:20px; }
+.shape-number { flex-basis:100%; color:var(--blue); font:500 .65rem/1.4 "DM Mono",monospace; letter-spacing:.06em; text-transform:uppercase; }
+.shape-explorer figcaption strong { font:500 1.35rem/1.2 "Space Grotesk",system-ui,sans-serif; letter-spacing:-.04em; }
+.shape-tag { color:var(--muted); font-size:.7rem; margin-left:auto; }
+.shape-explorer .shape-intro { color:var(--muted); font-size:.87rem; margin:0 0 20px; }
+.shape-controls,.shape-selects { display:flex; align-items:end; gap:18px 28px; flex-wrap:wrap; }
+.shape-controls label { flex:1; min-width:200px; }
+.shape-explorer label { color:var(--muted); font-size:.76rem; }
+.shape-controls label,.shape-volume,.shape-scores label { display:grid; grid-template-columns:1fr auto; gap:6px 12px; }
+.shape-explorer input[type=range] { width:100%; grid-column:1/-1; accent-color:var(--blue); margin:9px 0; cursor:pointer; }
+.shape-explorer output { font-variant-numeric:tabular-nums; color:var(--blue); font-weight:600; }
+.shape-selects { margin-bottom:22px; }
+.shape-selects > label:not(.shape-checkbox) { display:grid; gap:7px; max-width:100%; }
+.shape-explorer select,.shape-explorer button { padding:9px 12px; border:1px solid var(--line); border-radius:5px; background:var(--paper); color:var(--ink); font:inherit; font-size:.76rem; max-width:100%; }
+.shape-explorer button { cursor:pointer; }
+.shape-explorer button:hover { border-color:var(--blue); color:var(--blue); }
+.shape-explorer :is(input,select,button):focus-visible { outline:2px solid var(--blue); outline-offset:4px; }
+.shape-checkbox { display:flex; align-items:center; gap:7px; padding-bottom:10px; }
+.shape-checkbox input { accent-color:var(--blue); }
+.shape-volume { margin-top:10px; }
+.shape-volume output { text-align:right; }
+.shape-sweep-controls { display:flex; align-items:end; flex-wrap:wrap; gap:12px; }
+.shape-sweep-controls label { display:grid; gap:7px; }
+.shape-sweep-controls #impact-sweep { min-width:120px; color:var(--blue); border-color:var(--blue); }
+.shape-sweep-controls #impact-sweep[data-playing=true] { color:var(--paper); background:var(--blue); }
+.shape-explorer .shape-sweep-instructions { margin:14px 0 18px; color:var(--muted); font-size:.73rem; line-height:1.55; }
+.shape-explorer .shape-local-response { margin:15px 0 0; color:var(--blue); font-size:.75rem; font-variant-numeric:tabular-nums; }
+.shape-directions { display:flex; justify-content:space-between; gap:16px; font-size:.67rem; color:var(--muted); }
+.shape-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:26px; }
+.shape-chart-grid > div,.shape-polynomial-grid > div { min-width:0; }
+.shape-explorer .shape-chart-label { margin:0; font-size:.73rem; font-weight:600; color:var(--ink); }
+.shape-plot { height:340px; min-width:0; margin-top:12px; }
+.shape-chart-grid .shape-plot { height:310px; }
+.shape-plot > p { font-size:.8rem; color:var(--muted); padding:30px; }
+.shape-readout { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; border-top:1px solid var(--line); margin:18px 0 0; padding-top:18px; }
+.shape-readout dt { color:var(--muted); font-size:.68rem; font-weight:400; }
+.shape-readout dd { margin:6px 0 0; font-size:1.08rem; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+.shape-explorer .shape-status { margin:18px 0 0; color:var(--muted); font-size:.81rem; line-height:1.55; }
+.shape-explorer .shape-note { margin:16px 0 0; color:var(--muted); font-size:.68rem; line-height:1.65; }
+.shape-polynomial-grid { display:grid; grid-template-columns:240px minmax(0,1fr); gap:24px; }
+.shape-scores { padding:0; border:0; margin:0; min-width:0; }
+.shape-scores legend { font-size:.68rem; color:var(--muted); margin-bottom:16px; }
+.shape-scores label { margin-bottom:12px; font-size:.7rem; }
+.shape-scores label:has(input:disabled) { opacity:.45; }
+.shape-scores input:disabled { cursor:default; }
+.shape-polynomial-grid .shape-plot { height:380px; margin-top:0; }
+.shape-daily-history { scroll-margin-top:90px; }
+.shape-history-controls { display:flex; align-items:end; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+.shape-history-controls label { display:grid; gap:7px; }
+.shape-history-controls input[type=date] { font:inherit; font-size:.76rem; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:5px; padding:8px 10px; }
+.shape-history-controls #history-play { min-width:110px; color:var(--blue); border-color:var(--blue); }
+.shape-history-controls #history-play[data-playing=true] { color:var(--paper); background:var(--blue); }
+.shape-history-controls :disabled { opacity:.45; cursor:default; }
+.shape-history-charts { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:24px; margin-top:16px; }
+.shape-history-charts > div { min-width:0; }
+.shape-history-charts .shape-plot { height:360px; }
+.shape-history-scale { margin-top:12px; }
+.shape-history-scale .shape-checkbox { font-size:.7rem; }
+.shape-history-method { margin-top:20px; color:var(--muted); font-size:.74rem; line-height:1.65; }
+.shape-history-method summary { color:var(--blue); cursor:pointer; }
+.shape-history-method p { margin:12px 0 0; }
+.shape-history-method a { color:var(--blue); }
+@media(max-width:850px) {
+  .shape-history-charts { grid-template-columns:1fr; }
+  .shape-history-charts .shape-plot { height:300px; }
+  .shape-chart-grid { grid-template-columns:1fr; }
+  .shape-chart-grid .shape-plot { height:280px; }
+  .shape-polynomial-grid { grid-template-columns:1fr; }
+  .shape-scores { display:grid; grid-template-columns:1fr 1fr; gap:0 22px; }
+  .shape-polynomial-grid .shape-plot { height:310px; }
+}
+@media(max-width:540px) {
+  .shape-explorer { padding:18px 12px; margin:28px 0; }
+  .shape-explorer figcaption strong { font-size:1.14rem; }
+  .shape-tag { margin-left:0; }
+  .shape-controls label { min-width:100%; }
+  .shape-selects { gap:14px; }
+  .shape-volume { grid-template-columns:1fr; }
+  .shape-volume output { text-align:left; }
+  .shape-directions { font-size:.58rem; gap:8px; }
+  .shape-readout { grid-template-columns:1fr 1fr; gap:16px 10px; }
+  .shape-readout dd { font-size:.93rem; }
+  .shape-scores { grid-template-columns:1fr; }
+  .shape-plot { height:300px; }
+}

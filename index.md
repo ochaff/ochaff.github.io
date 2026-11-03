@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Owen Chaffard
+home_monitor: true
 ---
 
 <section class="hero" aria-labelledby="intro-title">
@@ -19,17 +20,19 @@ title: Owen Chaffard
 
 <section class="live-section" id="monitor" aria-labelledby="monitor-title">
   <div class="section-kicker"><span class="live-pulse" aria-hidden="true"></span> Live deployment / dashboard</div>
-  <a class="live-card" href="{{ '/depeg-monitor.html' | relative_url }}">
+  <a class="live-card ammonitor-card" href="{{ '/depeg-monitor-ida.html' | relative_url }}" data-monitor-src="{{ '/dashboard_data/rf_results.json' | relative_url }}" data-asset-base="{{ '/assets/ammonitor/' | relative_url }}">
     <div class="live-card-copy">
-      <p class="eyebrow">Stablecoin risk intelligence</p>
-      <h2 id="monitor-title">Depeg monitor</h2>
-      <p>Track onchain liquidity conditions and model-based depeg risk signals across stablecoin markets.</p>
-      <span class="card-link">Explore the live dashboard <span aria-hidden="true">→</span></span>
+      <div class="home-monitor-brand"><img src="{{ '/assets/ammonitor/ammonitor-logo.png' | relative_url }}" width="54" height="44" alt=""><h2 id="monitor-title">AM<span>Monitor</span></h2></div>
+      <p class="home-monitor-pair">USDC / USDT · Ethereum · Uniswap v3</p>
+      <p>Follow depeg probability, liquidity conditions and 24-hour price forecasts in one monitor.</p>
+      <span class="card-link">Open AMMonitor <span aria-hidden="true">↗</span></span>
     </div>
-    <div class="home-risk" aria-label="Live 24-hour depeg probability">
-      <span class="home-risk-kicker">24H DEPEG PROBABILITY</span>
-      <div class="risk-orb" id="home-risk-orb"><div class="risk-orb-inner"><strong class="risk-orb-value" id="home-risk-value">—</strong><span class="risk-orb-label">next 24 h</span></div></div>
-      <span class="home-risk-meta" id="home-risk-meta">Loading live model output</span>
+    <div class="home-monitor-snapshot" aria-label="Latest AMMonitor snapshot">
+      <div class="home-monitor-top"><span>Depeg probability · next 24h</span><span class="home-monitor-band" id="home-risk-band">Awaiting data</span></div>
+      <strong id="home-risk-value">—</strong>
+      <p class="home-monitor-target">Any ±15 bps breach in the next 24 hours</p>
+      <div class="home-monitor-token"><span>Token at risk</span><strong id="home-risk-token">—</strong></div>
+      <p id="home-risk-meta" class="home-monitor-meta" aria-live="polite">Loading latest model output…</p>
     </div>
   </a>
 </section>
@@ -85,20 +88,4 @@ title: Owen Chaffard
 
 <section class="contact-band" aria-label="Get in touch"><p>Interested in research, data, or a good forecasting problem?</p><div><a href="https://www.linkedin.com/in/{{ site.linkedin_username }}/" rel="me">LinkedIn <span aria-hidden="true">↗</span></a><a href="mailto:{{ site.email }}">{{ site.email }} <span aria-hidden="true">↗</span></a></div></section>
 
-<script>
-  (function () {
-    fetch("{{ '/dashboard_data/rf_results.json' | relative_url }}?v=" + Date.now())
-      .then(function (response) { if (!response.ok) throw new Error('Live data unavailable'); return response.json(); })
-      .then(function (data) {
-        if (data.calibrated !== true) {
-          document.getElementById('home-risk-meta').textContent = 'Model recalibration pending';
-          return;
-        }
-        var probability = Math.max(0, Math.min(1, Number(data.probability)));
-        document.getElementById('home-risk-orb').style.setProperty('--risk', (probability * 360) + 'deg');
-        document.getElementById('home-risk-value').textContent = (probability * 100).toFixed(1) + '%';
-        document.getElementById('home-risk-meta').textContent = 'Calibrated ±' + (data.target_threshold_bps || 15) + ' bps risk · ' + (probability >= .55 ? 'elevated' : probability >= .25 ? 'moderate' : 'low');
-      })
-      .catch(function () { document.getElementById('home-risk-meta').textContent = 'Live data temporarily unavailable'; });
-  }());
-</script>
+<script src="{{ '/assets/ammonitor/home-monitor.js' | relative_url }}" defer></script>

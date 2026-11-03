@@ -1,0 +1,26 @@
+<figure class="shape-explorer shape-daily-history" id="v3-daily-history" data-v3-history data-history-url="{{ '/assets/amm/v3-daily-history.json' | relative_url }}" aria-labelledby="daily-history-title">
+  <figcaption><span class="shape-number">04 / Real pool data</span><strong id="daily-history-title">USDC / USDT, day by day</strong><span class="shape-tag">Ethereum · Uniswap v3 · 0.01%</span></figcaption>
+  <p class="shape-intro" data-history-summary>Loading daily snapshots from the published dataset…</p>
+  <div class="shape-history-controls">
+    <label for="history-period">Period<select id="history-period" disabled><option value="stress">March 2023</option><option value="recent">Latest 90 days in this release</option><option value="all">Full daily history</option></select></label>
+    <label for="history-date">Snapshot date · 00:00 UTC<input id="history-date" type="date" disabled></label>
+    <button type="button" id="history-prev" aria-label="Previous daily snapshot" disabled>← Day</button>
+    <button type="button" id="history-play" disabled>Play days</button>
+    <button type="button" id="history-next" aria-label="Next daily snapshot" disabled>Day →</button>
+    <label for="history-speed">Playback<select id="history-speed" disabled><option value="500">2 days / second</option><option value="125">8 days / second</option></select></label>
+  </div>
+  <label class="shape-volume" for="history-day">Daily snapshot <output for="history-day"></output><input id="history-day" type="range" min="0" max="0" step="1" value="0" disabled></label>
+  <div class="shape-history-scale"><label class="shape-checkbox"><input id="history-fixed-scale" type="checkbox" disabled> Hold liquidity scale fixed across the selected period</label></div>
+  <div class="shape-history-charts">
+    <div><p class="shape-chart-label">Liquidity distribution · AMMonitor view</p><div class="shape-plot" data-history-chart="curve" role="img" aria-label="Stacked USDC and USDT liquidity-value bars across the peg-centered price grid"><p>Loading historical liquidity…</p></div></div>
+    <div><p class="shape-chart-label">Gegenbauer scores · degrees 1–5</p><div class="shape-plot" data-history-chart="scores" role="img" aria-label="Five signed coefficients fitted to the same day's log active-liquidity curve"><p>Loading historical coefficients…</p></div></div>
+  </div>
+  <dl class="shape-readout" aria-live="polite" aria-atomic="true"></dl>
+  <p class="shape-status" data-history-status></p>
+  <p class="shape-note">The left chart uses AMMonitor's stacked USDC / USDT bars, colors, peg line and dashed active-bin marker. It shows token value per price bin, rather than raw L. The dataset values both tokens at $1: these are face-value dollars, not depeg-adjusted market values. Liquidity-axis scaling follows each day by default; the score-axis scale stays fixed within the selected period. An active price outside the displayed grid is explicitly flagged.</p>
+  <details class="shape-history-method"><summary>Data source and score definitions</summary>
+    <p>One actual 00:00 UTC snapshot per day from <a href="https://github.com/MSCA-DN-Digital-Finance/stablecoin-onchain-data/releases/tag/data-2026-11-03" target="_blank" rel="noopener">dataset release data-2026-11-03</a>. No daily averaging, interpolation or forward-filling. <a href="{{ '/assets/amm/v3-daily-history.json' | relative_url }}" download>Download the daily extract and provenance</a>.</p>
+    <p>Both panels use the same date and block. The curve uses usd_token0 and usd_token1 on the source priceMid grid. The price estimate is 1.0001 raised to poolTick, so it is tick-rounded. Scores fit log(1 + active_liquidity_L), in the original dataset units, on u = tickLower / 50, using λ = 0.4 and Bₙ(u) = Cₙ⁽⁰·⁴⁾(u) / Cₙ⁽⁰·⁴⁾(1). Degrees 0–5 are fitted jointly by ordinary least squares; the chart omits degree 0. There is no time centering. These descriptive scores use the post's basis normalization and are distinct from AMMonitor's centered, weighted-normalized model features.</p>
+  </details>
+  <noscript><p>Enable JavaScript to scrub the daily history and play the synchronized charts. The linked extract contains the real daily curves, scores and source hashes.</p></noscript>
+</figure>

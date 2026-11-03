@@ -1,0 +1,21 @@
+.ammonitor-card { --monitor-risk:#054476; border-top:3px solid #054476; border-radius:12px; padding:34px 38px; gap:36px; background:#fff; color:#17384f; }
+.home-monitor-brand { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.home-monitor-brand img { object-fit:contain; flex:none; }
+.live-card .home-monitor-brand h2 { font-size:clamp(2rem,4vw,3rem); letter-spacing:-.065em; color:#054476; margin:0; }
+.home-monitor-brand h2 span { color:#DB3549; }
+.ammonitor-card .home-monitor-pair { font-size:.7rem!important; letter-spacing:.035em; margin-bottom:12px!important; color:#054476!important; }
+.ammonitor-card .card-link { color:#054476; }
+.home-monitor-snapshot { padding:22px 24px; background:#f6f9fc; border:1px solid #dce6ed; border-radius:9px; }
+.home-monitor-top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:.7rem; color:#61798b; }
+.home-monitor-band { border-radius:4px; padding:4px 7px; color:var(--monitor-risk); background:#fff; font-weight:600; }
+.home-monitor-snapshot > strong { display:block; margin:18px 0 6px; font:700 3.6rem/1 "Space Grotesk",sans-serif; letter-spacing:-.06em; color:var(--monitor-risk); }
+.home-monitor-target { color:#61798b; font-size:.72rem; margin:0 0 21px; }
+.home-monitor-token { display:flex; align-items:center; justify-content:space-between; gap:10px; border-top:1px solid #dce6ed; padding-top:14px; font-size:.77rem; color:#61798b; }
+.home-monitor-token strong { display:flex; align-items:center; gap:7px; color:#054476; font-weight:650; }
+.home-monitor-token img { width:21px; height:21px; object-fit:contain; }
+.home-monitor-meta { font-size:.61rem; color:#61798b; line-height:1.6; margin:14px 0 0; }
+.ammonitor-card[data-risk=elevated] { --monitor-risk:#986610; }
+.ammonitor-card[data-risk=high] { --monitor-risk:#DB3549; }
+.ammonitor-card[data-risk=critical] { --monitor-risk:#9b2436; }
+.ammonitor-card:focus-visible { outline:3px solid #054476; outline-offset:4px; }
+@media(max-width:700px) { .ammonitor-card { padding:24px 20px; gap:24px; } .home-monitor-snapshot { padding:19px; } }

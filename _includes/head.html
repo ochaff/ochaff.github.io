@@ -11,6 +11,21 @@
 
   <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
   <link rel="stylesheet" type="text/css" href="{{ '/css/override.css' | relative_url }}">
+  {% if page.home_monitor %}<link rel="stylesheet" href="{{ '/assets/ammonitor/home-monitor.css' | relative_url }}">{% endif %}
+  {% if page.amm_explorers %}
+  <link rel="stylesheet" href="{{ '/assets/amm/explorers.css' | relative_url }}">
+  <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script defer src="{{ '/assets/amm/explorers.js' | relative_url }}"></script>
+  <script defer src="{{ '/assets/amm/liquidity-positions.js' | relative_url }}"></script>
+  {% endif %}
+
+  {% if page.v3_liquidity_explorers %}
+  <link rel="stylesheet" href="{{ '/assets/amm/liquidity-shape.css' | relative_url }}">
+  <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script defer src="{{ '/assets/amm/liquidity-shape-math.js' | relative_url }}"></script>
+  <script defer src="{{ '/assets/amm/liquidity-shape.js' | relative_url }}"></script>
+  <script defer src="{{ '/assets/amm/liquidity-history.js' | relative_url }}"></script>
+  {% endif %}
 
   {% feed_meta %}
 

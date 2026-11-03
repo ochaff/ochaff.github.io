@@ -1,0 +1,24 @@
+<figure class="shape-explorer" data-shape="impact" aria-labelledby="impact-title">
+  <figcaption><span class="shape-number">02 / Trade through the curve</span><strong id="impact-title">Same price. Different resilience.</strong><span class="shape-tag">Synthetic pool profiles</span></figcaption>
+  <div class="shape-selects">
+    <label for="impact-profile">Liquidity shape<select id="impact-profile"><option value="global">Global imbalance · balanced near peg</option><option value="local">Globally balanced · local asymmetry</option><option value="thin">Globally balanced · thin at peg</option><option value="concentrated">Concentrated at peg · thin tails</option><option value="balanced">Balanced reference</option></select></label>
+    <label class="shape-checkbox"><input id="impact-reference" type="checkbox" checked> Show balanced reference</label>
+  </div>
+  <div class="shape-sweep-controls">
+    <label for="impact-direction">Sweep direction<select id="impact-direction"><option value="1">Sell USDC · price falls</option><option value="-1">Sell USDT · price rises</option></select></label>
+    <button type="button" id="impact-sweep" aria-controls="impact-volume">Sweep swaps</button>
+    <button type="button" id="impact-reset">Reset to peg</button>
+  </div>
+  <p class="shape-sweep-instructions">The sweep increases swap input by 120,000 tokens per second. Watch the price marker speed up where liquidity becomes thinner. Each frame is a larger swap starting at the peg.</p>
+  <label class="shape-volume" for="impact-volume">Signed swap input <output for="impact-volume"></output><input id="impact-volume" type="range" min="-1200000" max="1200000" step="1000" value="0"></label>
+  <div class="shape-directions"><span>← Sell USDT · USDC rises</span><span>Sell USDC · USDC falls →</span></div>
+  <p class="shape-local-response"></p>
+  <div class="shape-chart-grid">
+    <div><p class="shape-chart-label">Liquidity encountered along the price axis</p><div class="shape-plot" data-chart="liquidity" role="img" aria-label="Selected liquidity profile with the peg and post-swap price marked"><p>Loading interactive chart…</p></div></div>
+    <div><p class="shape-chart-label">Post-swap marginal price versus input size</p><div class="shape-plot" data-chart="impact" role="img" aria-label="Swap impact curve compared with the tangent at zero and a balanced reference"><p>Loading interactive chart…</p></div></div>
+  </div>
+  <dl class="shape-readout" aria-live="polite" aria-atomic="true"></dl>
+  <p class="shape-status"></p>
+  <p class="shape-note">Illustrative USDC/USDT profiles, not an onchain snapshot. All five have the same ∫L(p)dp over ±100 bps; this does not imply equal TVL or token inventory. Swaps start at p = 1, traverse 1 bp constant-L bins using exact square-root-price updates, and omit fees, gas, routing, arbitrage and LP changes. Input is USDT on the negative side and USDC on the positive side; these are token amounts, not an assumed dollar valuation. Sweeps stop at the modeled window boundary. The concentrated profile illustrates a StableSwap-like price response using V3 liquidity; it does not implement the StableSwap invariant.</p>
+  <noscript><p>A skew in distant liquidity can leave small-swap impact unchanged. A pool with balanced total liquidity can still have a thin or asymmetric region near the peg.</p></noscript>
+</figure>

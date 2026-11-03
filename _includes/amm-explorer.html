@@ -1,0 +1,14 @@
+<figure class="amm-explorer" data-amm="{{ include.kind }}" aria-labelledby="{{ include.kind }}-title">
+  <figcaption id="{{ include.kind }}-title"><span class="amm-number">{{ include.number }}</span><strong>{{ include.title }}</strong><span class="amm-tag">Interactive example</span></figcaption>
+  <div class="amm-controls">
+    <label class="amm-trade" for="{{ include.kind }}-trade">Sell USDC <output for="{{ include.kind }}-trade">100 USDC</output><input id="{{ include.kind }}-trade" data-control="trade" type="range" min="0" max="1200" step="10" value="100"></label>
+    {% if include.kind == 'stable' %}<label for="stable-amplification">Amplification A<select id="stable-amplification" data-control="parameter"><option value="1">1</option><option value="10">10</option><option value="100" selected>100</option><option value="1000">1,000</option></select></label>{% endif %}
+    {% if include.kind == 'v3' %}<label for="v3-range">Price range<select id="v3-range" data-control="parameter"><option value="10">1 / 1.001 to 1.001</option><option value="50" selected>1 / 1.005 to 1.005</option><option value="100">1 / 1.01 to 1.01</option><option value="500">1 / 1.05 to 1.05</option></select></label>{% endif %}
+    <label for="{{ include.kind }}-view">Plot<select id="{{ include.kind }}-view" data-control="view"><option value="reserves">Pool reserves</option><option value="price">Marginal price (bps)</option></select></label>
+  </div>
+  <div class="amm-plot" role="img" aria-label="{{ include.title }}: reserve curve and selected swap; change the controls to explore price impact"><p class="amm-loading">Loading interactive chart…</p></div>
+  <dl class="amm-readout" aria-live="polite" aria-atomic="true"></dl>
+  <p class="amm-status"></p>
+  <p class="amm-assumptions">Starts with 1,000 USDC + 1,000 USDT at a 1:1 quote. No fees, gas, arbitrage or liquidity changes. {% if include.kind == 'v3' %}One position only; trades stop at its range boundary. Continuous prices approximate discrete ticks.{% else %}Token units are normalized to the same decimals.{% endif %}</p>
+  <noscript><p>Enable JavaScript to explore the chart. The worked example and equations in the text explain the same mechanism.</p></noscript>
+</figure>
