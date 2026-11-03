@@ -7,6 +7,10 @@ so a changed dataset cannot silently publish a misleading tooltip.
 from __future__ import annotations
 
 import re
+import hashlib
+from pathlib import Path
+
+PREPROCESSING_SOURCE_HASH = hashlib.sha256(Path(__file__).with_name("build_dataset.py").read_bytes()).hexdigest()
 
 COLLECTION_COMMIT = '5301eb5c5b767329a0ed08c5bed68296b00f0fcb'
 PREPROCESSING_COMMIT = 'a8422954fbfb38c482fd638a32313bf1f1365989'
@@ -114,6 +118,15 @@ def feature_dictionary(names):
             'tickLower/50 is clipped to [−1,1]; liquidity is summed by clipped tick and empty cells are zero. '
             'The fit uses an equally spaced grid across the resulting columns, degrees 0–7, and no time centering. '
             'These are basis coefficients, not USD balances or principal components.')
+    for name, definition in definitions.items():
+        if name.startswith('Gegenbauer_0.1_deg'):
+            definition['preprocessing_revision'] = None
+            definition['preprocessing_sha256'] = PREPROCESSING_SOURCE_HASH
+            definition['formula'] = 'B = (log1p(L) − training mean curve) W Φ (Φᵀ W Φ + 1e−10 I)⁻¹'
+            definition['notes'] = ('Weighted least squares on the equally spaced peg-centered grid, degrees 0–7, '
+                                   'with a weighted-normalized basis and trapezoidal Gegenbauer weights. '
+                                   'The mean curve is fitted only through the RF feature-fitting cutoff and held fixed. '
+                                   'These are basis coefficients, not USD balances or principal components.')
     energy = {'total': list(range(8)), 'shape': list(range(1, 8)), 'odd': [1, 3, 5, 7],
               'even': [2, 4, 6], 'low': [1, 2], 'mid': [3, 4], 'high': [5, 6, 7]}
     for group, degrees in energy.items():
@@ -173,6 +186,11 @@ def feature_dictionary(names):
         'update_3CRV_events.py', 'add_liq_ownership_features',
         'Legacy share name is misleading: numerator is LP tokens, denominator is USD, and initial inventory '
         'before the sample is not included. This is not a true ownership percentage.')
+    if any(name.startswith('Gegenbauer_0.1_deg') for name in names):
+        for name, definition in definitions.items():
+            if name.startswith('E_'):
+                definition['notes'] = ('Coefficient-energy proxy from the weighted-normalized basis; '
+                                       'not an integrated liquidity value or USD quantity.')
     unknown = set(names) - definitions.keys()
     if unknown:
         raise ValueError(f'Feature dictionary missing audited definitions: {sorted(unknown)}')

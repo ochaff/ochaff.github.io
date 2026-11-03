@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from monitor_models import (monitoring_labels, hourly_prices, monitoring_bounds,
                             monitoring_level, feature_catalog, garch_forecast, HORIZON)
 from feature_dictionary import feature_dictionary
+from ale import accumulated_local_effects
 
 
 def _display(col):
@@ -34,7 +35,7 @@ NOTABLE_COLS = [
     "tvlUSD_100", "net_amountUSD_100", "swap_count_100",
     "w_USDC", "w_USDT", "w_DAI",
     "curve_entropy",
-    "Gegenbauer_0.4_deg0", "Gegenbauer_0.4_deg1", "Gegenbauer_0.4_deg2",
+    "Gegenbauer_0.1_deg0", "Gegenbauer_0.1_deg1", "Gegenbauer_0.1_deg2",
     "hhi_24h_rolling_mean",
     "tick_width_24h_rolling_median",
     "utilisation_rate_usdt", "utilisation_rate_usdc",
@@ -45,9 +46,16 @@ NOTABLE_COLS = [
 
 def build_or_load(dataset_path, alpha, **kwargs):
     os.makedirs(dataset_path, exist_ok=True)
-    from build_dataset import build_dataset
-    path = build_dataset(dataset_path=dataset_path, alpha=alpha, **kwargs)
+    from build_dataset import build_dataset, add_forecasting_target, load_uniswap_metrics
+    raw_prices = hourly_prices(add_forecasting_target(use_log_price=False))
+    reference = raw_prices.reindex(pd.to_datetime(load_uniswap_metrics().index, utc=True))
+    cutoff = monitoring_bounds(reference)['train'][1] - pd.Timedelta(hours=HORIZON)
+    path = build_dataset(dataset_path=dataset_path, alpha=alpha, train_pct=.70,
+                         last_date=None, feature_fit_end=cutoff, **kwargs)
     df = pd.read_parquet(path)
+    # The forecasting builder fills prices. Monitoring labels must retain gaps.
+    df.index = pd.to_datetime(df.index, utc=True)
+    df['depeg_bps'] = raw_prices.reindex(df.index)
     return df
 
 
@@ -55,9 +63,12 @@ TARGET_THRESHOLD_BPS = 15
 TARGET_WINDOW_HOURS = 24
 
 
-def train_and_explain(df, alpha):
+def train_and_explain(df, alpha, *, ale_bins=30, ale_bootstraps=300, ale_block_hours=168):
     # Preserve every realized hour and the latest live observation separately
     # from the mature, uncensored rows available for supervised fitting.
+    coefficients = [c for c in df if c.startswith('Gegenbauer_') and '_deg' in c]
+    if any(not c.startswith(f'Gegenbauer_{alpha}_deg') for c in coefficients):
+        raise ValueError(f'Dataset Gegenbauer alpha does not match requested alpha={alpha}')
     df = df.copy()
     df.index = pd.to_datetime(df.index, utc=True)
     df = df.sort_index()
@@ -209,6 +220,13 @@ def train_and_explain(df, alpha):
         for ts, v in hist_df["depeg_bps"].items()
     ]
 
+    print('Computing calibrated-probability ALE and 95% block-bootstrap intervals…', flush=True)
+    ale = accumulated_local_effects(
+        model, X.iloc[:-1], bins=ale_bins, bootstrap_replicates=ale_bootstraps,
+        block_hours=ale_block_hours, timestamp=df.index[-1],
+        progress=lambda message: print(message, flush=True),
+    )
+
     return {
         "probability": prob,
         "auc": auc,
@@ -233,6 +251,7 @@ def train_and_explain(df, alpha):
         "feature_catalog": [dict(item, display_name=_display(item['feature']))
                             for item in feature_catalog(X.assign(depeg_bps=prices), local_values, global_values)],
         "feature_dictionary": feature_dictionary([*X.columns, 'depeg_bps']),
+        "ale": ale,
         "global_impact_basis": global_basis,
         "shap_basis": "uncalibrated_base_random_forest",
         "alpha": alpha,
@@ -252,8 +271,11 @@ def train_and_explain(df, alpha):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dataset-parquet', help='Use an existing feature dataset instead of rebuilding')
-    parser.add_argument('--alpha', type=float, default=.4)
+    parser.add_argument('--alpha', type=float, default=.1, choices=[.1])
     parser.add_argument('--output', default='dashboard_data/rf_results.json')
+    parser.add_argument('--ale-bins', type=int, default=30)
+    parser.add_argument('--ale-bootstraps', type=int, default=300)
+    parser.add_argument('--ale-block-hours', type=int, default=168)
     args = parser.parse_args()
     ALPHA = args.alpha
     DATASET_PATH = './preprocessed_datasets'
@@ -290,12 +312,17 @@ def main():
             use_log_price=False,
         )
 
+    expected_coefficients = {f'Gegenbauer_{ALPHA}_deg{i}' for i in range(8)}
+    missing_coefficients = expected_coefficients - set(df.columns)
+    if missing_coefficients:
+        raise ValueError(f'Alpha-{ALPHA} dataset is missing Gegenbauer features: {sorted(missing_coefficients)}')
     print(f"Dataset shape: {df.shape}")
-    result = train_and_explain(df, ALPHA)
+    result = train_and_explain(df, ALPHA, ale_bins=args.ale_bins,
+                             ale_bootstraps=args.ale_bootstraps, ale_block_hours=args.ale_block_hours)
 
     print('Fitting QuantLet-aligned Student-t GARCH analytical forecasts…', flush=True)
     result['forecasting'] = garch_forecast(df['depeg_bps'])
-    result['schema_version'] = 5
+    result['schema_version'] = 6
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     temporary = out_path.with_suffix('.tmp')
@@ -305,6 +332,10 @@ def main():
     temporary_dictionary = dictionary_path.with_suffix('.tmp')
     temporary_dictionary.write_text(json.dumps(result['feature_dictionary'], indent=2, allow_nan=False))
     temporary_dictionary.replace(dictionary_path)
+    ale_path = out_path.parent / 'ale_results.json'
+    temporary_ale = ale_path.with_suffix('.tmp')
+    temporary_ale.write_text(json.dumps(result['ale'], indent=2, allow_nan=False))
+    temporary_ale.replace(ale_path)
     print(f'Saved → {out_path}', flush=True)
 
 

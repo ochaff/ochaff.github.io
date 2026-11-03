@@ -28,6 +28,10 @@ def test_monitoring_export_and_test_data_do_not_change_the_fitted_forest(monkeyp
     assert first['monitoring']['risk_level'] in {'Low', 'Elevated', 'High', 'Critical'}
     assert 'depeg_bps_lag1h' not in [r['feature'] for r in first['feature_catalog']]
     assert first['feature_catalog'][0]['histogram']['reference_count'] > 0
+    assert set(first['ale']['features']) == {'tvlUSD_100'}
+    assert first['ale']['reference_end'] == str(index[-2])
+    assert first['ale']['timestamp'] == str(index[-1])
+    assert first['ale']['features']['tvlUSD_100']['effective_bins'] == 30
     assert len(first['price_history']) == 168
     assert any(point['depeg_bps'] < 0 for point in first['price_history'])
     for point in first['price_history']:

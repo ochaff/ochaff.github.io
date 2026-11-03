@@ -14,16 +14,9 @@ def add_swap_size_metrics():
 def add_liq_ownership_features():
     """Compute liquidity ownership features from Uniswap positions and Curve gauge data."""
     # --- 1) 3CRV gauge share ---
-    crv_lp = pd.read_parquet(
-        './data/Curve/3CRV_lpevents.parquet',
-        columns=["block_number", "from_address", "to_address", "lp_amount"],
-    )
-    threep = pd.read_parquet(
-        './data/Curve/curve_3pool_hourly.parquet', columns=["totalValueLockedUSD"]
-    )
-    hourly_blocks = pd.read_parquet(
-        './data/ETH_blocks/hourly_blocks.parquet', columns=["hour_utc", "block_number"]
-    )
+    crv_lp = pd.read_parquet('./data/Curve/3CRV_lpevents.parquet')
+    threep = pd.read_parquet('./data/Curve/curve_3pool_hourly.parquet')
+    hourly_blocks = pd.read_parquet('./data/ETH_blocks/hourly_blocks.parquet')
 
     GAUGE = "0xbfcf63294ad7105dea65aa58f8ae5be2d9d0952a"
     gauge_mask = (crv_lp["from_address"] == GAUGE) | (crv_lp["to_address"] == GAUGE)
@@ -59,13 +52,8 @@ def add_liq_ownership_features():
     gauge_feature = hourly_gauge[["gauge_share_3crv"]]
 
     # --- 2) Uniswap position concentration metrics ---
-    pos = pd.read_parquet(
-        './data/Uniswap/hourly_positions_full.parquet',
-        columns=["id", "hour_utc", "liquidity", "tickLower", "tickUpper", "owner"],
-    )
-    pool = pd.read_parquet(
-        './data/Uniswap/hourly_pool_state_full.parquet', columns=["hour", "poolTick"]
-    )
+    pos = pd.read_parquet('./data/Uniswap/hourly_positions_full.parquet')
+    pool = pd.read_parquet('./data/Uniswap/hourly_pool_state_full.parquet')
 
     pos["hour_utc"] = pd.to_datetime(pos["hour_utc"], utc=True)
     pool["hour"] = pd.to_datetime(pool["hour"], utc=True)
@@ -164,7 +152,7 @@ def load_uniswap_metrics():
     metrics1.index = metrics1['datetime']
     metrics5.index = metrics5['datetime']
     metrics1 = metrics1[['tvlUSD', 'net_amountUSD', 'net_amount0', 'swap_count']]
-    metrics5 = metrics5[['swap_count', 'net_amountUSD', 'tvlUSD']].ffill()
+    metrics5 = metrics5[['swap_count', 'net_amountUSD', 'tvlUSD']].ffill().bfill()
     try:
         metrics = metrics1.join(metrics5, rsuffix='_500', lsuffix='_100')
     except Exception as e:
@@ -242,7 +230,7 @@ def gegenbauer_timeseries_features(df, alpha=0.5, win = 24):
     df["low_ratio_logret"]  = df['low_ratio'].pct_change(fill_method = None)
     df["mid_ratio_logret"]  = df['mid_ratio'].pct_change(fill_method = None)
     df["high_ratio_logret"] = df['high_ratio'].pct_change(fill_method = None)
-     
+
     for i in range(8):
         df[f'Gegenbauer_{alpha}_deg{i}_MA{win}'] =  df[f'Gegenbauer_{alpha}_deg{i}'].rolling(window = win, min_periods = 1).mean()
         df[f'Gegenbauer_{alpha}_deg{i}_logret'] =  df[f'Gegenbauer_{alpha}_deg{i}'].pct_change(fill_method = None)
@@ -347,121 +335,436 @@ def fear_greed_index():
     dfG.index = dfG.index.tz_localize('UTC')
     return dfG
 
-def preprocess_liq_curve(df, TT = datetime.datetime(2022,1,1,0, tzinfo=datetime.timezone.utc)):
-    d = df[df.hour >= TT]
-    # d = d[d.hour <= TT_end]
-    d["timestamp"] = pd.to_datetime(d["timestamp"], utc=True, unit = 's')
+def preprocess_liq_curve(
+    df,
+    TT=datetime.datetime(
+        2022,
+        1,
+        1,
+        0,
+        tzinfo=datetime.timezone.utc
+    )
+):
+    """
+    Construct the peg-centered log-liquidity curve.
+
+    Returns
+    -------
+    Ylog_pegcentered : pd.DataFrame
+        Rows are timestamps and columns are normalized tick locations.
+    """
+
+    d = df.loc[df["hour"] >= TT].copy()
+
+    d["timestamp"] = pd.to_datetime(
+        d["timestamp"],
+        utc=True,
+        unit = 's'
+    )
+
     WINDOW = 50
-    d["tick_norm"] = (d["tickLower"].astype(float) - 0.0) / WINDOW
-    d["tick_norm"] = d["tick_norm"].clip(-1, 1)
 
-    # Log liquidity (use log1p to handle zeros)
-    d["logL"] = np.log1p(d["active_liquidity_L"].astype(float))
+    d["tick_norm"] = (
+        d["tickLower"].astype(float) / WINDOW
+    ).clip(-1.0, 1.0)
 
-    LIQ_COL = "active_liquidity_L"            
-    Y_pegcentered = (d.pivot_table(index="timestamp", columns="tick_norm", values=LIQ_COL, aggfunc="sum")
+    # Aggregate liquidity at each timestamp and normalized tick
+    Y_pegcentered = (
+        d.pivot_table(
+            index="timestamp",
+            columns="tick_norm",
+            values="active_liquidity_L",
+            aggfunc="sum"
+        )
         .sort_index()
-        .sort_index(axis=1))
-    Y_pegcentered = Y_pegcentered.fillna(0.0)
+        .sort_index(axis=1)
+        .fillna(0.0)
+    )
+
+    # Log transformation
     Ylog_pegcentered = np.log1p(Y_pegcentered)
     return Ylog_pegcentered
 
-def gegenbauer_vander(x, deg, alpha):
+def gegenbauer_vander(
+    x,
+    deg,
+    alpha,
+    normalize=False,
+    weights=None
+):
+    """
+    Construct the Gegenbauer Vandermonde matrix.
+
+    Returns
+    -------
+    Phi : ndarray
+        Shape (n_ticks, deg + 1).
+    """
+
     if alpha <= -0.5:
         raise ValueError("Require alpha > -0.5.")
-    x = np.asarray(x, float)
-    return np.column_stack([eval_gegenbauer(n, alpha, x) for n in range(deg + 1)])
+
+    x = np.asarray(x, dtype=float)
+
+    Phi = np.column_stack([
+        eval_gegenbauer(k, alpha, x)
+        for k in range(deg + 1)
+    ])
+
+    # Optional normalization under the discrete Gegenbauer inner product
+    if normalize:
+        if weights is None:
+            raise ValueError(
+                "weights must be supplied when normalize=True."
+            )
+
+        norms = np.sqrt(
+            np.sum(weights[:, None] * Phi**2, axis=0)
+        )
+
+        Phi = Phi / norms[None, :]
+
+    return Phi
+
+def gegenbauer_weights(
+    x,
+    alpha,
+    use_trapezoid_weights=True,
+    endpoint_eps=1e-10
+):
+    """
+    Construct discrete Gegenbauer weights:
+
+        w_alpha(x) = (1 - x^2)^(alpha - 1/2)
+
+    If use_trapezoid_weights=True, multiply the Gegenbauer weights by
+    numerical integration weights for the x-grid.
+    """
+
+    if alpha <= -0.5:
+        raise ValueError("Require alpha > -0.5.")
+
+    x = np.asarray(x, dtype=float)
+
+    if np.any(x < -1.0) or np.any(x > 1.0):
+        raise ValueError("x must lie in [-1, 1].")
+
+    if len(x) > 1 and np.any(np.diff(x) <= 0):
+        raise ValueError("x must be strictly increasing.")
+
+    # Gegenbauer weight
+    base = np.clip(
+        1.0 - x**2,
+        endpoint_eps,
+        None
+    )
+
+    w_alpha = base ** (alpha - 0.5)
+
+    if use_trapezoid_weights:
+        # Trapezoidal integration weights on the normalized tick grid
+        q = np.zeros_like(x)
+
+        q[0] = 0.5 * (x[1] - x[0])
+        q[-1] = 0.5 * (x[-1] - x[-2])
+
+        if len(x) > 2:
+            q[1:-1] = 0.5 * (x[2:] - x[:-2])
+
+        weights = w_alpha * q
+    else:
+        weights = w_alpha
+
+    # Normalize weights for numerical conditioning.
+    # This does not change the WLS solution when ridge=0.
+    weights = weights / np.mean(weights)
+
+    return weights
+
 
 def orthopoly_decompose(
-    Ylog,                 # array-like (n_t, n_ticks) OR pd.DataFrame with tick columns
-    x_norm,               # array-like (n_ticks,), must be in [-1, 1]
-    deg=5,                # highest degree; number of factors = deg+1
-    center_time=True,     # subtract m(x) across time (like PCA centering)
-    ridge=1e-10,          # small ridge for numerical stability
-    index=None, 
-    alpha = 0.5,          # optional time index if Ylog is ndarray
+    Ylog,
+    x_norm,
+    deg=5,
+    center_time=True,
+    train_pct=0.70,
+    ridge=1e-10,
+    index=None,
+    alpha=0.5,
+    normalize_basis=True,
+    use_trapezoid_weights=True,
     return_reconstruction=True,
+    fit_end=None
 ):
+    """
+    Weighted Gegenbauer decomposition.
+
+    The mean curve is estimated using only the first train_pct of the
+    time-ordered observations. The same centering curve is then used for
+    all observations.
+
+    Parameters
+    ----------
+    Ylog : array-like or pd.DataFrame
+        Shape (n_time, n_ticks).
+
+    x_norm : array-like
+        Normalized tick grid in [-1, 1].
+
+    deg : int
+        Highest Gegenbauer degree.
+
+    center_time : bool
+        Whether to subtract a time-centering curve.
+
+    train_pct : float
+        Fraction of the time-ordered sample used to estimate the
+        centering curve.
+
+    ridge : float
+        Ridge stabilization parameter.
+
+    alpha : float
+        Gegenbauer parameter.
+
+    normalize_basis : bool
+        Normalize basis functions under the discrete weighted inner
+        product.
+
+    use_trapezoid_weights : bool
+        Multiply Gegenbauer weights by grid quadrature weights.
+
+    Returns
+    -------
+    m : ndarray
+        Training-period centering curve.
+
+    B_df : pd.DataFrame
+        Gegenbauer coefficients through time.
+
+    Phi : ndarray
+        Weighted-normalized Gegenbauer basis.
+
+    Yhat : ndarray
+        Reconstructed log-liquidity curves.
+
+    R : ndarray
+        Reconstruction residuals.
+
+    weights : ndarray
+        Discrete Gegenbauer weights.
+    """
+
+    # ---------------------------------------------------------------
+    # Convert input
+    # ---------------------------------------------------------------
+
     if isinstance(Ylog, pd.DataFrame):
         Y = Ylog.to_numpy(dtype=float)
+
         if index is None:
             index = Ylog.index
+
     else:
         Y = np.asarray(Ylog, dtype=float)
+
         if index is None:
             index = pd.RangeIndex(Y.shape[0])
 
-    x = np.asarray(x_norm, dtype=float)
-    if np.any(x < -1 - 1e-12) or np.any(x > 1 + 1e-12):
-        raise ValueError("x_norm must lie in [-1,1].")
+    if Y.ndim != 2:
+        raise ValueError("Ylog must be two-dimensional.")
 
     n_t, n_ticks = Y.shape
-    if x.shape[0] != n_ticks:
-        raise ValueError("x_norm length must match n_ticks (number of columns in Ylog).")
 
-    # --- mean curve and centering (matches the paper's 'centered data' assumption)
+    x = np.asarray(x_norm, dtype=float)
+
+    if len(x) != n_ticks:
+        raise ValueError(
+            "x_norm length must match the number of Ylog columns."
+        )
+
+    if np.any(~np.isfinite(Y)):
+        raise ValueError(
+            "Ylog contains NaN or infinite values."
+        )
+
+    if not 0.0 < train_pct <= 1.0:
+        raise ValueError(
+            "train_pct must be strictly greater than 0 and "
+            "less than or equal to 1."
+        )
+
+    # ---------------------------------------------------------------
+    # Estimate the centering curve using training data only
+    # ---------------------------------------------------------------
+
+    n_train = int(np.floor(train_pct * n_t))
+
+    if n_train < 1:
+        raise ValueError(
+            "train_pct produces an empty training sample."
+        )
+
     if center_time:
-        m = Y.mean(axis=0)
+        if fit_end is None:
+            m = Y[:n_train].mean(axis=0)
+        else:
+            fit_mask = pd.to_datetime(index, utc=True) <= pd.Timestamp(fit_end)
+            if not np.any(fit_mask):
+                raise ValueError('No liquidity observations before feature fitting cutoff')
+            m = Y[fit_mask].mean(axis=0)
         X = Y - m
     else:
         m = np.zeros(n_ticks)
-        X = Y
+        X = Y.copy()
 
-    
-    Phi = gegenbauer_vander(x, deg, alpha)   # (n_ticks, deg+1)
+    # ---------------------------------------------------------------
+    # Gegenbauer basis and weights
+    # ---------------------------------------------------------------
+
+    weights = gegenbauer_weights(
+        x,
+        alpha=alpha,
+        use_trapezoid_weights=use_trapezoid_weights
+    )
+
+    Phi = gegenbauer_vander(
+        x,
+        deg=deg,
+        alpha=alpha,
+        normalize=normalize_basis,
+        weights=weights
+    )
+
+    # ---------------------------------------------------------------
+    # Weighted least squares
+    #
+    # X ≈ B Phi.T
+    #
+    # B = X W Phi (Phi.T W Phi)^(-1)
+    # ---------------------------------------------------------------
+
+    W_Phi = weights[:, None] * Phi
+
+    G = Phi.T @ W_Phi
+
+    if ridge > 0:
+        G = G + ridge * np.eye(deg + 1)
+
+    X_weighted_Phi = X @ W_Phi
+
+    B = np.linalg.solve(
+        G,
+        X_weighted_Phi.T
+    ).T
+
+    # ---------------------------------------------------------------
+    # Reconstruction and residuals
+    # ---------------------------------------------------------------
+
+    Yhat = B @ Phi.T + m if return_reconstruction else None
+    R = Y - Yhat if return_reconstruction else None
+
     basis_name = f"Gegenbauer_{alpha}"
 
-    # --- solve for coefficients B in least squares sense for all t:
-    # X ≈ B Phi^T  ->  B = X Phi (Phi^T Phi)^{-1}
-    G = Phi.T @ Phi
-    G = G + ridge * np.eye(G.shape[0])
-    Ginv = np.linalg.inv(G)
+    cols = [
+        f"{basis_name}_deg{k}"
+        for k in range(deg + 1)
+    ]
 
-    B = (X @ Phi) @ Ginv               # (n_t, deg+1)
-    # The dashboard only needs the coefficients. Avoiding these two matrices
-    # saves substantial memory when the liquidity grid is large.
-    if return_reconstruction:
-        Yhat = (B @ Phi.T) + m         # (n_t, n_ticks)
-        R = Y - Yhat
-    else:
-        Yhat = None
-        R = None
+    B_df = pd.DataFrame(
+        B,
+        index=index,
+        columns=cols
+    )
 
-    # package coefficients as DataFrame for convenient "score through time"
-    cols = [f"{basis_name}_deg{j}" for j in range(deg + 1)]
-    B_df = pd.DataFrame(B, index=index, columns=cols)
-
-    return m, B_df, Phi, Yhat, R
+    return m, B_df, Phi, Yhat, R, weights
 
 
 def gegenbauer_scores(
-    Ylog, x_norm, deg=5, alpha=0.5, center_time=True, ridge=1e-10,
+    Ylog,
+    x_norm,
+    deg=5,
+    alpha=0.5,
+    center_time=True,
+    train_pct=0.70,
+    ridge=1e-10,
+    normalize_basis=True,
+    use_trapezoid_weights=True,
     return_reconstruction=True,
+    fit_end=None
 ):
-    mG, B_gegen, Phi_gegen, Yhat_gegen, R_gegen = orthopoly_decompose(
-        Ylog, x_norm, deg=deg, center_time=center_time, ridge=ridge,
-        alpha=alpha, return_reconstruction=return_reconstruction,
-    )
-    return B_gegen, Yhat_gegen, R_gegen, mG, Phi_gegen
+    """
+    Convenience wrapper.
+    """
 
-def decomp_logL_curve(alpha):
-    start = datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc)
-    print("Loading liquidity curve inputs…", flush=True)
-    df = pd.read_parquet(
-        './data/Uniswap/hourly_liquidity_full.parquet',
-        columns=["hour", "timestamp", "tickLower", "active_liquidity_L"],
-        filters=[("hour", ">=", start)],
+    (
+        mG,
+        B_gegen,
+        Phi_gegen,
+        Yhat_gegen,
+        R_gegen,
+        weights
+    ) = orthopoly_decompose(
+        Ylog=Ylog,
+        x_norm=x_norm,
+        deg=deg,
+        alpha=alpha,
+        center_time=center_time,
+        train_pct=train_pct,
+        ridge=ridge,
+        normalize_basis=normalize_basis,
+        use_trapezoid_weights=use_trapezoid_weights,
+        return_reconstruction=return_reconstruction, fit_end=fit_end
     )
-    print(f"Liquidity curve inputs: {len(df):,} rows", flush=True)
-    Ylog_pegcentered = preprocess_liq_curve(df, TT=start).astype("float32")
-    print(f"Liquidity curve grid: {Ylog_pegcentered.shape}", flush=True)
-    gegen_scores, yhat,_,m,phi = gegenbauer_scores(Ylog_pegcentered,
-                                            np.linspace(-1, 1, Ylog_pegcentered.shape[1]), 
-                                            deg = 7, 
-                                            alpha=alpha, 
-                                            center_time=False,
-                                            return_reconstruction=False,
-                                            )
+
+    return (
+        B_gegen,
+        Yhat_gegen,
+        R_gegen,
+        mG,
+        Phi_gegen,
+        weights
+    )
+
+def decomp_logL_curve(
+    alpha,
+    train_pct=0.70,
+    fit_end=None
+):
+    df = pd.read_parquet(
+        "./data/Uniswap/hourly_liquidity_full.parquet",
+        columns=["hour", "timestamp", "tickLower", "active_liquidity_L"],
+        filters=[("hour", ">=", datetime.datetime(2022,1,1,tzinfo=datetime.timezone.utc))]
+    )
+
+    Ylog_pegcentered = preprocess_liq_curve(df)
+
+    x_grid = np.linspace(
+        -1,
+        1,
+        Ylog_pegcentered.shape[1]
+    )
+
+    (
+        gegen_scores,
+        yhat,
+        residuals,
+        m,
+        phi,
+        weights
+    ) = gegenbauer_scores(
+        Ylog_pegcentered,
+        x_grid,
+        deg=7,
+        alpha=alpha,
+        center_time=True,
+        train_pct=train_pct,
+        ridge=1e-10,
+        normalize_basis=True,
+        use_trapezoid_weights=True, return_reconstruction=False, fit_end=fit_end
+    )
+
     return gegen_scores
 
 def gegenbauer_energy_features(df, alpha=0.4):
@@ -500,93 +803,96 @@ def gegenbauer_energy_features(df, alpha=0.4):
     df["low_ratio"]  = df["E_low"]  / (df["E_shape"] + eps)
     df["mid_ratio"]  = df["E_mid"]  / (df["E_shape"] + eps)
     df["high_ratio"] = df["E_high"] / (df["E_shape"] + eps)
-    return df 
+    return df
 
 def build_dataset(
             dataset_path,
-            alpha, aave, aave_liq, crv, eth_price, 
-            eth_indicators, btc_price, btc_indicators, usd_index, usd_indicators, fear_greed, gegen, target, 
+            alpha, train_pct, last_date, aave, aave_liq, crv, eth_price,
+            eth_indicators, btc_price, btc_indicators, usd_index, usd_indicators, fear_greed, gegen, target,
             target_window, target_threshold, depeg_side, dynamic_threshold,
             gegen_indicators, swap_size, use_log_price, liq_ownership,
             bypass = False,
+            feature_fit_end=None,
             **kwargs):
         dataset = load_uniswap_metrics()
+        if last_date is not None:
+            dataset = dataset[dataset.index <= pd.to_datetime(last_date)]
         if aave:
             try:
                 dataset = dataset.join(full_aave_metrics())
             except Exception as e:
                 print(e)
-                print('--- could not join aave metrics ---')    
+                print('--- could not join aave metrics ---')
                 print('aave metrics last date :', full_aave_metrics().index[-1])
-        
+
         if aave_liq:
-            try:    
+            try:
                 dataset = dataset.join(aave_liquidations())
             except Exception as e:
                 print(e)
-                print('--- could not join aave liquidations ---')    
+                print('--- could not join aave liquidations ---')
                 print('aave liquidations last date :', aave_liquidations().index[-1])
-        
+
         if crv:
             try:
                 dataset = dataset.join(crv_3pool_metrics())
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not join curve 3pool metrics ---')    
+                print('--- could not join curve 3pool metrics ---')
                 print('curve 3pool metrics last date :', crv_3pool_metrics().index[-1])
         if eth_price:
             try:
                 dataset = dataset.join(eth_price_oracle()[['eth_price_usd']])
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not join eth price oracle ---')    
+                print('--- could not join eth price oracle ---')
                 print('eth price oracle last date :', eth_price_oracle().index[-1])
-        if eth_indicators: 
+        if eth_indicators:
             try:
                 dataset = dataset.join(eth_price_oracle().drop(columns=['eth_price_usd']))
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not join eth price oracle ---')    
+                print('--- could not join eth price oracle ---')
                 print('eth price oracle last date :', eth_price_oracle().index[-1])
         if btc_price:
             try:
                 dataset = dataset.join(btc_price_oracle()[['btc_price_usd']])
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not join btc price oracle ---')    
+                print('--- could not join btc price oracle ---')
                 print('btc price oracle last date :', btc_price_oracle().index[-1])
         if btc_indicators:
             try:
                 dataset = dataset.join(btc_price_oracle().drop(columns=['btc_price_usd']))
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not join btc price oracle ---')    
+                print('--- could not join btc price oracle ---')
                 print('btc price oracle last date :', btc_price_oracle().index[-1])
         if usd_index:
             try:
                 dataset = dataset.join(usd_index_oracle()['usd_index'])
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not join usd index oracle ---')    
+                print('--- could not join usd index oracle ---')
                 print('usd index oracle last date :', usd_index_oracle().index[-1])
         if usd_indicators:
             try:
                 dataset = dataset.join(usd_index_oracle().drop(columns=['usd_index']))
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not join usd index oracle ---')    
+                print('--- could not join usd index oracle ---')
                 print('usd index oracle last date :', usd_index_oracle().index[-1])
-        if fear_greed: 
+        if fear_greed:
             try:
                 dfG = fear_greed_index()
                 dfG = dfG.reindex(dataset.index, method='ffill')
                 dataset = dataset.join(dfG.rename('fear_greed_index'))
-            except Exception as e:      
+            except Exception as e:
                 print(e)
-                print('--- could not load fear and greed index ---')    
+                print('--- could not load fear and greed index ---')
         if gegen:
             try:
-                gegen_scores = decomp_logL_curve(alpha)
+                gegen_scores = decomp_logL_curve(alpha, train_pct=train_pct, fit_end=feature_fit_end)
                 gegen_scores = gegen_scores.reindex(dataset.index, method='ffill')
                 gegen_scores = gegen_scores.ffill()
                 dataset = dataset.join(gegen_scores)
@@ -594,17 +900,17 @@ def build_dataset(
                 if gegen_indicators:
                     try:
                         dataset = gegenbauer_timeseries_features(dataset, alpha = alpha)
-                    except Exception as e:      
+                    except Exception as e:
                         print(e)
-                        print('--- could not join gegenbauer liquidity curve time series features ---')   
-            except Exception as e:      
+                        print('--- could not join gegenbauer liquidity curve time series features ---')
+            except Exception as e:
                 print(e)
-                print('--- could not join gegenbauer liquidity curve scores ---')   
+                print('--- could not join gegenbauer liquidity curve scores ---')
         if swap_size:
             try:
                 swap_size_metrics = add_swap_size_metrics()
                 dataset = dataset.join(swap_size_metrics)
-            except Exception as e:      
+            except Exception as e:
                 print(e)
                 print('--- could not join uniswap swap size curve metrics ---')
         if liq_ownership:
@@ -614,18 +920,18 @@ def build_dataset(
             except Exception as e:
                 print(e)
                 print('--- could not join liquidity ownership features ---')
-        
+
         try:
             dataset = dataset.join(add_forecasting_target(use_log_price), how='left')
         except Exception as e:
             print('--- could not add uniswap active pool price (forecasting target) ---')
             raise e
-            
+
         if target:
             w = int(target_window)        # hours
             if use_log_price:
                 thr = np.log1p(int(target_threshold)/10000)   # bps
-            else:    
+            else:
                 thr = int(target_threshold)   # bps
             x = dataset["depeg_bps"].astype(float)      # depeg in bps (can be + or -)
             upper = x.rolling(30*24, min_periods=1).quantile(0.9975)
@@ -636,7 +942,7 @@ def build_dataset(
                 dataset.index >= (start + pd.Timedelta(days=30)),
                 index=dataset.index
             )
-            
+
             x1     = x.shift(-1)
             upper1 = upper.shift(-1)
             lower1 = lower.shift(-1)
@@ -648,18 +954,18 @@ def build_dataset(
                 x1_hard = x1.clip(upper=0)
             else:
                 x1_hard = x1
-           
+
             future_max = x1_hard.iloc[::-1].rolling(w, min_periods=1).max().iloc[::-1]
             future_min = x1_hard.iloc[::-1].rolling(w, min_periods=1).min().iloc[::-1]
             hit_hard   = (future_max >= thr) | (future_min <= -thr)
-          
+
             if depeg_side == "up":
                 out_of_band = (x1 > upper1)
             elif depeg_side == "down":
                 out_of_band = (x1 < lower1)
             else:
                 out_of_band = (x1 > upper1) | (x1 < lower1)
-            
+
             out_of_band = (out_of_band & dyn_ok1).fillna(False)
 
             hit_dyn = out_of_band.iloc[::-1].rolling(w, min_periods=1).max().iloc[::-1].astype(bool)
@@ -669,22 +975,20 @@ def build_dataset(
                 dataset["target"] = hit_hard.fillna(False).astype(int)
 
         dataset = dataset.replace([np.inf, -np.inf], np.nan)
-        observed_depeg = dataset['depeg_bps'].copy()
         dataset = dataset.ffill()
-        dataset['depeg_bps'] = observed_depeg
         dataset = dataset.astype('float32')
         if use_log_price:
             if target:
-                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators): 
+                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators):
                     if not bypass:
                         dataset.to_parquet(f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}_logp.parquet')
-                    return f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}_logp.parquet' 
+                    return f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}_logp.parquet'
                 else:
                     if not bypass:
                         dataset.to_parquet(f'{dataset_path}/dataset_alpha_{alpha}_full_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}_logp.parquet')
                     return f'{dataset_path}/dataset_alpha_{alpha}_full_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}_logp.parquet'
             else:
-                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators):   
+                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators):
                     if not bypass:
                         dataset.to_parquet(f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_logp.parquet')
                     return f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_logp.parquet'
@@ -694,16 +998,16 @@ def build_dataset(
                     return f'{dataset_path}/dataset_alpha_{alpha}_full_logp.parquet'
         else:
             if target:
-                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators): 
+                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators):
                     if not bypass:
                         dataset.to_parquet(f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}.parquet')
-                    return f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}.parquet' 
+                    return f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}.parquet'
                 else:
                     if not bypass:
                         dataset.to_parquet(f'{dataset_path}/dataset_alpha_{alpha}_full_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}.parquet')
                     return f'{dataset_path}/dataset_alpha_{alpha}_full_binarytarget_win-{target_window}_thresh-{target_threshold}_{depeg_side}_dynamic-{dynamic_threshold}.parquet'
             else:
-                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators):   
+                if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators):
                     if not bypass:
                         dataset.to_parquet(f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}.parquet')
                     return f'{dataset_path}/dataset_alpha_{alpha}_aave-{aave}_ethprice-{eth_price}_ethind-{eth_indicators}_btcprice-{btc_price}_btcind-{btc_indicators}_fear-{fear_greed}_gegen-{gegen}_gegenind-{gegen_indicators}_swap-{swap_size}_usdi-{usd_index}_usdiind-{usd_indicators}.parquet'
@@ -711,11 +1015,13 @@ def build_dataset(
                     if not bypass:
                         dataset.to_parquet(f'{dataset_path}/dataset_alpha_{alpha}_full.parquet')
                     return f'{dataset_path}/dataset_alpha_{alpha}_full.parquet'
-         
+
 def add_dataset_args(parser):
     dataset_building = parser.add_argument_group('dataset building arguments')
     dataset_building.add_argument('--dataset_path', type=str, default='./preprocessed_datasets', help='path to save the dataset')
     dataset_building.add_argument('--alpha', type=float, help='Gegenbauer polynomial alpha parameter', required=True)
+    dataset_building.add_argument('--last_date', type=lambda value: None if value.strip().lower() == 'none' else value, default='none', help='last date to include in the dataset; use None to include all available data')
+    dataset_building.add_argument('--train_pct', type=float, default=0.7, help='fraction of data used for training (for Gegenbauer decomposition)')
     dataset_building.add_argument('--aave',action='store_false', help='remove AAVE metrics')
     dataset_building.add_argument('--aave_liq',action='store_false', help='remove AAVE liquidations')
     dataset_building.add_argument('--crv',action='store_false', help='remove Curve 3pool metrics')
@@ -738,7 +1044,7 @@ def add_dataset_args(parser):
     class_target.add_argument('-th','--target_threshold', type=int, default=25, help='threshold (in bps) for classification target')
     class_target.add_argument('-ds','--depeg_side', type=str, default='both', choices=['both', 'up', 'down'], help='depeg side for classification target')
     class_target.add_argument('-dt','--dynamic_threshold', action='store_true', help='use dynamic threshold for classification target')
-    
+
     return parser
 
 if __name__ == "__main__":
