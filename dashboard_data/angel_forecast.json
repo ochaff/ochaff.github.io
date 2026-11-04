@@ -11,7 +11,7 @@
     "sequence_length": 168,
     "covariates": 97,
     "selected_covariates": 5,
-    "weight_sum": 0.9999998807907104,
+    "weight_sum": 1.0000000894069672,
     "selected_threshold": 1e-08,
     "target_branch_excluded": "depeg_bps",
     "scope": "One gate per covariate for the full input window, shared across all 24 forecast hours",
@@ -102,7 +102,7 @@
       },
       {
         "feature": "w_USDC",
-        "weight": 0.17078346014022827,
+        "weight": 0.17078354954719543,
         "selected": true,
         "rank": 3
       },
@@ -210,7 +210,7 @@
       },
       {
         "feature": "Gegenbauer_0.1_deg0",
-        "weight": 0.2507864832878113,
+        "weight": 0.2507864534854889,
         "selected": true,
         "rank": 2
       },
@@ -330,7 +330,7 @@
       },
       {
         "feature": "high_ratio",
-        "weight": 0.38946932554244995,
+        "weight": 0.38946929574012756,
         "selected": true,
         "rank": 1
       },
@@ -342,7 +342,7 @@
       },
       {
         "feature": "E_odd_logret",
-        "weight": 0.14763766527175903,
+        "weight": 0.1476377546787262,
         "selected": true,
         "rank": 4
       },
@@ -594,7 +594,7 @@
       },
       {
         "feature": "gauge_share_3crv",
-        "weight": 0.041322946548461914,
+        "weight": 0.04132303595542908,
         "selected": true,
         "rank": 5
       }
@@ -613,21 +613,21 @@
     "USDC": {
       "0.01": {
         "var_bps": 0.0,
-        "es_bps": 4.969479840801468
+        "es_bps": 4.969478799793435
       },
       "0.005": {
         "var_bps": 0.0,
-        "es_bps": 9.938959681602936
+        "es_bps": 9.93895759958687
       }
     },
     "USDT": {
       "0.01": {
-        "var_bps": 18.120264053344727,
-        "es_bps": 22.80334898741906
+        "var_bps": 18.12026596069336,
+        "es_bps": 22.803351480283812
       },
       "0.005": {
-        "var_bps": 20.369382858276367,
-        "es_bps": 26.541881252487613
+        "var_bps": 20.369384765625,
+        "es_bps": 26.541883560152804
       }
     }
   },
@@ -636,118 +636,118 @@
       "hour": 1,
       "timestamp": "2026-11-04 09:00:00+00:00",
       "median_bps": 12.269773483276367,
-      "lower_1pct_bps": 10.69027042388916,
+      "lower_1pct_bps": 10.690268516540527,
       "upper_1pct_bps": 13.754599571228027,
-      "lower_es_1pct_bps": 9.813684261155435,
-      "upper_es_1pct_bps": 14.351119104968241
+      "lower_es_1pct_bps": 9.81368183261082,
+      "upper_es_1pct_bps": 14.351119371089442
     },
     {
       "hour": 2,
       "timestamp": "2026-11-04 10:00:00+00:00",
       "median_bps": 12.310394287109375,
-      "lower_1pct_bps": 7.926610946655273,
+      "lower_1pct_bps": 7.92661190032959,
       "upper_1pct_bps": 16.601070404052734,
-      "lower_es_1pct_bps": 5.5769308232499775,
-      "upper_es_1pct_bps": 18.30176780765051
+      "lower_es_1pct_bps": 5.576932344820481,
+      "upper_es_1pct_bps": 18.301767113660617
     },
     {
       "hour": 3,
       "timestamp": "2026-11-04 11:00:00+00:00",
-      "median_bps": 12.246248245239258,
-      "lower_1pct_bps": 7.645118713378906,
+      "median_bps": 12.246247291564941,
+      "lower_1pct_bps": 7.645116806030273,
       "upper_1pct_bps": 16.609569549560547,
-      "lower_es_1pct_bps": 5.202759078508966,
-      "upper_es_1pct_bps": 18.322511339579357
+      "lower_es_1pct_bps": 5.202756457639657,
+      "upper_es_1pct_bps": 18.32251192668445
     },
     {
       "hour": 4,
       "timestamp": "2026-11-04 12:00:00+00:00",
       "median_bps": 12.251684188842773,
-      "lower_1pct_bps": 7.016660213470459,
-      "upper_1pct_bps": 17.07186508178711,
-      "lower_es_1pct_bps": 3.702439578003358,
-      "upper_es_1pct_bps": 19.150795116787457
+      "lower_1pct_bps": 7.016658306121826,
+      "upper_1pct_bps": 17.071866989135742,
+      "lower_es_1pct_bps": 3.702436855636057,
+      "upper_es_1pct_bps": 19.15079718973132
     },
     {
       "hour": 5,
       "timestamp": "2026-11-04 13:00:00+00:00",
       "median_bps": 12.042693138122559,
-      "lower_1pct_bps": 6.916258335113525,
-      "upper_1pct_bps": 16.78351593017578,
-      "lower_es_1pct_bps": 3.8692316694836237,
-      "upper_es_1pct_bps": 18.937143803788363
+      "lower_1pct_bps": 6.916258811950684,
+      "upper_1pct_bps": 16.78351402282715,
+      "lower_es_1pct_bps": 3.869233094807045,
+      "upper_es_1pct_bps": 18.937141051791905
     },
     {
       "hour": 6,
       "timestamp": "2026-11-04 14:00:00+00:00",
-      "median_bps": 11.970930099487305,
-      "lower_1pct_bps": 5.570804119110107,
-      "upper_1pct_bps": 17.5671443939209,
-      "lower_es_1pct_bps": 0.6256982876713524,
-      "upper_es_1pct_bps": 20.316317136487452
+      "median_bps": 11.970929145812988,
+      "lower_1pct_bps": 5.570797443389893,
+      "upper_1pct_bps": 17.567148208618164,
+      "lower_es_1pct_bps": 0.6256863988553096,
+      "upper_es_1pct_bps": 20.316323348350778
     },
     {
       "hour": 7,
       "timestamp": "2026-11-04 15:00:00+00:00",
       "median_bps": 11.80942153930664,
-      "lower_1pct_bps": 5.109534740447998,
-      "upper_1pct_bps": 17.524654388427734,
-      "lower_es_1pct_bps": 0.17461780656491044,
-      "upper_es_1pct_bps": 20.22732488484394
+      "lower_1pct_bps": 5.109533309936523,
+      "upper_1pct_bps": 17.524656295776367,
+      "lower_es_1pct_bps": 0.17461568490337154,
+      "upper_es_1pct_bps": 20.22732812897485
     },
     {
       "hour": 8,
       "timestamp": "2026-11-04 16:00:00+00:00",
-      "median_bps": 11.7255859375,
-      "lower_1pct_bps": 5.178705215454102,
+      "median_bps": 11.725586891174316,
+      "lower_1pct_bps": 5.178708076477051,
       "upper_1pct_bps": 17.65308380126953,
-      "lower_es_1pct_bps": 0.9620463417035126,
-      "upper_es_1pct_bps": 20.651659265443122
+      "lower_es_1pct_bps": 0.9620500778358378,
+      "upper_es_1pct_bps": 20.651659603137
     },
     {
       "hour": 9,
       "timestamp": "2026-11-04 17:00:00+00:00",
-      "median_bps": 11.56398868560791,
-      "lower_1pct_bps": 5.702640056610107,
-      "upper_1pct_bps": 16.98703956604004,
-      "lower_es_1pct_bps": 1.6662370076134039,
-      "upper_es_1pct_bps": 20.40429028396024
+      "median_bps": 11.563987731933594,
+      "lower_1pct_bps": 5.702641487121582,
+      "upper_1pct_bps": 16.987037658691406,
+      "lower_es_1pct_bps": 1.6662400893611933,
+      "upper_es_1pct_bps": 20.404286905242657
     },
     {
       "hour": 10,
       "timestamp": "2026-11-04 18:00:00+00:00",
       "median_bps": 11.511308670043945,
-      "lower_1pct_bps": 5.402764320373535,
-      "upper_1pct_bps": 17.186635971069336,
-      "lower_es_1pct_bps": 1.2154261470061645,
-      "upper_es_1pct_bps": 20.193657462728897
+      "lower_1pct_bps": 5.402761936187744,
+      "upper_1pct_bps": 17.18663787841797,
+      "lower_es_1pct_bps": 1.2154221177589184,
+      "upper_es_1pct_bps": 20.193660849158285
     },
     {
       "hour": 11,
       "timestamp": "2026-11-04 19:00:00+00:00",
       "median_bps": 11.311483383178711,
-      "lower_1pct_bps": 4.009556770324707,
-      "upper_1pct_bps": 17.703458786010742,
-      "lower_es_1pct_bps": -2.4850967427956885,
-      "upper_es_1pct_bps": 21.803184286926978
+      "lower_1pct_bps": 4.009552478790283,
+      "upper_1pct_bps": 17.703460693359375,
+      "lower_es_1pct_bps": -2.4851039922942793,
+      "upper_es_1pct_bps": 21.80318856455796
     },
     {
       "hour": 12,
       "timestamp": "2026-11-04 20:00:00+00:00",
-      "median_bps": 11.417633056640625,
-      "lower_1pct_bps": 4.038309097290039,
+      "median_bps": 11.417632102966309,
+      "lower_1pct_bps": 4.0383076667785645,
       "upper_1pct_bps": 17.71169662475586,
-      "lower_es_1pct_bps": -2.1004351200301032,
-      "upper_es_1pct_bps": 21.57512183649528
+      "lower_es_1pct_bps": -2.1004385661231915,
+      "upper_es_1pct_bps": 21.575122702586143
     },
     {
       "hour": 13,
       "timestamp": "2026-11-04 21:00:00+00:00",
       "median_bps": 11.232439994812012,
-      "lower_1pct_bps": 4.321307182312012,
-      "upper_1pct_bps": 17.35738754272461,
-      "lower_es_1pct_bps": -1.1651453885960423,
-      "upper_es_1pct_bps": 21.14129868895537
+      "lower_1pct_bps": 4.3213019371032715,
+      "upper_1pct_bps": 17.357393264770508,
+      "lower_es_1pct_bps": -1.1651546624209779,
+      "upper_es_1pct_bps": 21.14130755118681
     },
     {
       "hour": 14,
@@ -756,97 +756,97 @@
       "lower_1pct_bps": 4.751462459564209,
       "upper_1pct_bps": 17.37433624267578,
       "lower_es_1pct_bps": -1.059208807766563,
-      "upper_es_1pct_bps": 21.282069397099466
+      "upper_es_1pct_bps": 21.282069938654647
     },
     {
       "hour": 15,
       "timestamp": "2026-11-04 23:00:00+00:00",
       "median_bps": 11.290095329284668,
       "lower_1pct_bps": 3.846527576446533,
-      "upper_1pct_bps": 17.503461837768555,
-      "lower_es_1pct_bps": -2.8046133258403216,
-      "upper_es_1pct_bps": 21.552893811374975
+      "upper_1pct_bps": 17.503463745117188,
+      "lower_es_1pct_bps": -2.804612242451501,
+      "upper_es_1pct_bps": 21.552897236754166
     },
     {
       "hour": 16,
       "timestamp": "2026-11-05 00:00:00+00:00",
       "median_bps": 11.32042121887207,
-      "lower_1pct_bps": 3.8627166748046875,
+      "lower_1pct_bps": 3.8627171516418457,
       "upper_1pct_bps": 17.519868850708008,
-      "lower_es_1pct_bps": -1.5156582811041934,
-      "upper_es_1pct_bps": 20.968791895615826
+      "lower_es_1pct_bps": -1.5156583015279201,
+      "upper_es_1pct_bps": 20.968792183748292
     },
     {
       "hour": 17,
       "timestamp": "2026-11-05 01:00:00+00:00",
       "median_bps": 11.423810005187988,
-      "lower_1pct_bps": 4.83797025680542,
-      "upper_1pct_bps": 17.427425384521484,
-      "lower_es_1pct_bps": -0.35364745948176335,
-      "upper_es_1pct_bps": 21.5046118963701
+      "lower_1pct_bps": 4.837967872619629,
+      "upper_1pct_bps": 17.427427291870117,
+      "lower_es_1pct_bps": -0.3536518104390183,
+      "upper_es_1pct_bps": 21.504614228781904
     },
     {
       "hour": 18,
       "timestamp": "2026-11-05 02:00:00+00:00",
       "median_bps": 11.315916061401367,
-      "lower_1pct_bps": 3.0761733055114746,
-      "upper_1pct_bps": 17.846675872802734,
-      "lower_es_1pct_bps": -4.430619297574717,
-      "upper_es_1pct_bps": 21.505083091881804
+      "lower_1pct_bps": 3.076176166534424,
+      "upper_1pct_bps": 17.8466739654541,
+      "lower_es_1pct_bps": -4.430613723841618,
+      "upper_es_1pct_bps": 21.50507999066506
     },
     {
       "hour": 19,
       "timestamp": "2026-11-05 03:00:00+00:00",
       "median_bps": 11.251855850219727,
-      "lower_1pct_bps": 3.4415721893310547,
-      "upper_1pct_bps": 18.078227996826172,
-      "lower_es_1pct_bps": -3.685512614329477,
-      "upper_es_1pct_bps": 22.862670741029714
+      "lower_1pct_bps": 3.4415712356567383,
+      "upper_1pct_bps": 18.078229904174805,
+      "lower_es_1pct_bps": -3.6855149514570984,
+      "upper_es_1pct_bps": 22.862673912533943
     },
     {
       "hour": 20,
       "timestamp": "2026-11-05 04:00:00+00:00",
       "median_bps": 11.265762329101562,
-      "lower_1pct_bps": 5.145960807800293,
+      "lower_1pct_bps": 5.145959854125977,
       "upper_1pct_bps": 17.040966033935547,
-      "lower_es_1pct_bps": -0.05826650077976847,
-      "upper_es_1pct_bps": 21.58626622477561
+      "lower_es_1pct_bps": -0.058268663062747805,
+      "upper_es_1pct_bps": 21.586265668755345
     },
     {
       "hour": 21,
       "timestamp": "2026-11-05 05:00:00+00:00",
       "median_bps": 11.42626667022705,
-      "lower_1pct_bps": 3.849228858947754,
-      "upper_1pct_bps": 18.407180786132812,
-      "lower_es_1pct_bps": -2.243457701078091,
-      "upper_es_1pct_bps": 23.4828537801641
+      "lower_1pct_bps": 3.8492302894592285,
+      "upper_1pct_bps": 18.40717887878418,
+      "lower_es_1pct_bps": -2.2434556645359613,
+      "upper_es_1pct_bps": 23.48284982941464
     },
     {
       "hour": 22,
       "timestamp": "2026-11-05 06:00:00+00:00",
-      "median_bps": 11.321533203125,
-      "lower_1pct_bps": 4.347807884216309,
-      "upper_1pct_bps": 17.873689651489258,
-      "lower_es_1pct_bps": -1.2025561965406677,
-      "upper_es_1pct_bps": 22.28808094528582
+      "median_bps": 11.321534156799316,
+      "lower_1pct_bps": 4.347808361053467,
+      "upper_1pct_bps": 17.873687744140625,
+      "lower_es_1pct_bps": -1.2025551137323616,
+      "upper_es_1pct_bps": 22.288077162443525
     },
     {
       "hour": 23,
       "timestamp": "2026-11-05 07:00:00+00:00",
-      "median_bps": 11.479134559631348,
-      "lower_1pct_bps": 3.29655122756958,
-      "upper_1pct_bps": 18.915842056274414,
-      "lower_es_1pct_bps": -4.31548281418785,
-      "upper_es_1pct_bps": 24.875985275976745
+      "median_bps": 11.479133605957031,
+      "lower_1pct_bps": 3.296550750732422,
+      "upper_1pct_bps": 18.915843963623047,
+      "lower_es_1pct_bps": -4.315484000647873,
+      "upper_es_1pct_bps": 24.87598864401574
     },
     {
       "hour": 24,
       "timestamp": "2026-11-05 08:00:00+00:00",
       "median_bps": 11.2697114944458,
-      "lower_1pct_bps": 3.2968406677246094,
-      "upper_1pct_bps": 18.120264053344727,
-      "lower_es_1pct_bps": -3.95279783212456,
-      "upper_es_1pct_bps": 22.80334898741906
+      "lower_1pct_bps": 3.2968411445617676,
+      "upper_1pct_bps": 18.12026596069336,
+      "lower_es_1pct_bps": -3.9527956905117705,
+      "upper_es_1pct_bps": 22.803351480283812
     }
   ],
   "tail_method": "analytical_GPD_tail_means_including_clipped_positive_losses",
@@ -863,7 +863,7 @@
     "manifest_sha256": "591f0014c8d4aba32917dd0a9caa9ffe1d5de38911bc7cc7b6bf9d777def1dd1"
   },
   "cpu_reference_validation": {
-    "max_absolute_difference": 1.9073486328125e-06,
+    "max_absolute_difference": 9.5367431640625e-07,
     "rtol": 1e-05,
     "atol": 1e-05,
     "torch_version": "2.15.0+cpu",
