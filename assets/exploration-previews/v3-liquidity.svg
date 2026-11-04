@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#e9f0fb"/>
+  <g fill="none" stroke="#d6e0ee" stroke-width="1"><path d="M90 90H520M90 150H520M90 210H520M90 270H520M150 55V290M230 55V290M310 55V290M390 55V290M470 55V290"/></g>
+  <path d="M90 55V290H520" fill="none" stroke="#aabbd3" stroke-width="1.5"/>
+  <g fill="#e64d62">
+    <path d="M112 278h12v12h-12zM130 275h12v15h-12zM148 272h12v18h-12zM166 270h12v20h-12zM184 261h12v29h-12zM202 245h12v45h-12zM220 222h12v68h-12zM238 184h12v106h-12zM256 139h12v151h-12zM274 99h12v191h-12zM292 76h12v214h-12z"/>
+  </g>
+  <g fill="#2568d8">
+    <path d="M310 82h12v208h-12zM328 113h12v177h-12zM346 164h12v126h-12zM364 212h12v78h-12zM382 245h12v45h-12zM400 260h12v30h-12zM418 269h12v21h-12zM436 274h12v16h-12zM454 276h12v14h-12zM472 278h12v12h-12zM490 280h12v10h-12z"/>
+  </g>
+  <path d="M307 55V290" fill="none" stroke="#10203a" stroke-width="1.5" stroke-dasharray="5 7"/>
+  <path d="M112 275C218 276 247 167 294 80S359 264 502 278" fill="none" stroke="#10203a" stroke-width="2" opacity=".45"/>
+</svg>

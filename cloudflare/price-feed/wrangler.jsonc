@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ammonitor-price-feed",
+  "account_id": "9000889c397123843ce5dc2204b6363b",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-11-04",
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  "workers_dev": true,
+  "triggers": { "crons": ["*/15 * * * *"] },
+  "durable_objects": {
+    "bindings": [{ "name": "PRICES", "class_name": "PriceCollector" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PriceCollector"] }],
+  "observability": { "enabled": true },
+  "vars": { "RPC_URL": "https://rpc.mevblocker.io", "RPC_BATCH_SIZE": "20", "CONFIRMATIONS": "12", "HISTORY_HOURS": "48", "BLOCK_CHUNK": "400" }
+}

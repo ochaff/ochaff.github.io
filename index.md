@@ -39,18 +39,22 @@ home_monitor: true
 
 <section class="portfolio-section" id="explorations" aria-labelledby="explorations-title">
   <div class="section-heading"><h2 id="explorations-title">Visual explorations</h2><a class="archive-link" href="{{ '/archive.html' | relative_url }}">All writings <span aria-hidden="true">→</span></a></div>
-  <div class="explore-grid">
-    {% for post in site.posts limit: 2 %}
-      <article class="explore-card">
-        <a class="explore-image" href="{{ post.url | relative_url }}" aria-label="Read {{ post.title }}">
-          {% if post.categories contains 'Time series' %}
-            <img src="{{ '/assets/exploration-previews/hierarchical-time-series.png' | relative_url }}" alt="Hierarchical time-series forecast visualisation" loading="lazy">
-          {% else %}
-            <img src="https://raw.githubusercontent.com/QuantLet/onchain-insights/main/3.%20Uniswap%20liquidity%20curve/liquidity_cliff.png" alt="Onchain stablecoin liquidity curve" loading="lazy">
-          {% endif %}
-        </a>
-        <div class="explore-body"><p class="post-card-meta">{% if post.series %}{{ post.series }} · Part {{ post.series_part | default: 1 }}{% else %}{{ post.categories | default: 'Research note' | join: ', ' }}{% endif %}</p><h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3><p>{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 136 }}</p><a class="card-link" href="{{ post.url | relative_url }}">Read exploration <span aria-hidden="true">→</span></a></div>
-      </article>
+  <div class="exploration-series-grid">
+    {% for series in site.data.blog_series %}
+      {% assign series_posts = site.posts | where_exp: "post", "post.categories contains series.category" | sort: "date" %}
+      {% if series_posts.size > 0 %}
+      <section class="exploration-series" data-columns="{{ series.columns }}" aria-labelledby="series-{{ series.id }}">
+        <div class="series-heading">
+          <div class="series-heading-top"><h3 id="series-{{ series.id }}">{{ series.title | escape }}</h3><span class="series-heading-count">{{ series_posts.size }} {% if series_posts.size == 1 %}post{% else %}posts{% endif %}</span></div>
+          <p>{{ series.description | escape }}</p>
+        </div>
+        <div class="explore-grid">
+          {% for post in series_posts %}
+            {% include blog-card.html post=post fallback_image=series.preview_image %}
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
     {% endfor %}
   </div>
 </section>

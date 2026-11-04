@@ -21,7 +21,7 @@ def test_monitoring_export_and_test_data_do_not_change_the_fitted_forest(monkeyp
     frame = pd.DataFrame({'tvlUSD_100': rng.normal(size=len(index)),
                           'depeg_bps': rng.normal(0, .5, len(index))}, index=index)
     frame.iloc[np.arange(100, 3950, 80), frame.columns.get_loc('depeg_bps')] = 16
-    first = train_rf.train_and_explain(frame, .4)
+    first = train_rf.train_and_explain(frame, .1)
     assert 'early_warning' not in first
     assert first['monitoring']['mode'] == 'probability_risk_bands'
     assert set(first['monitoring']['split_periods']) == {'train', 'calibration', 'test'}
@@ -51,7 +51,7 @@ def test_monitoring_export_and_test_data_do_not_change_the_fitted_forest(monkeyp
     # fallback feature importances unchanged. They may change current risk.
     frame.loc[index[-400:], 'tvlUSD_100'] = 1e9
     frame.loc[index[-1], 'depeg_bps'] = 16
-    second = train_rf.train_and_explain(frame, .4)
+    second = train_rf.train_and_explain(frame, .1)
     assert first['global_shap'] == second['global_shap']
     assert 'early_warning' not in second
     assert np.isfinite(second['probability'])

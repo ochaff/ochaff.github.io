@@ -106,4 +106,29 @@ samples UTC and has a timeout. Feature construction and inference took about
 25 seconds locally after reducing position parquet reads to required columns.
 
 The deployed ES calculations have numerical integration regression tests.
-No raw data or weights are committed to this repository.
+No raw data or checkpoint weights are committed to this repository.
+
+## Alpha and inference-time variable selection
+
+`model_config.py` fixes the dashboard feature-basis alpha at 0.1. Bundle manifests,
+checkpoint hyperparameters, RF parquet metadata (when present), and all RF
+Gegenbauer columns are checked. New RF datasets persist `gegenbauer_alpha` in
+parquet metadata. RF and ANGEL JSON expose their alpha, and Models displays it.
+The RF retains its train-only fitted transform; ANGEL retains its released frozen
+transform. A matching alpha does not imply identical fitted centering or grids.
+
+Every ANGEL forward pass already returns `interpretability.selection_weights`
+with shape `[1, number_of_covariates]`. The inference exporter maps these to the
+manifest's ordered covariates, validates nonnegative finite weights, a sum of one
+(within float32 tolerance), and agreement with the selection mask. All weights,
+including zeros, ranks, selected flags, forecast origin and input-window start
+are saved as `variable_selection` in `angel_forecast.json` and embedded in
+`rf_results.json`. No training or extra forward pass is required.
+
+Metrics → ANGEL selection weights displays this current-window ranking with
+percentage bars. The selector emits one gate per covariate for the full input
+window, shared across horizons. These are not signed SHAP values, causal effects,
+or test-set global importance. The target price history is encoded by a separate
+branch and has no weight in this covariate ranking. Older snapshots without the
+new payload show a pending message until the next inference run; weights from a
+different origin are never displayed as current.

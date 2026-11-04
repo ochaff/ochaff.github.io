@@ -50,7 +50,7 @@ jobs:
           pip install "torch>=2.6,<3" --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements-angel.txt
 
-      - name: Verify monitoring labels, ALE intervals, feature definitions and GARCH tails
+      - name: Verify alpha consistency, monitoring, ALE and ANGEL exports
         run: python -m pytest -q tests/test_monitor_models.py tests/test_training_protocol.py tests/test_ale.py tests/test_dataset_rf.py tests/test_angel_forecast.py tests/test_prediction_history.py
 
       - name: Download latest on-chain data
@@ -66,7 +66,7 @@ jobs:
           free -h
           df -h
 
-      - name: Run newest published ANGEL bundle on CPU
+      - name: Run newest published alpha-0.1 ANGEL bundle and export selection weights on CPU
         env:
           GH_TOKEN: ${{ github.token }}
           ANGEL_RELEASE: ${{ inputs.model_release }}

@@ -13,6 +13,7 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import requests
+from model_config import DATASET_ALPHA, require_dataset_alpha
 
 REPOSITORY = 'QuantLet/onchain-insights'
 MANIFEST = 'ammonitor-angel.json'
@@ -103,9 +104,12 @@ def download_bundle(cache_dir, repository=REPOSITORY, tag=None):
 def validate_manifest(manifest):
     if manifest.get('schema_version') != 1 or manifest.get('model') != 'ANGEL':
         raise ValueError('Unsupported ANGEL bundle schema/model')
+    require_dataset_alpha(manifest.get('alpha'), 'ANGEL release')
     columns = manifest.get('input_columns', [])
     if not columns or len(set(columns)) != len(columns) or columns[-1] != 'depeg_bps':
         raise ValueError('Bundle must contain unique ordered columns with depeg_bps last')
+    if any(name.startswith('Gegenbauer_') and not name.startswith(f'Gegenbauer_{DATASET_ALPHA}_') for name in columns):
+        raise ValueError('ANGEL input columns must use Gegenbauer alpha=0.1')
     if manifest.get('target', {}).get('units') != 'basis_points' or 'no log' not in manifest['target'].get('transformation', ''):
         raise ValueError('Only raw-bps ANGEL bundles are supported')
     if manifest.get('forecast_horizon') != 24 or manifest.get('sequence_length', 0) < 1:
@@ -137,6 +141,7 @@ def load_model(manifest, checkpoint, state):
         raise ValueError('Checkpoint feature order does not match the manifest')
     if not np.isclose(model.hparams.alpha, manifest['alpha']):
         raise ValueError('Checkpoint and preprocessing alpha differ')
+    require_dataset_alpha(model.hparams.alpha, 'ANGEL checkpoint')
     if model.hparams.seq_len != manifest['sequence_length'] or model.hparams.pred_len != 24:
         raise ValueError('Checkpoint dimensions do not match the manifest')
     if model.hparams.forecast_task != 'distribution' or model.hparams.tail_model != 'gpd' or model.hparams.use_log_price:
@@ -249,12 +254,45 @@ def gpd_summary(lower, upper, xi_lower, xi_upper, beta_lower, beta_upper, x_lowe
             'USDT': {'var_bps': max(float(upper), 0.), 'es_bps': max(float(usdt_es), 0.)}}
 
 
+def selection_payload(output, columns, timestamp, sequence_length):
+    """Export the covariate selector from this forward pass, in manifest order."""
+    diagnostics = output.get('interpretability', {})
+    weights = diagnostics.get('selection_weights')
+    if weights is None:
+        return {'status':'unavailable', 'reason':'Checkpoint did not expose covariate selection weights'}
+    names = columns[:-1]
+    if list(diagnostics.get('feature_names', names)) != names:
+        raise ValueError('ANGEL selector feature order differs from the manifest')
+    values = weights.detach().cpu().numpy().astype(float)
+    if values.shape != (1,len(names)) or not np.isfinite(values).all() or (values < 0).any():
+        raise ValueError('Invalid ANGEL selection-weight dimensions or values')
+    values = values[0]
+    total = float(values.sum())
+    if not np.isclose(total, 1., rtol=0, atol=1e-5):
+        raise ValueError('ANGEL selection weights do not sum to one')
+    selected = values > 1e-8  # Same threshold as the model's selection mask.
+    mask = diagnostics.get('selection_mask')
+    if mask is not None and not np.array_equal(mask.detach().cpu().numpy(), selected[None]):
+        raise ValueError('ANGEL selection mask differs from exported weights')
+    ordered = sorted(set(values.tolist()), reverse=True)
+    ranks = {v:1+int((values>v).sum()) for v in ordered}
+    return {'status':'ok', 'method':'current_window_covariate_selector',
+            'timestamp':str(timestamp), 'window_start':str(pd.Timestamp(timestamp)-pd.Timedelta(hours=sequence_length-1)),
+            'sequence_length':sequence_length, 'covariates':len(names),
+            'selected_covariates':int(selected.sum()), 'weight_sum':total,
+            'selected_threshold':1e-8, 'target_branch_excluded':'depeg_bps',
+            'scope':'One gate per covariate for the full input window, shared across all 24 forecast hours',
+            'features':[{'feature':name, 'weight':float(value), 'selected':bool(chosen), 'rank':ranks[float(value)]}
+                        for name,value,chosen in zip(names,values,selected)]}
+
+
 def predict(manifest, model, features, provenance, validation):
     torch, _, _ = runtime_modules()
     values = input_window(features, manifest)
     origin = features.index[-1]
     with torch.inference_mode():
         output = model(torch.from_numpy(values[None]), var_levels=[.01, .005])
+        selection = selection_payload(output, manifest['input_columns'], origin, len(values))
         raw = output['raw_prediction']
         head = model.quantile
         parts = head._tail_params_from_body(raw[..., :head.body_param_dim],
@@ -280,6 +318,7 @@ def predict(manifest, model, features, provenance, validation):
                     tails[token][str(alpha)] = summary[token]
     a,b = tails['USDC']['0.01']['var_bps'], tails['USDT']['0.01']['var_bps']
     result = {'status':'ok', 'model':'ANGEL', 'forecast_method':'neural_quantile_spline_with_GPD_tails',
+              'alpha':float(manifest['alpha']), 'variable_selection':selection,
               'timestamp':str(origin), 'horizon_hours':24, 'sequence_length':len(values),
               'input_features':len(manifest['input_columns']), 'quote':'USDT per USDC',
               'unit':'quote_deviation_bps', 'risk_basis':'adverse_deviation_from_peg_at_hour_24',

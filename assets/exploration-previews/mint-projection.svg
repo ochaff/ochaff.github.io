@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" role="img" aria-label="Two projections onto a coherent plane">
+  <rect width="600" height="360" fill="#f4f7fc"/>
+  <g fill="none" stroke="#d6e0ee" stroke-width="1.5"><path d="M54 260L277 326L455 184L232 118Z" fill="#c4d6ee" fill-opacity=".5"/><path d="M110 277L288 135M166 293L343 151M222 309L399 167M99 224L322 290M143 189L366 255M188 153L411 219"/></g>
+  <path d="M285 65L245 255" stroke="#9aa7bb" stroke-width="3" stroke-dasharray="7 6"/>
+  <path d="M285 65L365 211" stroke="#4279bb" stroke-width="4"/>
+  <circle cx="285" cy="65" r="8" fill="#d95968"/>
+  <circle cx="245" cy="255" r="7" fill="#9aa7bb"/>
+  <circle cx="365" cy="211" r="8" fill="#4279bb"/>
+  <g font-family="system-ui,sans-serif" font-size="16" fill="#62708a"><text x="303" y="67">Base forecast</text><text x="205" y="284">OLS</text><text x="385" y="215" fill="#4279bb">MinTrace</text><text x="65" y="325" font-size="14">z = x + y</text></g>
+  <g transform="translate(474 52)" fill="none" stroke="#a7bedb" stroke-width="2"><path d="M8 0H0V92H8M70 0H78V92H70"/></g>
+  <g font-family="monospace" font-size="15" fill="#4279bb"><text x="488" y="77">W⁻¹</text><text x="488" y="105">Sᵀ</text><text x="488" y="133">G</text></g>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#e9f0fb"/>
+  <g fill="none" stroke="#d6e0ee" stroke-width="1"><path d="M90 90H520M90 150H520M90 210H520M90 270H520M150 55V290M230 55V290M310 55V290M390 55V290M470 55V290"/></g>
+  <path d="M114 232L351 138L492 220L255 314Z" fill="#2568d8" fill-opacity=".08" stroke="#aabbd3" stroke-width="1.5"/>
+  <g fill="none" stroke="#aabbd3" stroke-width="1" opacity=".75"><path d="M162 213L303 295M209 194L350 276M256 175L397 257M303 156L444 238M149 252L386 158M184 273L421 179M220 293L457 200"/></g>
+  <path d="M155 231L198 238L181 224L245 245L231 208L279 233L258 203L324 233L297 181L350 217L331 178L384 213L366 177L433 213" fill="none" stroke="#2568d8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M315 96L361 131L438 89" fill="none" stroke="#e64d62" stroke-width="2" stroke-dasharray="5 6"/>
+  <circle cx="315" cy="96" r="7" fill="#e64d62" stroke="#e9f0fb" stroke-width="3"/>
+  <g fill="none" stroke="#62708a" stroke-width="2"><path d="M443 64L412 105M443 64L476 105"/></g>
+  <circle cx="443" cy="64" r="13" fill="#2568d8" stroke="#e9f0fb" stroke-width="4"/>
+  <circle cx="412" cy="105" r="10" fill="#e64d62" stroke="#e9f0fb" stroke-width="4"/>
+  <circle cx="476" cy="105" r="10" fill="#62708a" stroke="#e9f0fb" stroke-width="4"/>
+</svg>

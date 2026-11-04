@@ -5,6 +5,9 @@ date: 2026-11-03
 categories: [Digital finance]
 series: "DeFi Microstructure and stablecoin risks"
 series_part: 2
+preview_image: /assets/exploration-previews/owner_zones.png
+preview_alt: "Active liquidity by pool tick, stacked by liquidity-provider owner"
+preview_fit: contain
 v3_liquidity_explorers: true
 description: "How LP incentives shape USDC/USDT liquidity, why local depth differs from global imbalance, and how five Gegenbauer scores summarize the curve."
 ---

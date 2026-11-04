@@ -35,6 +35,8 @@ def test_new_weighted_builder_through_rf_training(tmp_path, monkeypatch):
     assert np.isnan(frame.loc[index[800], 'depeg_bps'])  # builder filling cannot invent outcomes
     assert cutoffs == [index[2775]]  # train boundary minus full 24-hour outcome window
     assert 'Gegenbauer_0.1_deg7' in frame
+    assert frame.attrs['gegenbauer_alpha'] == .1
+    assert 'dataset_alpha_0.1' in frame.attrs['dataset_path']
     def small_forest(**kwargs):
         kwargs.update(n_estimators=8, max_depth=3)
         return RandomForestClassifier(**kwargs)
@@ -47,6 +49,17 @@ def test_new_weighted_builder_through_rf_training(tmp_path, monkeypatch):
     json.dumps(result, allow_nan=False)
     with pytest.raises(ValueError, match='alpha'):
         train_rf.train_and_explain(frame, .4)
+
+
+def test_rf_rejects_mixed_alpha_columns_and_mislabelled_metadata():
+    frame = pd.DataFrame({f'Gegenbauer_0.1_deg{i}':[0.] for i in range(8)})
+    train_rf.validate_rf_dataset(frame)
+    wrong = frame.assign(**{'Gegenbauer_0.4_deg0':0.})
+    with pytest.raises(ValueError,match='alpha'):
+        train_rf.validate_rf_dataset(wrong)
+    frame.attrs['gegenbauer_alpha'] = .4
+    with pytest.raises(ValueError,match='metadata'):
+        train_rf.validate_rf_dataset(frame)
 
 
 def test_weighted_centering_does_not_see_future_and_skipping_reconstruction_is_exact():

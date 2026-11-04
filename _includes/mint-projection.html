@@ -1,0 +1,40 @@
+<section class="mint-explorer" data-mint-projection aria-labelledby="mint-projection-title">
+  <div class="mint-heading"><span class="mint-kicker">01 / Move the projection</span><h3 id="mint-projection-title">Same forecasts. Different landing points.</h3><p>The plane stays fixed. The covariance changes which direction counts as perpendicular.</p></div>
+  <div class="mint-toolbar">
+    <label>Reconciliation<select data-control="method"><option value="ols">OLS · equal weights</option><option value="wls" selected>WLS · known variances</option><option value="gls">GLS · known covariance</option><option value="sample">MinT · sample covariance</option><option value="shrink">MinT · shrunk sample covariance</option></select></label>
+    <label>Example<select data-control="preset"><option value="noisy">Noisy total</option><option value="correlated">Correlated forecast errors</option><option value="equal">Equal, independent errors</option></select></label>
+    <button type="button" data-action="reset">Reset view & controls</button>
+  </div>
+  <div class="mint-projection-grid">
+    <div class="mint-geometry">
+      <div class="mint-chart mint-chart-3d" data-plot="projection" role="img" aria-label="Interactive three-dimensional projection onto the coherent plane z equals x plus y"></div>
+      <div class="mint-legend"><span><i style="background:#d95968"></i>Base forecast</span><span><i style="background:#4279bb"></i>Selected projection</span><span><i style="background:#9aa7bb"></i>OLS reference</span></div>
+      <div class="mint-readout" data-output="landing" aria-live="polite"></div>
+    </div>
+    <div class="mint-matrix-panel">
+      <div data-matrix="w"></div><div data-matrix="g"></div><div data-matrix="p"></div>
+      <p class="mint-note">Matrix order: <b>z, x, y</b>. Blue cells are positive; red cells are negative. Each row gives the weights used to combine the base forecasts.</p>
+    </div>
+  </div>
+  <div class="mint-controls-grid">
+    <fieldset><legend>Base forecasts</legend>
+      <label>Total z <output data-value="z"></output><input aria-label="Base forecast total z" data-control="z" type="range" min="0" max="24" step=".25" value="19"></label>
+      <label>Bottom x <output data-value="x"></output><input aria-label="Base forecast bottom x" data-control="x" type="range" min="0" max="12" step=".25" value="4"></label>
+      <label>Bottom y <output data-value="y"></output><input aria-label="Base forecast bottom y" data-control="y" type="range" min="0" max="12" step=".25" value="3"></label>
+    </fieldset>
+    <fieldset><legend>True forecast-error model</legend>
+      <label>Std. deviation z <output data-value="sz"></output><input aria-label="Error standard deviation z" data-control="sz" type="range" min=".5" max="10" step=".25" value="10"></label>
+      <label>Std. deviation x <output data-value="sx"></output><input aria-label="Error standard deviation x" data-control="sx" type="range" min=".5" max="10" step=".25" value="1"></label>
+      <label>Std. deviation y <output data-value="sy"></output><input aria-label="Error standard deviation y" data-control="sy" type="range" min=".5" max="10" step=".25" value="1"></label>
+      <label>Correlation z ↔ x <output data-value="rho"></output><input aria-label="Error correlation between z and x" data-control="rho" type="range" min="-.9" max=".9" step=".05" value="0"></label>
+    </fieldset>
+    <fieldset><legend>Estimate from synthetic residuals</legend>
+      <label>Residual vectors T <output data-value="t"></output><input aria-label="Projection residual sample size" data-control="t" type="range" min="2" max="150" step="1" value="24"></label>
+      <label>Shrinkage α <output data-value="alpha"></output><input aria-label="Projection shrinkage intensity" data-control="alpha" type="range" min="0" max="1" step=".05" value=".5"></label>
+      <p class="mint-note">Only the last two methods use these residuals. The same seeded draw is used throughout. WLS and GLS above use the true variances/covariance to isolate the geometry.</p>
+    </fieldset>
+  </div>
+  <p class="mint-status" data-output="status" role="status"></p>
+  <p class="mint-footnote">Try “Correlated forecast errors”, then compare WLS and GLS. Drag to rotate; use the chart controls to zoom. The numerical readout also describes the projection without the 3D view.</p>
+  <noscript><p>Enable JavaScript to explore the projection. In the initial example, WLS gives (z, x, y) = (7.235, 4.118, 3.118), while OLS gives (15, 8, 7).</p></noscript>
+</section>

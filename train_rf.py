@@ -22,6 +22,7 @@ from monitor_models import (monitoring_labels, hourly_prices, monitoring_bounds,
 from feature_dictionary import feature_dictionary
 from ale import accumulated_local_effects
 from prediction_history import prediction_record, merge_history, recent_history, hourly_scores
+from model_config import DATASET_ALPHA, require_dataset_alpha
 
 
 def _display(col):
@@ -46,6 +47,7 @@ NOTABLE_COLS = [
 
 
 def build_or_load(dataset_path, alpha, **kwargs):
+    require_dataset_alpha(alpha, 'RF dataset builder')
     os.makedirs(dataset_path, exist_ok=True)
     from build_dataset import build_dataset, add_forecasting_target, load_uniswap_metrics
     raw_prices = hourly_prices(add_forecasting_target(use_log_price=False))
@@ -54,6 +56,8 @@ def build_or_load(dataset_path, alpha, **kwargs):
     path = build_dataset(dataset_path=dataset_path, alpha=alpha, train_pct=.70,
                          last_date=None, feature_fit_end=cutoff, **kwargs)
     df = pd.read_parquet(path)
+    validate_rf_dataset(df)
+    df.attrs['dataset_path'] = str(path)
     # The forecasting builder fills prices. Monitoring labels must retain gaps.
     df.index = pd.to_datetime(df.index, utc=True)
     df['depeg_bps'] = raw_prices.reindex(df.index)
@@ -64,7 +68,21 @@ TARGET_THRESHOLD_BPS = 15
 TARGET_WINDOW_HOURS = 24
 
 
+def validate_rf_dataset(df):
+    """Reject mixed/stale basis columns even when a parquet was renamed."""
+    if 'gegenbauer_alpha' in df.attrs:
+        require_dataset_alpha(df.attrs['gegenbauer_alpha'], 'RF parquet metadata')
+    expected = {f'Gegenbauer_{DATASET_ALPHA}_deg{i}' for i in range(8)}
+    missing = expected - set(df.columns)
+    wrong = [c for c in df if c.startswith('Gegenbauer_') and not c.startswith(f'Gegenbauer_{DATASET_ALPHA}_')]
+    if missing or wrong:
+        raise ValueError(f'RF dataset alpha={DATASET_ALPHA} mismatch: missing {sorted(missing)}; unexpected {wrong}')
+
+
 def train_and_explain(df, alpha, *, ale_bins=30, ale_bootstraps=300, ale_block_hours=168):
+    require_dataset_alpha(alpha, 'RF training')
+    if 'gegenbauer_alpha' in df.attrs:
+        require_dataset_alpha(df.attrs['gegenbauer_alpha'], 'RF parquet metadata')
     # Preserve every realized hour and the latest live observation separately
     # from the mature, uncensored rows available for supervised fitting.
     coefficients = [c for c in df if c.startswith('Gegenbauer_') and '_deg' in c]
@@ -259,6 +277,8 @@ def train_and_explain(df, alpha, *, ale_bins=30, ale_bootstraps=300, ale_block_h
         "global_impact_basis": global_basis,
         "shap_basis": "uncalibrated_base_random_forest",
         "alpha": alpha,
+        "dataset": {"gegenbauer_alpha":alpha, "path":df.attrs.get('dataset_path'),
+                    "coefficient_columns":[c for c in feature_cols if c.startswith('Gegenbauer_')]},
         "local_shap": local_shap,
         "global_shap": global_shap,
         "notable_values": notable,
@@ -275,7 +295,7 @@ def train_and_explain(df, alpha, *, ale_bins=30, ale_bootstraps=300, ale_block_h
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dataset-parquet', help='Use an existing feature dataset instead of rebuilding')
-    parser.add_argument('--alpha', type=float, default=.1, choices=[.1])
+    parser.add_argument('--alpha', type=float, default=DATASET_ALPHA, choices=[DATASET_ALPHA])
     parser.add_argument('--output', default='dashboard_data/rf_results.json')
     parser.add_argument('--ale-bins', type=int, default=30)
     parser.add_argument('--ale-bootstraps', type=int, default=300)
@@ -290,11 +310,13 @@ def main():
         forecasting = forecast(tag=args.angel_release)
     if forecasting.get('model') != 'ANGEL' or forecasting.get('status') != 'ok':
         raise ValueError('A successful validated ANGEL forecast is required')
+    require_dataset_alpha(forecasting.get('alpha'), 'ANGEL forecast (rerun angel_forecast.py if missing)')
     ALPHA = args.alpha
     DATASET_PATH = './preprocessed_datasets'
 
     if args.dataset_parquet:
         df = pd.read_parquet(args.dataset_parquet)
+        df.attrs['dataset_path'] = str(args.dataset_parquet)
     else:
         print('Building dataset…', flush=True)
         df = build_or_load(
@@ -325,10 +347,7 @@ def main():
             use_log_price=False,
         )
 
-    expected_coefficients = {f'Gegenbauer_{ALPHA}_deg{i}' for i in range(8)}
-    missing_coefficients = expected_coefficients - set(df.columns)
-    if missing_coefficients:
-        raise ValueError(f'Alpha-{ALPHA} dataset is missing Gegenbauer features: {sorted(missing_coefficients)}')
+    validate_rf_dataset(df)
     if pd.Timestamp(forecasting['timestamp']) != pd.Timestamp(df.index[-1]):
         raise ValueError('RF and ANGEL observation timestamps differ; rebuild both from the same data release')
     print(f"Dataset shape: {df.shape}")
@@ -336,7 +355,7 @@ def main():
                              ale_bootstraps=args.ale_bootstraps, ale_block_hours=args.ale_block_hours)
 
     result['forecasting'] = forecasting
-    result['schema_version'] = 8
+    result['schema_version'] = 9
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     history_path = out_path.parent / 'rf_prediction_history.json'

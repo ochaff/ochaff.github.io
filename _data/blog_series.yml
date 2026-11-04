@@ -1,0 +1,12 @@
+- id: defi
+  title: DeFi & stablecoins
+  category: Digital finance
+  description: Pool mechanics, liquidity curves and depeg signals.
+  columns: 2
+  preview_image: /assets/exploration-previews/stablecoin-amms.svg
+- id: hts
+  title: Hierarchical time series
+  category: Time series
+  description: Hierarchy, coherence and forecast reconciliation.
+  columns: 1
+  preview_image: /assets/exploration-previews/hierarchical-time-series.svg

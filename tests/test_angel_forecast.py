@@ -9,6 +9,41 @@ from scipy.stats import genpareto
 from angel_forecast import newest_release, input_window, gpd_summary, validate_manifest
 
 
+def test_selection_export_preserves_order_weights_mask_and_excludes_target():
+    import torch
+    from angel_forecast import selection_payload
+    diagnostics = {'feature_names':['a','b','c'],
+                   'selection_weights':torch.tensor([[.25,.75,0.]]),
+                   'selection_mask':torch.tensor([[True,True,False]])}
+    result=selection_payload({'interpretability':diagnostics},['a','b','c','depeg_bps'],
+                             '2026-11-03T08:00:00Z',168)
+    assert result['weight_sum']==1 and result['selected_covariates']==2
+    assert [r['feature'] for r in result['features']]==['a','b','c']
+    assert [r['rank'] for r in result['features']]==[2,1,3]
+    assert result['features'][2]['selected'] is False
+    assert pd.Timestamp(result['window_start'])==pd.Timestamp('2026-10-27T09:00:00Z')
+    diagnostics['feature_names']=['b','a','c']
+    with pytest.raises(ValueError,match='feature order'):
+        selection_payload({'interpretability':diagnostics},['a','b','c','depeg_bps'],'2026-11-03',168)
+
+
+@pytest.mark.parametrize('weights',[[[.5,.6]],[[.5,-.5]],[[float('nan'),1.]],[[.5,.5],[.5,.5]]])
+def test_selection_export_rejects_invalid_weights(weights):
+    import torch
+    from angel_forecast import selection_payload
+    with pytest.raises(ValueError,match='selection'):
+        selection_payload({'interpretability':{'selection_weights':torch.tensor(weights)}},
+                          ['a','b','depeg_bps'],'2026-11-03',168)
+
+
+def test_nonmatching_release_alpha_is_rejected_before_loading_checkpoint():
+    with pytest.raises(ValueError,match='alpha=0.1'):
+        validate_manifest({'schema_version':1,'model':'ANGEL','alpha':.4})
+    with pytest.raises(ValueError,match='alpha=0.1'):
+        validate_manifest({'schema_version':1,'model':'ANGEL','alpha':.1,
+                           'input_columns':['Gegenbauer_0.4_deg0','depeg_bps']})
+
+
 def test_release_selection_uses_publication_time_and_ignores_unfinished_releases():
     def release(tag, date, **kwargs):
         return dict(tag_name=tag,published_at=date,assets=[{'name':'ammonitor-angel.json'}],**kwargs)

@@ -20,6 +20,10 @@ theme: "minima"
 
 rss: rss
 
+# The price service is deployed separately to Cloudflare Workers.
+exclude:
+  - cloudflare
+
 kramdown:
   math_engine: mathjax
   syntax_highlighter: rouge

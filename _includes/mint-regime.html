@@ -1,0 +1,17 @@
+<section class="mint-explorer" data-mint-regime aria-labelledby="mint-regime-title">
+  <div class="mint-heading"><span class="mint-kicker">02 / Estimate the metric</span><h3 id="mint-regime-title">How much covariance can the sample support?</h3><p>Keep a fixed binary hierarchy and compare reconcilers fitted to the same synthetic residuals.</p></div>
+  <div class="mint-toolbar">
+    <label>Hierarchy size<select data-control="m"><option value="4">4 bottoms · N = 7</option><option value="8" selected>8 bottoms · N = 15</option><option value="16">16 bottoms · N = 31</option></select></label>
+    <label>Residual vectors T <output data-value="t"></output><input aria-label="Regime residual sample size" data-control="t" type="range" min="4" max="300" step="1" value="24"></label>
+    <label>Shrinkage α <output data-value="alpha"></output><input aria-label="Regime shrinkage intensity" data-control="alpha" type="range" min="0" max="1" step=".05" value=".5"></label>
+    <button type="button" data-action="resample">Draw another sample</button>
+  </div>
+  <div class="mint-stats" data-output="stats" aria-live="polite"></div>
+  <div class="mint-regime-grid">
+    <div><h4>Estimated error correlations</h4><div class="mint-chart mint-chart-correlation" data-plot="correlation" role="img" aria-label="Heatmap of shrunk estimated forecast-error correlations"></div><p class="mint-note">Move α toward 1: off-diagonal correlations fade. Node order is total → intermediate levels → bottoms.</p></div>
+    <div><h4>Expected bottom MSE / base bottom MSE</h4><div class="mint-chart mint-chart-risk" data-plot="risk" role="img" aria-label="Expected bottom forecast risk by reconciliation method"></div><div class="mint-risk-values" data-output="risk"></div></div>
+  </div>
+  <p class="mint-status" data-output="status" role="status"></p>
+  <p class="mint-footnote">Synthetic Gaussian errors with shared factors and independent node noise. Each bar is the exact expected error on new, independent forecast errors, conditional on this one training sample: tr(G W<sub>true</sub> Gᵀ), divided by base bottom risk. It is not in-sample fit or an average over training samples. The oracle is a reference using W<sub>true</sub>; the other covariance estimates use the displayed T residual vectors.</p>
+  <noscript><p>Enable JavaScript to compare covariance estimates as the residual sample size changes.</p></noscript>
+</section>

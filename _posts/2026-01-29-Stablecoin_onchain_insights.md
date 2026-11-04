@@ -5,6 +5,9 @@ date: 2026-08-21
 categories: [Digital finance]
 series: "DeFi Microstructure and stablecoin risks"
 series_part: 1
+preview_image: /assets/exploration-previews/invariant_with_slippage.png
+preview_alt: "Constant-product invariant showing a swap and its price impact"
+preview_fit: contain
 amm_explorers: true
 description: "Explore how constant-product pools, Curve StableSwap and Uniswap concentrated liquidity turn inventory into prices—and what happens when a stablecoin leaves its peg."
 ---

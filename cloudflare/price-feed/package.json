@@ -1,0 +1,16 @@
+{
+  "name": "ammonitor-price-feed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "@noble/hashes": "^2.4.0",
+    "wrangler": "4.157.0"
+  }
+}

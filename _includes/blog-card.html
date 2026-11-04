@@ -1,0 +1,13 @@
+{% assign card_post = include.post %}
+{% assign card_image = card_post.preview_image | default: include.fallback_image %}
+<article class="explore-card">
+  <a class="explore-card-link" href="{{ card_post.url | relative_url }}" aria-labelledby="card-{{ card_post.slug }}">
+    <div class="explore-image{% if card_post.preview_fit == 'contain' %} explore-image-figure{% endif %}{% if card_post.preview_background == 'dark' %} explore-image-dark{% endif %}"><img src="{{ card_image | relative_url }}" width="600" height="360" alt="{{ card_post.preview_alt | default: '' | escape }}" loading="lazy"></div>
+    <div class="explore-body">
+      <p class="post-card-meta"><span>{% if card_post.series_part %}Part {{ card_post.series_part }}{% else %}Research note{% endif %}</span><time datetime="{{ card_post.date | date_to_xmlschema }}">{{ card_post.date | date: "%b %-d, %Y" }}</time></p>
+      <h4 id="card-{{ card_post.slug }}">{{ card_post.title | escape }}</h4>
+      <p class="explore-description">{{ card_post.description | default: card_post.excerpt | strip_html | strip_newlines | escape }}</p>
+      <span class="card-link">Read exploration <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</article>

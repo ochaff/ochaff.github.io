@@ -5,7 +5,11 @@ date: 2025-10-30
 categories: [Time series]
 series: "The hidden structure in hierarchical time series"
 series_part: 1
-description: "An introduction to hierarchy, coherence, and forecast reconciliation with a focus and geometric visualization."
+preview_image: /assets/exploration-previews/hierarchical-time-series.png
+preview_alt: "Hierarchical time series and forecasts relative to the coherent plane"
+preview_fit: contain
+preview_background: dark
+description: "A geometric introduction to hierarchy, coherence and forecast reconciliation through phase-space visualizations."
 ---
 
 ## Hierarchical Time Series 
@@ -209,4 +213,4 @@ This interactive plot visually shows two common hierarchical reconciliation meth
 
 ### Up Next
 
-In the next part we will tackle the main result of hierarchical forecast reconciliation, **MinTrace**. MinTrace uses unbiased base forecasts on all time series in the hierarchy and provides an optimal reconciled vector. Geometrically it is a weighted projection assigning larger weight to better observed (less noisy) time series.The next post will focus on the proof of the MinTrace estimator and use this reconciliation as the basis for building an innovative view on hierarchical time series in general and the **role of aggregates**.
+In [Part 2, **MinTrace: choosing the right projection**]({% post_url 2026-11-03-MinTrace-reconciliation %}), we move from this unweighted projection to a covariance-aware one. Interactive matrices and geometry show how forecast-error variances and correlations change the projection, why the GLS estimator minimises expected error, and how sample availability affects the covariance we can estimate. This sets up the **role of aggregates** in hierarchy design.

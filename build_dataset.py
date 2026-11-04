@@ -977,6 +977,7 @@ def build_dataset(
         dataset = dataset.replace([np.inf, -np.inf], np.nan)
         dataset = dataset.ffill()
         dataset = dataset.astype('float32')
+        dataset.attrs['gegenbauer_alpha'] = float(alpha)
         if use_log_price:
             if target:
                 if not (aave and aave_liq and crv and eth_price and eth_indicators and btc_price and btc_indicators and fear_greed and gegen and gegen_indicators and swap_size and usd_index and usd_indicators):
