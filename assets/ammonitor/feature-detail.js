@@ -79,7 +79,7 @@ function drawFeatureDetail() {
     ctx.restore();
   }};
   const xScale = () => ({type:'linear', min, max, offset:false, border:{display:false}, grid:{color:'#edf2f6',offset:false},
-    ticks:{color:MUTED, maxTicksLimit:window.innerWidth < 701 ? 4 : 6, font:{size:10}, callback:aleAxisNumber}});
+    ticks:{color:MUTED, maxTicksLimit:window.innerWidth < 701 ? 4 : 6, font:{size:12}, callback:aleAxisNumber}});
   const common = {responsive:true, maintainAspectRatio:false, animation:false, parsing:false,
     layout:{padding:{right:8}}, interaction:{mode:'nearest', axis:'x', intersect:false},
     plugins:{legend:{display:false}, tooltip:{backgroundColor:'#fff', titleColor:BLUE,
@@ -106,8 +106,8 @@ function drawFeatureDetail() {
           title:items => items.length ? aleAxisNumber(items[0].parsed.x) : '',
           label:item => item.dataset.label + ': ' + signed(item.parsed.y) + ' pp'}}},
         scales:{x:xScale(), y:{afterFit:yWidth, border:{display:false},
-          grid:{color:'#edf2f6'}, title:{display:true,text:'ALE (pp)',color:MUTED,font:{size:10}},
-          ticks:{color:MUTED,maxTicksLimit:5,font:{size:10},callback:v => (v>0?'+':'')+aleAxisNumber(v)}}}}}));
+          grid:{color:'#edf2f6'}, title:{display:true,text:'ALE (pp)',color:MUTED,font:{size:12}},
+          ticks:{color:MUTED,maxTicksLimit:5,font:{size:12},callback:v => (v>0?'+':'')+aleAxisNumber(v)}}}}}));
   }
   document.getElementById('detail-histogram-title').textContent = 'Full-history distribution · ' +
     number(aleFeature.histogram?.reference_count || payload?.reference_rows || 0,0) + ' hourly values';
@@ -118,7 +118,7 @@ function drawFeatureDetail() {
       plugins:{...common.plugins,tooltip:{...common.plugins.tooltip,callbacks:{
         title:items => {const i=items[0]?.dataIndex;return i===undefined?'':aleAxisNumber(edges[i])+' to '+aleAxisNumber(edges[i+1]);},
         label:item => number(item.parsed.y,0)+' hours'}}},
-      scales:{x:{...xScale(),title:{display:true,text:definition?.units || feature,color:MUTED,font:{size:10}}},
+      scales:{x:{...xScale(),title:{display:true,text:definition?.units || feature,color:MUTED,font:{size:12}}},
         y:{afterFit:yWidth,beginAtZero:true,border:{display:false},grid:{display:false},
-          ticks:{color:MUTED,maxTicksLimit:3,font:{size:9},callback:aleAxisNumber}}}}}));
+          ticks:{color:MUTED,maxTicksLimit:3,font:{size:11},callback:aleAxisNumber}}}}}));
 }

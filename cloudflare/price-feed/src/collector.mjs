@@ -99,9 +99,11 @@ export function minuteSamples(cursor,events,endTime){
   return {points,price};
 }
 
-export async function collect(previous,{rpc,now=Date.now(),historyHours=48,confirmations=12,chunk=400}={}){
+export async function collect(previous,{rpc,now=Date.now(),historyHours=48,forecastOrigin=null,confirmations=12,chunk=400}={}){
   if(!Number.isInteger(historyHours)||historyHours<1||historyHours>72||!Number.isInteger(chunk)||chunk<1||chunk>400)throw new VerificationError('Invalid collector limits');
   if(!Number.isInteger(confirmations)||confirmations<0||confirmations>128)throw new VerificationError('Invalid confirmation depth');
+  const origin=forecastOrigin===null?null:Date.parse(forecastOrigin)/1000;
+  if(origin!==null&&(!Number.isFinite(origin)||origin>now/1000+60))throw new VerificationError('Invalid forecast origin');
   if(!previous?.metadata_verified)await verifyPool(rpc);
   else if(Number(BigInt(await rpc.call('eth_chainId',[])))!==1)throw new VerificationError('Wrong RPC chain');
   const tip=await rpc.block('latest'),head=await rpc.block(Math.max(0,tip.number-confirmations));
@@ -113,7 +115,7 @@ export async function collect(previous,{rpc,now=Date.now(),historyHours=48,confi
     if(head.number<cursor.number)throw new VerificationError('RPC is behind the saved cursor');
     if((await rpc.block(cursor.number)).hash!==cursor.hash){cursor=null;oldPoints=[];rebuilds++;}
   }
-  const cutoff=head.timestamp-historyHours*3600;
+  const cutoff=Math.max(head.timestamp-historyHours*3600,origin??-Infinity);
   if(!cursor||cursor.timestamp<cutoff-300){
     const seed=await atOrBefore(rpc,head,cutoff);let price=null;
     // Some free nodes lack historical state. In that case start at the first
@@ -139,6 +141,7 @@ export async function collect(previous,{rpc,now=Date.now(),historyHours=48,confi
   const points=[...oldPoints,...sampled.points].filter(p=>Date.parse(p.timestamp)/1000>=cutoff);
   return {schema_version:1,chain_id:1,pool:POOL,quote:'USDT per USDC',fee_tier:100,
     sampling:'minute-end spot, carried forward only between verified swaps',retention_hours:historyHours,
+    retention_basis:origin===null?'rolling_window':'forecast_origin',forecast_origin:origin===null?null:iso(origin),history_start:iso(cutoff),
     confirmation_blocks:confirmations,collected_at:new Date(now).toISOString(),last_attempt_at:new Date(now).toISOString(),
     latest:{...point(head.timestamp,latestRatio),block_number:head.number,block_hash:head.hash},
     history_complete_through:iso(last.timestamp),backfill_pending:end<head.number,reorg_rebuilds:rebuilds,
@@ -148,7 +151,7 @@ export async function collect(previous,{rpc,now=Date.now(),historyHours=48,confi
 export function publicSnapshot(state,now=Date.now()){
   if(!state?.latest)return {schema_version:1,status:state?.last_error?'unavailable':'warming_up',pool:POOL,points:[],
     last_attempt_at:state?.last_attempt_at,last_error:state?.last_error};
-  const {_cursor,metadata_verified,...body}=state;
+  const {_cursor,_forecast,metadata_verified,...body}=state;
   return {...body,status:state.last_error?'degraded':state.backfill_pending?'backfilling':'ok',
     stale:now-Date.parse(state.latest.timestamp)>20*60000};
 }

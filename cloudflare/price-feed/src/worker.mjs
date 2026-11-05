@@ -1,4 +1,5 @@
 import {collect,createRpc,DEFAULT_RPC,publicSnapshot,RpcError,VerificationError} from './collector.mjs';
+import {loadForecastOrigin,trimToForecast} from './forecast-origin.mjs';
 
 export class PriceCollector {
   constructor(ctx,env){
@@ -21,12 +22,17 @@ export class PriceCollector {
   }
   async run(){
     try{
+      const forecast=await loadForecastOrigin(this.snapshot,{url:this.env.FORECAST_URL});
+      const historyHours=Number(this.env.HISTORY_HOURS||48);
+      this.snapshot={...trimToForecast(this.snapshot,forecast.origin,historyHours),_forecast:forecast};
       this.snapshot=await collect(this.snapshot,{rpc:createRpc(this.env.RPC_URL||DEFAULT_RPC,fetch,Number(this.env.RPC_BATCH_SIZE||3)),
-        historyHours:Number(this.env.HISTORY_HOURS||48),confirmations:Number(this.env.CONFIRMATIONS||12),chunk:Number(this.env.BLOCK_CHUNK||400)});
+        historyHours,forecastOrigin:forecast.origin,confirmations:Number(this.env.CONFIRMATIONS||12),chunk:Number(this.env.BLOCK_CHUNK||400)});
+      this.snapshot._forecast=forecast;
       await this.ctx.storage.put('snapshot',this.snapshot);
       if(this.snapshot.backfill_pending)await this.ctx.storage.setAlarm(Date.now()+5000);
     }catch(error){
-      this.snapshot={...this.snapshot,last_attempt_at:new Date().toISOString(),last_error:(error instanceof RpcError||error instanceof VerificationError)?error.message:'Pool data verification failed'};
+      const hours=Number(this.env.HISTORY_HOURS||48);
+      this.snapshot={...trimToForecast(this.snapshot,this.snapshot?.forecast_origin,Number.isInteger(hours)&&hours>=1&&hours<=72?hours:48),last_attempt_at:new Date().toISOString(),last_error:(error instanceof RpcError||error instanceof VerificationError)?error.message:'Pool data verification failed'};
       await this.ctx.storage.put('snapshot',this.snapshot);
       // Back off for one collection interval rather than hammering a public
       // provider during an outage or rate limit.
@@ -53,6 +59,8 @@ export default {
     const data=await result.json();
     const body=path==='/health'?{status:data.status,stale:data.stale,collected_at:data.collected_at,
       price_timestamp:data.latest?.timestamp,history_complete_through:data.history_complete_through,
+      forecast_origin:data.forecast_origin,history_start:data.history_start,retention_basis:data.retention_basis,
+      stored_points:data.points?.length,
       last_attempt_at:data.last_attempt_at,last_error:data.last_error}:data;
     const response=Response.json(body,{status:result.status,headers:{...headers,'Cache-Control':result.ok?'public, max-age=20':'no-store'}});
     if(result.ok&&path==='/v1/prices')ctx.waitUntil(caches.default.put(key,response.clone()));

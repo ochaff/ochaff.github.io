@@ -21,8 +21,8 @@ function drawProbabilityHistory(expanded=false){
  }]},options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,events:[],layout:{padding:{right:6,top:5}},
    plugins:{legend:{display:false},tooltip:{enabled:false}},
    scales:{x:{type:'linear',min:start,max:end,border:{display:false},grid:{display:false},
-     ticks:{color:MUTED,maxTicksLimit:expanded?7:3,font:{size:expanded?10:8},callback:v=>new Date(v).toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'})}},
-     y:{min:0,max:1,border:{display:false},grid:{color:'#edf2f6'},ticks:{stepSize:expanded?.1:.5,color:MUTED,font:{size:expanded?10:8},callback:v=>(v*100)+'%'}}}}});
+     ticks:{color:MUTED,maxTicksLimit:expanded?7:3,font:{size:expanded?12:10},callback:v=>new Date(v).toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'UTC'})}},
+     y:{min:0,max:1,border:{display:false},grid:{color:'#edf2f6'},ticks:{stepSize:expanded?.1:.5,color:MUTED,font:{size:expanded?12:10},callback:v=>(v*100)+'%'}}}}});
  if(expanded)probabilityHistoryDetailChart=chart;else probabilityHistoryChart=chart;
 }
 

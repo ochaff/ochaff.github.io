@@ -1,4 +1,4 @@
-.quote #pool-price-status{display:block;margin-top:4px;font-size:9px;line-height:1.4;color:var(--muted);font-weight:400;max-width:280px;white-space:normal}
+.quote #pool-price-status{display:block;margin-top:4px;font-size:11px;line-height:1.4;color:var(--muted);font-weight:400;max-width:280px;white-space:normal}
 .quote #pool-price-status.is-stale{color:#a26e10}
 .key i.intraday{background:#0a7d96}
-@media(max-width:700px){.quote #pool-price-status{font-size:7px;max-width:130px;margin-top:3px}}
+@media(max-width:700px){.quote #pool-price-status{font-size:10px;max-width:130px;margin-top:3px}}

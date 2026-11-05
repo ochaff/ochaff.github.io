@@ -51,6 +51,30 @@ test('incremental collection verifies log history against slot0 and is idempoten
   assert.equal(publicSnapshot(next,(base+360+21*60)*1000).stale,true);
 });
 
+test('forecast origin prunes retained history without resetting the incremental cursor',async()=>{
+  const {rpc,previous,base}=fixture(),origin=new Date((base+180)*1000).toISOString();
+  previous.points=[{timestamp:new Date((base+60)*1000).toISOString(),price_ratio:1,depeg_bps:0}];
+  const logs=[],call=rpc.call;
+  rpc.call=async(method,params)=>{if(method==='eth_getLogs')logs.push(params[0]);return call(method,params);};
+  const next=await collect(previous,{rpc,forecastOrigin:origin,now:(base+1000)*1000,confirmations:0});
+  assert.equal(next.forecast_origin,origin);assert.equal(next.retention_basis,'forecast_origin');
+  assert.equal(next.history_start,origin);assert(next.points.length>0);
+  assert(next.points.every(p=>Date.parse(p.timestamp)>=Date.parse(origin)));
+  assert.equal(logs[0].fromBlock,hex(11)); // No daily replay of already collected blocks.
+});
+
+test('cold starts backfill only from the forecast origin, including confirmed-head lag',async()=>{
+  const {rpc,base}=fixture();
+  for(const offset of [180,370]){
+    const origin=new Date((base+offset)*1000).toISOString(),queries=[],call=rpc.call;
+    const cold={...rpc,call:async(method,params)=>{if(method==='eth_getLogs')queries.push(params[0]);return call(method,params);}};
+    const next=await collect(null,{rpc:cold,forecastOrigin:origin,now:(base+1000)*1000,confirmations:0});
+    assert(Number(BigInt(queries[0].fromBlock))>=15);
+    assert(next.points.every(p=>Date.parse(p.timestamp)>=Date.parse(origin)));
+    assert.equal(next.backfill_pending,false);
+  }
+});
+
 test('an initial provider failure can recover without treating diagnostics as a saved pool',async()=>{
   const {rpc,base}=fixture();
   const next=await collect({last_error:'RPC unavailable',last_attempt_at:new Date().toISOString()},
