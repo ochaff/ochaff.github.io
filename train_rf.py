@@ -251,6 +251,13 @@ def train_and_explain(df, alpha, *, ale_bins=30, ale_bootstraps=300, ale_block_h
     return {
         "probability": prob,
         "hourly_prediction_history": hourly_history,
+        "backtest": {
+            "basis": "held_out_test_windows", "samples": len(y_test),
+            "auc": auc, "brier_score": brier,
+            "test_start": str(X_test.index[0]), "test_end": str(X_test.index[-1]),
+            "records": [{"timestamp": str(t), "probability": float(p), "outcome": int(y)}
+                        for t, p, y in zip(X_test.index, test_proba, y_test)],
+        },
         "auc": auc,
         "brier_score": brier,
         "calibrated": calibrated,

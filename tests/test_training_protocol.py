@@ -25,6 +25,9 @@ def test_monitoring_export_and_test_data_do_not_change_the_fitted_forest(monkeyp
     assert 'early_warning' not in first
     assert first['monitoring']['mode'] == 'probability_risk_bands'
     assert set(first['monitoring']['split_periods']) == {'train', 'calibration', 'test'}
+    assert first['backtest']['basis'] == 'held_out_test_windows'
+    assert len(first['backtest']['records']) == first['backtest']['samples']
+    assert all(pd.Timestamp(r['timestamp']) > pd.Timestamp(first['monitoring']['split_periods']['calibration']['end']) for r in first['backtest']['records'])
     assert first['monitoring']['risk_level'] in {'Low', 'Elevated', 'High', 'Critical'}
     assert 'depeg_bps_lag1h' not in [r['feature'] for r in first['feature_catalog']]
     assert first['feature_catalog'][0]['histogram']['reference_count'] > 0

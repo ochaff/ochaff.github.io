@@ -27,7 +27,7 @@ const LivePoolPrice=(()=>{
  function quote(){
    const note=document.getElementById('pool-price-status');if(!note)return;
    note.title='Pool feed updates every 15 minutes, using prices 12 confirmed blocks behind the chain head. History is sampled each minute.';
-   const hasNewer=feed&&Date.parse(feed.latest.timestamp)>Date.parse(result.timestamp);
+   const hasNewer=feed&&Date.parse(feed.latest.timestamp)>Date.parse(result.price_timestamp||result.timestamp);
    if(hasNewer){
      const latest=feed.latest,stale=Date.now()-Date.parse(latest.timestamp)>20*60000;
      document.getElementById('pool-price-value').textContent=number(latest.price_ratio,6);
@@ -35,7 +35,7 @@ const LivePoolPrice=(()=>{
      note.textContent=(unavailable?'Feed unavailable · last pool price ':stale?'Stale pool price · ':'Pool price · ')+shortTime(latest.timestamp)+' UTC'+(feed.backfill_pending?' · backfilling history':'');
      note.classList.toggle('is-stale',stale||unavailable);
    }else{
-     note.textContent='Model snapshot · '+shortTime(result.timestamp)+' UTC'+(pending?' · connecting pool feed':unavailable?' · pool feed unavailable':'');
+     note.textContent='Hourly price · '+shortTime(result.price_timestamp||result.timestamp)+' UTC'+(pending?' · connecting pool feed':unavailable?' · pool feed unavailable':'');
      note.classList.remove('is-stale');
    }
  }

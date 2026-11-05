@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import requests
 from model_config import DATASET_ALPHA, require_dataset_alpha
+from angel_explanations import distribution_payload, test_diagnostics_payload, rolling_replay
 
 REPOSITORY = 'QuantLet/onchain-insights'
 MANIFEST = 'ammonitor-angel.json'
@@ -91,6 +92,10 @@ def download_bundle(cache_dir, repository=REPOSITORY, tag=None):
     manifest_path = download(MANIFEST)
     manifest = json.loads(manifest_path.read_text())
     validate_manifest(manifest)
+    if manifest.get('test_diagnostics_asset'):
+        if len(manifest.get('test_diagnostics_sha256', '')) != 64:
+            raise ValueError('Test diagnostics require a SHA256 hash')
+        manifest['_test_diagnostics_path'] = str(download(manifest['test_diagnostics_asset'], manifest['test_diagnostics_sha256']))
     checkpoint = download(manifest['checkpoint_asset'], manifest['checkpoint_sha256'])
     preprocessing = download(manifest['preprocessing_asset'], manifest['preprocessing_sha256'])
     provenance = {'repository': repository, 'tag': release['tag_name'], 'url': release['html_url'],
@@ -214,6 +219,7 @@ def build_features(manifest, model, state, cache_dir):
     raw_prices = builder.add_forecasting_target(False)
     if not pd.notna(raw_prices.reindex([features.index[-1]]).iloc[0]):
         raise ValueError('Latest forecast origin has no observed pool price')
+    features.attrs['observed_prices'] = raw_prices
     return features
 
 
@@ -319,6 +325,7 @@ def predict(manifest, model, features, provenance, validation):
     a,b = tails['USDC']['0.01']['var_bps'], tails['USDT']['0.01']['var_bps']
     result = {'status':'ok', 'model':'ANGEL', 'forecast_method':'neural_quantile_spline_with_GPD_tails',
               'alpha':float(manifest['alpha']), 'variable_selection':selection,
+              'distribution_explorer':distribution_payload(head, raw),
               'timestamp':str(origin), 'horizon_hours':24, 'sequence_length':len(values),
               'input_features':len(manifest['input_columns']), 'quote':'USDT per USDC',
               'unit':'quote_deviation_bps', 'risk_basis':'adverse_deviation_from_peg_at_hour_24',
@@ -334,13 +341,18 @@ def predict(manifest, model, features, provenance, validation):
     return result
 
 
-def forecast(cache_dir='.angel-cache', repository=REPOSITORY, tag=None):
+def forecast(cache_dir='.angel-cache', repository=REPOSITORY, tag=None, test_diagnostics=None):
     manifest, checkpoint, preprocessing, provenance = download_bundle(cache_dir, repository, tag)
     with np.load(preprocessing, allow_pickle=False) as npz:
         state = {key: npz[key] for key in npz.files}
     model, validation = load_model(manifest, checkpoint, state)
     features = build_features(manifest, model, state, cache_dir)
-    return predict(manifest, model, features, provenance, validation)
+    result = predict(manifest, model, features, provenance, validation)
+    result['replay'] = rolling_replay(model, features, manifest, observed_prices=features.attrs['observed_prices'])
+    diagnostics = test_diagnostics or manifest.get('_test_diagnostics_path')
+    if diagnostics:
+        result['test_diagnostics'] = test_diagnostics_payload(diagnostics, manifest)
+    return result
 
 
 def main():
@@ -348,9 +360,10 @@ def main():
     parser.add_argument('--cache-dir', default='.angel-cache')
     parser.add_argument('--repository', default=REPOSITORY)
     parser.add_argument('--tag', help='Optional pinned release for reproducibility; default selects newest published bundle')
+    parser.add_argument('--test-diagnostics', help='Pickle-free held-out NPZ for this checkpoint; overrides the release diagnostics asset')
     parser.add_argument('--output', default='dashboard_data/angel_forecast.json')
     args = parser.parse_args()
-    result = forecast(args.cache_dir, args.repository, args.tag)
+    result = forecast(args.cache_dir, args.repository, args.tag, args.test_diagnostics)
     path = Path(args.output)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix('.tmp')
