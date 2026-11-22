@@ -430,6 +430,19 @@
       "model_reference": "87a1a48aad1f3f47215f97ef1f6414497b9b396c",
       "workflow_run_id": "44855992961",
       "id": "f4cde1e7f3af6016e7836353"
+    },
+    {
+      "timestamp": "2026-11-22T01:00:00+00:00",
+      "probability": 0.06124238217778804,
+      "risk_level": "Low",
+      "protocol": "monitoring_any_breach_v2",
+      "alpha": 0.1,
+      "calibrated": true,
+      "source": "workflow",
+      "recorded_at": "2026-11-22T02:29:01.421470+00:00",
+      "model_reference": "c11f31e72ebbdf90f1530574514d29b4453f4633",
+      "workflow_run_id": "44976057646",
+      "id": "25de6edcbc0f70fc14af1aca"
     }
   ]
 }
